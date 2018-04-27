@@ -2,21 +2,24 @@
 {-# LANGUAGE RecordWildCards            #-}
 module AuthSpec where
 
-import qualified Data.Map            as Map
-import qualified Data.UUID.Types     as UUID
+import           Control.Monad.Logger
+import           Data.IORef           (newIORef)
+import qualified Data.Map             as Map
+import qualified Data.UUID.Types      as UUID
 import           Lib.App
 import           Lib.Effects.Session
 import           Lib.Effects.User
 import           Lib.Server.Auth
 import           Lib.Util.JWT
 import           Protolude
+import qualified System.Metrics       as Metrics
 import           System.Random
 import           Test.Tasty
 import           Test.Tasty.Hspec
 
 newtype MockApp a = MockApp {
-  unMockApp :: ReaderT AppEnv (ExceptT AppError IO) a
-} deriving (Functor, Applicative, Monad, MonadError AppError, MonadReader AppEnv, MonadIO)
+  unMockApp :: NoLoggingT (ReaderT AppEnv (ExceptT AppError IO)) a
+} deriving (Functor, Applicative, Monad, MonadError AppError, MonadReader AppEnv, MonadIO, MonadLogger)
 
 instance MonadSession MockApp
 
@@ -24,7 +27,9 @@ runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
   sessions <- newMVar Map.empty
   let jwtSecret = "kjnlkjn"
-  runExceptT $ runReaderT (unMockApp action) AppEnv{..}
+  timings <- newIORef Map.empty
+  ekgStore <- Metrics.newStore
+  runExceptT $ runReaderT (runNoLoggingT $ unMockApp action) AppEnv{..}
 
 instance MonadUser MockApp where
   getUserByEmail "test@test.com" = return . Just $ User {

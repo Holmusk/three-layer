@@ -35,6 +35,9 @@ dependencies:
 - aeson
 - time
 - warp
+- monad-logger
+- ekg
+- ekg-core
 
 default-extensions:
 - OverloadedStrings

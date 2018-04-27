@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns     #-}
 {-# LANGUAGE FlexibleContexts #-}
 module Lib.Util.App(
   maybeWithM,
@@ -7,14 +8,20 @@ module Lib.Util.App(
   queryPG_,
   executePG,
   executePG_,
-  executeManyPG
+  executeManyPG,
+  timedAction
 ) where
 
-import qualified Data.Pool                  as Pool
-import qualified Database.PostgreSQL.Simple as PG
+import           Data.IORef                  (modifyIORef', readIORef)
+import qualified Data.Map                    as Map
+import qualified Data.Pool                   as Pool
+import qualified Database.PostgreSQL.Simple  as PG
 import           Lib.App.Env
 import           Lib.App.Error
 import           Protolude
+import           System.CPUTime              (getCPUTime)
+import qualified System.Metrics              as Metrics
+import qualified System.Metrics.Distribution as Distribution
 
 -- Extract the value from a maybe, throwing the given 'AppError' if
 -- the value does not exist
@@ -74,3 +81,28 @@ executeManyPG :: (MonadReader AppEnv m, MonadIO m, PG.ToRow q) =>
 executeManyPG query args = do
   pool <- asks dbPool
   liftIO $ Pool.withResource pool (\conn -> PG.executeMany conn query args)
+
+-- Measure the time taken to perform the given action and store it
+-- in the 'timings' distribution with the given label
+timedAction :: (MonadReader AppEnv m, MonadIO m) => Text -> m a -> m a
+timedAction label action = do
+  start <- liftIO getCPUTime
+  !result <- action
+  end <- liftIO getCPUTime
+  let !timeTaken = fromIntegral (end - start) * 1e-12
+  dist <- getOrCreateDistribution label
+  liftIO $ Distribution.add dist timeTaken
+  return result
+  where
+  getOrCreateDistribution :: (MonadIO m, MonadReader AppEnv m) => Text -> m Distribution.Distribution
+  getOrCreateDistribution label = do
+    timingsRef <- asks timings
+    store <- asks ekgStore
+    liftIO $ do
+      distMap <- readIORef timingsRef
+      case Map.lookup label distMap of
+        Just dist -> return dist
+        Nothing -> do
+          newDist <- Metrics.createDistribution label store
+          modifyIORef' timingsRef (Map.insert label newDist)
+          return newDist

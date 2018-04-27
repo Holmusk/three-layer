@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 20d3724a7f6d2bd3ebfb4603f5d9e53b009087c9053aae2d16194ee9fab01481
+-- hash: 88b1e4b9044c2c0c9c3d86ec28f298ec2733c783406c7c50828366e4e15ed567
 
 name:           three-layer
 version:        0.1.0.0
@@ -34,7 +34,10 @@ library
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , ekg
+    , ekg-core
     , jwt
+    , monad-logger
     , mtl
     , postgresql-simple
     , protolude >=0.1 && <0.2
@@ -72,7 +75,10 @@ executable three-layer-exe
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , ekg
+    , ekg-core
     , jwt
+    , monad-logger
     , mtl
     , postgresql-simple
     , protolude >=0.1 && <0.2
@@ -100,7 +106,10 @@ test-suite three-layer-test
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , ekg
+    , ekg-core
     , jwt
+    , monad-logger
     , mtl
     , postgresql-simple
     , protolude >=0.1 && <0.2

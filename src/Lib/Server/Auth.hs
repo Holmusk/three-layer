@@ -2,11 +2,14 @@
 {-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE TemplateHaskell  #-}
 {-# LANGUAGE TypeOperators    #-}
 module Lib.Server.Auth where
 
-import           Data.Aeson          (FromJSON, ToJSON)
-import           Lib.App             (App, AppEnv, AppError (..), Session (..))
+import           Control.Monad.Logger
+import           Data.Aeson           (FromJSON, ToJSON)
+import           Lib.App              (App, AppEnv (..), AppError (..),
+                                       Session (..))
 import           Lib.Effects.Session
 import           Lib.Effects.User
 import           Lib.Util.App
@@ -41,27 +44,35 @@ type AuthAPI =
 authServer :: ServerT AuthAPI App
 authServer = loginHandler :<|> isLoggedInHandler :<|> logoutHandler
 
-loginHandler :: (MonadUser m, MonadSession m) => LoginRequest -> m LoginResponse
-loginHandler LoginRequest{..} = do
-  User{..} <- maybeM $ getUserByEmail loginRequestEmail
+loginHandler :: (MonadUser m, MonadSession m, MonadLogger m) => LoginRequest -> m LoginResponse
+loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
+  mUser <- getUserByEmail loginRequestEmail
+  when (isNothing mUser) $ do
+    $(logDebug) $ "Given email address " <> loginRequestEmail <> " not found"
+    throwError NotFound
+  let (Just User{..}) = mUser
   let isPasswordCorrect = verifyPassword loginRequestPassword userHash
-  unless isPasswordCorrect $ throwError (NotAllowed "Invalid Password")
+  unless isPasswordCorrect $ do
+    $(logDebug) $ "Incorrect password for user " <> loginRequestEmail
+    throwError (NotAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
   token <- mkJWTToken (60 * 60 * 24) (JWTPayload userId)
   return $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
-isLoggedInHandler token = do
+isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
   JWTPayload{..} <- maybeWithM (NotAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
   Session{..} <- maybeWithM (NotAllowed "Expired Session") $ getSession jwtUserId
   unless isLoggedIn $ throwError (NotAllowed "Revoked Session")
   return NoContent
 
-logoutHandler :: (MonadSession m) => Text -> m NoContent
-logoutHandler token = do
+logoutHandler :: (MonadSession m, MonadLogger m) => Text -> m NoContent
+logoutHandler token = timedAction "logoutHandler" $ do
   mPayload <- decodeAndVerifyJWTToken token
   case mPayload of
     Just JWTPayload{..} -> do
       deleteSession jwtUserId
       return NoContent
-    Nothing -> return NoContent
+    Nothing -> do
+      $(logDebug) $ token <> " was used to logout when it was invalid"
+      return NoContent

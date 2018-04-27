@@ -15,7 +15,7 @@ import           Protolude
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)
-  getUserByEmail email = head <$> queryPG [sql|
+  getUserByEmail email = timedAction "getUserByEmail" $ head <$> queryPG [sql|
     SELECT
       *
     FROM

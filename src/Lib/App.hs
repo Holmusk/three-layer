@@ -6,6 +6,7 @@ module Lib.App(
   runAppAsHandler,
 ) where
 
+import           Control.Monad.Logger
 import           Lib.App.Env
 import           Lib.App.Error
 import           Lib.Effects.Session
@@ -14,15 +15,15 @@ import           Protolude
 import           Servant.Server
 
 newtype App a = App {
-    unApp :: ReaderT AppEnv (ExceptT AppError IO) a
-} deriving (Monad, Functor, Applicative, MonadReader AppEnv, MonadError AppError, MonadIO)
+    unApp :: LoggingT(ReaderT AppEnv (ExceptT AppError IO)) a
+} deriving (Monad, Functor, Applicative, MonadReader AppEnv, MonadError AppError, MonadIO, MonadLogger)
 
 instance MonadSession App
 instance MonadUser App
 
 runAppAsHandler :: AppEnv -> App a -> Handler a
 runAppAsHandler env action = do
-  res <- liftIO $ runExceptT $ runReaderT (unApp action) env
+  res <- liftIO $ runExceptT $ runReaderT (runStdoutLoggingT $ unApp action) env
   case res of
     Left (Invalid text)     -> throwError $ err400 { errBody = toSL text }
     Left NotFound           -> throwError err404
