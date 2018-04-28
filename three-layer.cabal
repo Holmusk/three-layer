@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 88b1e4b9044c2c0c9c3d86ec28f298ec2733c783406c7c50828366e4e15ed567
+-- hash: 709c587110664ad81378b105ac32a602de17acaddf2f0eaa8aba957d11b307d9
 
 name:           three-layer
 version:        0.1.0.0
@@ -14,16 +14,23 @@ maintainer:     example@example.com
 copyright:      2018 Author name here
 license:        BSD3
 license-file:   LICENSE
-build-type:     Simple
+build-type:     Custom
 cabal-version:  >= 1.10
 
 extra-source-files:
     ChangeLog.md
+    proto/foo.proto
     README.md
 
 source-repository head
   type: git
   location: https://github.com/githubuser/three-layer
+
+custom-setup
+  setup-depends:
+      Cabal
+    , base
+    , proto-lens-protoc
 
 library
   hs-source-dirs:
@@ -34,16 +41,22 @@ library
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , data-default
     , ekg
     , ekg-core
     , jwt
+    , lens-labels
+    , microlens
     , monad-logger
     , mtl
     , postgresql-simple
+    , proto-lens
+    , proto-lens-protoc
     , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
+    , servant-proto-lens
     , servant-server
     , time
     , uuid-types
@@ -57,11 +70,12 @@ library
       Lib.Effects.User
       Lib.Server
       Lib.Server.Auth
+      Lib.Server.Search
       Lib.Util.App
       Lib.Util.JWT
       Lib.Util.Password
   other-modules:
-      Paths_three_layer
+      Proto.Foo
   default-language: Haskell2010
 
 executable three-layer-exe
@@ -75,23 +89,29 @@ executable three-layer-exe
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , data-default
     , ekg
     , ekg-core
     , jwt
+    , lens-labels
+    , microlens
     , monad-logger
     , mtl
     , postgresql-simple
+    , proto-lens
+    , proto-lens-protoc
     , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
+    , servant-proto-lens
     , servant-server
     , three-layer
     , time
     , uuid-types
     , warp
   other-modules:
-      Paths_three_layer
+      Proto.Foo
   default-language: Haskell2010
 
 test-suite three-layer-test
@@ -106,16 +126,22 @@ test-suite three-layer-test
     , base >=4.7 && <5
     , bcrypt
     , containers
+    , data-default
     , ekg
     , ekg-core
     , jwt
+    , lens-labels
+    , microlens
     , monad-logger
     , mtl
     , postgresql-simple
+    , proto-lens
+    , proto-lens-protoc
     , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
+    , servant-proto-lens
     , servant-server
     , tasty
     , tasty-discover

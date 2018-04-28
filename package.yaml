@@ -9,6 +9,13 @@ copyright:           "2018 Author name here"
 extra-source-files:
 - README.md
 - ChangeLog.md
+- proto/foo.proto
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-protoc
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -38,6 +45,12 @@ dependencies:
 - monad-logger
 - ekg
 - ekg-core
+- data-default
+- microlens
+- proto-lens
+- lens-labels
+- proto-lens-protoc
+- servant-proto-lens
 
 default-extensions:
 - OverloadedStrings
@@ -49,6 +62,8 @@ default-extensions:
 
 library:
   source-dirs: src
+  other-modules:
+    - Proto.Foo
 
 executables:
   three-layer-exe:
@@ -60,6 +75,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - three-layer
+    other-modules:
+      - Proto.Foo
 
 tests:
   three-layer-test:
