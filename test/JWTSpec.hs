@@ -1,27 +1,21 @@
 module JWTSpec where
 
-import qualified Data.UUID.Types       as UUID
+import qualified Data.UUID.Types     as UUID
+import           Hedgehog            (Property, forAll, property, (===))
+import qualified Hedgehog.Gen        as Gen
+import qualified Hedgehog.Range      as Range
 import           Lib.Util.JWT
 import           System.Random
 import           Test.Tasty
-import           Test.Tasty.QuickCheck
+import           Test.Tasty.Hedgehog
 
-uuidFromWords :: (Word32, Word32, Word32, Word32) -> UUID.UUID
-uuidFromWords (a,b,c,d) = UUID.fromWords a b c d
-
-instance Arbitrary UUID.UUID where
-  arbitrary = uuidFromWords <$> arbitrary
-  shrink = map uuidFromWords . shrink . UUID.toWords
-
-instance Arbitrary JWTPayload where
-  arbitrary = do
-    jwtUserId <- arbitrary
-    return JWTPayload{..}
-
-prop_jwtMapEncodeAndDecode :: JWTPayload -> Bool
-prop_jwtMapEncodeAndDecode jwtPayload =
-  let encoded = jwtPayloadToMap jwtPayload
-      decoded = jwtPayloadFromMap encoded
-      didDecode = isJust decoded
-      isStillTheSame = fromMaybe jwtPayload decoded == jwtPayload
-  in didDecode && isStillTheSame
+test_jwtMapEncodeAndDecode :: [TestTree]
+test_jwtMapEncodeAndDecode = return $ testProperty "jwtMapEncodeAndDecode" $
+  property $ do
+    randomId <- forAll genRandId
+    let randomJwtPayload = JWTPayload { jwtUserId = randomId }
+    let encoded = jwtPayloadToMap randomJwtPayload
+    let decoded = jwtPayloadFromMap encoded
+    decoded === Just randomJwtPayload
+ where
+   genRandId = fromMaybe UUID.nil . UUID.fromString <$> Gen.string (Range.linear 0 100) Gen.alphaNum

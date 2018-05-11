@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7c01ee96586e8c3be29f435fbe32601ae65920b90df6b08fb938fd993b8fc7c4
+-- hash: b91ccf1a99982147335ed711f9f045fbc3018fc6962cab1ed74c21de183f0db8
 
 name:           three-layer
 version:        0.1.0.0
@@ -111,6 +111,7 @@ test-suite three-layer-test
     , containers
     , ekg
     , ekg-core
+    , hedgehog
     , jwt
     , monad-logger
     , mtl
@@ -121,8 +122,8 @@ test-suite three-layer-test
     , servant-server
     , tasty
     , tasty-discover
+    , tasty-hedgehog
     , tasty-hspec
-    , tasty-quickcheck
     , three-layer
     , time
     , universum

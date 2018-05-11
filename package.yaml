@@ -70,8 +70,9 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - hedgehog
     - three-layer
     - tasty
     - tasty-discover
-    - tasty-quickcheck
     - tasty-hspec
+    - tasty-hedgehog
