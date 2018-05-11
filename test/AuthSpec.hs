@@ -1,9 +1,7 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE RecordWildCards            #-}
 module AuthSpec where
 
+import           Control.Monad.Except (MonadError)
 import           Control.Monad.Logger
-import           Data.IORef           (newIORef)
 import qualified Data.Map             as Map
 import qualified Data.UUID.Types      as UUID
 import           Lib.App
@@ -11,7 +9,6 @@ import           Lib.Effects.Session
 import           Lib.Effects.User
 import           Lib.Server.Auth
 import           Lib.Util.JWT
-import           Protolude
 import qualified System.Metrics       as Metrics
 import           System.Random
 import           Test.Tasty
@@ -65,7 +62,7 @@ spec_isLoggedInSpec = describe "isLoggedIn handler" $ do
     resp `shouldSatisfy` isRight
 
 spec_logoutSpec :: Spec
-spec_logoutSpec = describe "logout handler" $ do
+spec_logoutSpec = describe "logout handler" $
   it "should be able to log out a logged in user" $ do
     resp <- runMockApp $ do
       LoginResponse{..} <- loginHandler (LoginRequest "test@test.com" "password")

@@ -1,6 +1,5 @@
-
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RecordWildCards  #-}
+
 module Lib.Util.JWT where
 
 import           Data.Aeson            (Value (..))
@@ -10,16 +9,13 @@ import           Data.Time.Clock.POSIX (getPOSIXTime)
 import           Data.UUID.Types       (UUID)
 import qualified Data.UUID.Types       as UUID
 import           Lib.App.Env           (AppEnv (..))
-import           Protolude
 import           System.Random         (newStdGen, randomRs)
 import qualified Web.JWT               as JWT
 
 -- Make a random string comprised of a - z of
 -- a given length
 mkRandomString :: (MonadIO m) => Int -> m Text
-mkRandomString len = do
-  gen <- liftIO newStdGen
-  return $ toS $ take len $ randomRs ('a', 'z') gen
+mkRandomString len = toText . take len . randomRs ('a', 'z') <$> liftIO newStdGen
 
 newtype JWTPayload = JWTPayload {
   jwtUserId :: UUID
@@ -52,12 +48,10 @@ decodeAndVerifyJWTToken :: (MonadIO m, MonadReader AppEnv m) => Text -> m (Maybe
 decodeAndVerifyJWTToken token = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- JWT.numericDate <$> liftIO getPOSIXTime
-  case JWT.claims <$> JWT.decodeAndVerifySignature secret token of
-    Just claimsSet ->
-      case (,) <$> timeNow <*> JWT.exp claimsSet of
-        Just (now, expiryTimeStatedInToken) ->
-          if expiryTimeStatedInToken < now then
-            return Nothing
-          else
-            return $ jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet
-    Nothing -> return Nothing
+  pure $ JWT.claims <$> JWT.decodeAndVerifySignature secret token >>= \claimsSet ->
+    case (,) <$> timeNow <*> JWT.exp claimsSet of
+      Just (now, expiryTimeStatedInToken) ->
+        if expiryTimeStatedInToken < now then
+          Nothing
+        else
+          jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet

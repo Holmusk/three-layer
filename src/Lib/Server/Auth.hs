@@ -1,12 +1,13 @@
 {-# LANGUAGE DataKinds        #-}
 {-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TemplateHaskell  #-}
 {-# LANGUAGE TypeOperators    #-}
+
 module Lib.Server.Auth where
 
 import           Control.Monad.Logger
+import           Control.Monad.Except (MonadError, throwError)
 import           Data.Aeson           (FromJSON, ToJSON)
 import           Lib.App              (App, AppEnv (..), AppError (..),
                                        Session (..))
@@ -15,7 +16,6 @@ import           Lib.Effects.User
 import           Lib.Util.App
 import           Lib.Util.JWT
 import           Lib.Util.Password
-import           Protolude
 import           Servant.API
 import           Servant.Server
 

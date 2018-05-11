@@ -1,11 +1,9 @@
 module Lib.App.Env where
 
-import           Data.IORef                  (IORef)
 import           Data.Map                    (Map)
 import           Data.Pool                   (Pool)
 import           Data.UUID.Types             (UUID)
 import           Database.PostgreSQL.Simple  (Connection)
-import           Protolude
 import           System.Metrics              (Store)
 import           System.Metrics.Distribution (Distribution)
 

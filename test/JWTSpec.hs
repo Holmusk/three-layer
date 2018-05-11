@@ -1,9 +1,7 @@
-{-# LANGUAGE RecordWildCards #-}
 module JWTSpec where
 
 import qualified Data.UUID.Types       as UUID
 import           Lib.Util.JWT
-import           Protolude
 import           System.Random
 import           Test.Tasty
 import           Test.Tasty.QuickCheck

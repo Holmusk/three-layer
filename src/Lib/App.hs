@@ -6,12 +6,12 @@ module Lib.App(
   runAppAsHandler,
 ) where
 
+import           Control.Monad.Except (MonadError, throwError)
 import           Control.Monad.Logger
 import           Lib.App.Env
 import           Lib.App.Error
 import           Lib.Effects.Session
 import           Lib.Effects.User
-import           Protolude
 import           Servant.Server
 
 newtype App a = App {
@@ -25,8 +25,8 @@ runAppAsHandler :: AppEnv -> App a -> Handler a
 runAppAsHandler env action = do
   res <- liftIO $ runExceptT $ runReaderT (runStdoutLoggingT $ unApp action) env
   case res of
-    Left (Invalid text)     -> throwError $ err400 { errBody = toSL text }
+    Left (Invalid text)     -> throwError $ err400 { errBody = textToLBS text }
     Left NotFound           -> throwError err404
-    Left (NotAllowed text)  -> throwError $ err401 { errBody = toSL text }
-    Left (ServerError text) -> throwError $ err500 { errBody = toSL text }
+    Left (NotAllowed text)  -> throwError $ err401 { errBody = textToLBS text }
+    Left (ServerError text) -> throwError $ err500 { errBody = textToLBS text }
     Right a                 -> return a
