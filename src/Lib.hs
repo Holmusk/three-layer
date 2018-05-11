@@ -12,7 +12,7 @@ import qualified System.Metrics           as Metrics
 
 mkAppEnv :: IO AppEnv
 mkAppEnv = do
-  let dbPool = undefined
+  let dbPool = error "Not implemented yet"
   sessions <- newMVar Map.empty
   jwtSecret <- mkRandomString 10
   timings <- newIORef Map.empty

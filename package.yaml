@@ -45,6 +45,7 @@ default-extensions:
 - GeneralizedNewtypeDeriving
 - FlexibleContexts
 - RecordWildCards
+- TypeApplications
 
 library:
   source-dirs: src
