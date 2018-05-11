@@ -6,10 +6,10 @@ module Lib.Util.Password(
   verifyPassword
 ) where
 
-import qualified Crypto.BCrypt as BC
+import           Control.Monad.Except (MonadError)
+import qualified Crypto.BCrypt        as BC
 import           Lib.App.Error
-import           Lib.Util.App  (maybeWithM)
-import           Protolude
+import           Lib.Util.App         (maybeWithM)
 
 type PasswordHash = Text
 type PasswordPlainText = Text
@@ -19,9 +19,9 @@ type PasswordPlainText = Text
 mkPasswordHash :: (MonadError AppError m, MonadIO m) => PasswordPlainText -> m PasswordHash
 mkPasswordHash password = maybeWithM errorMessage $ liftIO hashText
   where
-    hash = BC.hashPasswordUsingPolicy BC.slowerBcryptHashingPolicy $ toS password
-    hashText = (toS <$>) <$> hash
+    hash = BC.hashPasswordUsingPolicy BC.slowerBcryptHashingPolicy $ encodeUtf8 password
+    hashText = decodeUtf8 <<$>> hash
     errorMessage = ServerError "Error generating password hash"
 
 verifyPassword :: PasswordPlainText -> PasswordHash -> Bool
-verifyPassword password hash = BC.validatePassword (toS hash) (toS password)
+verifyPassword password hash = BC.validatePassword (encodeUtf8 hash) (encodeUtf8 password)

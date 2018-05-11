@@ -20,8 +20,8 @@ extra-source-files:
 description:         Please see the README on Github at <https://github.com/githubuser/three-layer#readme>
 
 dependencies:
-- base >= 4.7 && < 5
-- protolude >= 0.1 && < 0.2
+- base-noprelude >= 4.7 && < 5
+- bytestring
 - mtl
 - postgresql-simple
 - resource-pool
@@ -38,12 +38,11 @@ dependencies:
 - monad-logger
 - ekg
 - ekg-core
+- universum
 
 default-extensions:
 - OverloadedStrings
-- NoImplicitPrelude
 - GeneralizedNewtypeDeriving
-- RecordWildCards
 - FlexibleContexts
 - RecordWildCards
 

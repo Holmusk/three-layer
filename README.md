@@ -3,7 +3,7 @@
 This package is aimed at being a batteries included starting template for writing web servers using `servant`. It follows the approach detailed [here](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
 
 Things that are included:
-* Custom prelude(uses `protolude`)
+* Custom prelude(uses [`universum`](https://github.com/serokell/universum))
 * Logging integration(uses `monad-logger`)
 * Database helper functions(uses `postgresql-simple`).
 * Monitoring time taken for your `App` actions(uses `ekg`)
@@ -41,7 +41,6 @@ import           Database.PostgreSQL.Simple.SqlQQ
 import           Lib.App.Env
 import           Lib.App.Error
 import           Lib.Util.App
-import           Protolude
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadAnimal m where
   getAnimalById :: UUID -> m (Maybe Animal)
@@ -90,7 +89,6 @@ import           Lib.Effects.Animal
 import           Lib.Util.App
 import           Lib.Util.JWT
 import           Lib.Util.Password
-import           Protolude
 import           Servant.API
 import           Servant.Server
 
@@ -140,7 +138,6 @@ import qualified Data.UUID.Types      as UUID
 import           Lib.App
 import           Lib.Effects.Animal
 import           Lib.Server.Animal
-import           Protolude
 import           Test.Tasty
 import           Test.Tasty.Hspec
 import qualified System.Metrics       as Metrics

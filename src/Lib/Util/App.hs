@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns     #-}
 {-# LANGUAGE FlexibleContexts #-}
+
 module Lib.Util.App(
   maybeWithM,
   maybeM,
@@ -12,13 +13,12 @@ module Lib.Util.App(
   timedAction
 ) where
 
-import           Data.IORef                  (modifyIORef', readIORef)
+import           Control.Monad.Except        (MonadError, throwError)
 import qualified Data.Map                    as Map
 import qualified Data.Pool                   as Pool
 import qualified Database.PostgreSQL.Simple  as PG
 import           Lib.App.Env
 import           Lib.App.Error
-import           Protolude
 import           System.CPUTime              (getCPUTime)
 import qualified System.Metrics              as Metrics
 import qualified System.Metrics.Distribution as Distribution
@@ -26,11 +26,7 @@ import qualified System.Metrics.Distribution as Distribution
 -- Extract the value from a maybe, throwing the given 'AppError' if
 -- the value does not exist
 maybeWithM :: (MonadError AppError m) => AppError -> m (Maybe a) -> m a
-maybeWithM err action = do
-  res <- action
-  case res of
-    Just a  -> return a
-    Nothing -> throwError err
+maybeWithM err action = action >>= maybe (throwError err) pure
 
 -- Extract a value from a maybe, throwing a 'NotFound' if  the value
 -- does not exist
@@ -40,7 +36,7 @@ maybeM = maybeWithM NotFound
 -- Helper function working with results from a database when you expect
 -- only one row to be returned.
 asSingleRow :: (MonadError AppError m) => m [a] -> m a
-asSingleRow action = maybeM (head <$> action)
+asSingleRow action = maybeM (safeHead <$> action)
 
 -- Query the database with a given query and args and expect a list of
 -- rows in return
@@ -100,9 +96,7 @@ timedAction label action = do
     store <- asks ekgStore
     liftIO $ do
       distMap <- readIORef timingsRef
-      case Map.lookup label distMap of
-        Just dist -> return dist
-        Nothing -> do
-          newDist <- Metrics.createDistribution label store
-          modifyIORef' timingsRef (Map.insert label newDist)
-          return newDist
+      whenNothing (Map.lookup label distMap) $ do
+        newDist <- Metrics.createDistribution label store
+        modifyIORef' timingsRef (Map.insert label newDist)
+        return newDist

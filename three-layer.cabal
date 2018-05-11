@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 88b1e4b9044c2c0c9c3d86ec28f298ec2733c783406c7c50828366e4e15ed567
+-- hash: fa3669b7d58f268241fd4c0655564e730f3f07f9363c63b091ebdb8dcef9c37b
 
 name:           three-layer
 version:        0.1.0.0
@@ -16,7 +16,6 @@ license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     ChangeLog.md
     README.md
@@ -28,11 +27,12 @@ source-repository head
 library
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings NoImplicitPrelude GeneralizedNewtypeDeriving RecordWildCards FlexibleContexts RecordWildCards
+  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards
   build-depends:
       aeson
-    , base >=4.7 && <5
+    , base-noprelude >=4.7 && <5
     , bcrypt
+    , bytestring
     , containers
     , ekg
     , ekg-core
@@ -40,12 +40,12 @@ library
     , monad-logger
     , mtl
     , postgresql-simple
-    , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
     , servant-server
     , time
+    , universum
     , uuid-types
     , warp
   exposed-modules:
@@ -60,6 +60,7 @@ library
       Lib.Util.App
       Lib.Util.JWT
       Lib.Util.Password
+      Prelude
   other-modules:
       Paths_three_layer
   default-language: Haskell2010
@@ -68,12 +69,13 @@ executable three-layer-exe
   main-is: Main.hs
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings NoImplicitPrelude GeneralizedNewtypeDeriving RecordWildCards FlexibleContexts RecordWildCards
+  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
-    , base >=4.7 && <5
+    , base-noprelude >=4.7 && <5
     , bcrypt
+    , bytestring
     , containers
     , ekg
     , ekg-core
@@ -81,13 +83,13 @@ executable three-layer-exe
     , monad-logger
     , mtl
     , postgresql-simple
-    , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
     , servant-server
     , three-layer
     , time
+    , universum
     , uuid-types
     , warp
   other-modules:
@@ -99,12 +101,13 @@ test-suite three-layer-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings NoImplicitPrelude GeneralizedNewtypeDeriving RecordWildCards FlexibleContexts RecordWildCards
+  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
-    , base >=4.7 && <5
+    , base-noprelude >=4.7 && <5
     , bcrypt
+    , bytestring
     , containers
     , ekg
     , ekg-core
@@ -112,7 +115,6 @@ test-suite three-layer-test
     , monad-logger
     , mtl
     , postgresql-simple
-    , protolude >=0.1 && <0.2
     , random
     , resource-pool
     , servant
@@ -123,6 +125,7 @@ test-suite three-layer-test
     , tasty-quickcheck
     , three-layer
     , time
+    , universum
     , uuid-types
     , warp
   other-modules:

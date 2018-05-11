@@ -1,9 +1,10 @@
 {-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE RecordWildCards  #-}
+
 module Lib.Effects.User where
 
+import           Control.Monad.Except               (MonadError)
 import           Data.Aeson                         (FromJSON, ToJSON)
 import           Data.UUID.Types                    (UUID)
 import           Database.PostgreSQL.Simple.FromRow
@@ -11,11 +12,10 @@ import           Database.PostgreSQL.Simple.SqlQQ
 import           Lib.App.Env
 import           Lib.App.Error
 import           Lib.Util.App
-import           Protolude
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)
-  getUserByEmail email = timedAction "getUserByEmail" $ head <$> queryPG [sql|
+  getUserByEmail email = timedAction "getUserByEmail" $ safeHead <$> queryPG [sql|
     SELECT
       *
     FROM

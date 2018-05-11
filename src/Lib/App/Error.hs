@@ -1,7 +1,5 @@
 module Lib.App.Error where
 
-import           Protolude
-
 data AppError =
     Invalid Text
   | NotAllowed Text
