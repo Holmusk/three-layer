@@ -1,15 +1,18 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Lib.Util.Password(
-  PasswordHash,
-  PasswordPlainText,
-  mkPasswordHash,
-  verifyPassword
-) where
 
-import           Control.Monad.Except (MonadError)
-import qualified Crypto.BCrypt        as BC
-import           Lib.App.Error
-import           Lib.Util.App         (maybeWithM)
+module Lib.Util.Password
+       ( PasswordHash
+       , PasswordPlainText
+       , mkPasswordHash
+       , verifyPassword
+       ) where
+
+import Control.Monad.Except (MonadError)
+
+import Lib.App.Error (AppError (..))
+import Lib.Util.App (maybeWithM)
+
+import qualified Crypto.BCrypt as BC
 
 type PasswordHash = Text
 type PasswordPlainText = Text

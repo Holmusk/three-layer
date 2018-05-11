@@ -4,20 +4,28 @@
 {-# LANGUAGE TemplateHaskell  #-}
 {-# LANGUAGE TypeOperators    #-}
 
-module Lib.Server.Auth where
+module Lib.Server.Auth
+       ( LoginRequest (..)
+       , LoginResponse (..)
+       , AuthAPI
+       , authServer
+       , loginHandler
+       , isLoggedInHandler
+       , logoutHandler
+       ) where
 
-import           Control.Monad.Logger
-import           Control.Monad.Except (MonadError, throwError)
-import           Data.Aeson           (FromJSON, ToJSON)
-import           Lib.App              (App, AppEnv (..), AppError (..),
-                                       Session (..))
-import           Lib.Effects.Session
-import           Lib.Effects.User
-import           Lib.Util.App
-import           Lib.Util.JWT
-import           Lib.Util.Password
-import           Servant.API
-import           Servant.Server
+import Control.Monad.Except (MonadError, throwError)
+import Control.Monad.Logger (MonadLogger, logDebug)
+import Data.Aeson (FromJSON, ToJSON)
+import Servant.API ((:<|>) (..), (:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
+import Servant.Server (ServerT)
+
+import Lib.App (App, AppEnv (..), AppError (..), Session (..))
+import Lib.Effects.Session (MonadSession (..))
+import Lib.Effects.User (MonadUser (..), User (..))
+import Lib.Util.App (maybeWithM, timedAction)
+import Lib.Util.JWT (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
+import Lib.Util.Password (verifyPassword)
 
 data LoginRequest = LoginRequest {
   loginRequestEmail    :: Text,

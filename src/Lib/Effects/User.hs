@@ -2,16 +2,20 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE QuasiQuotes      #-}
 
-module Lib.Effects.User where
+module Lib.Effects.User
+       ( MonadUser (..)
+       , User (..)
+       ) where
 
-import           Control.Monad.Except               (MonadError)
-import           Data.Aeson                         (FromJSON, ToJSON)
-import           Data.UUID.Types                    (UUID)
-import           Database.PostgreSQL.Simple.FromRow
-import           Database.PostgreSQL.Simple.SqlQQ
-import           Lib.App.Env
-import           Lib.App.Error
-import           Lib.Util.App
+import Control.Monad.Except (MonadError)
+import Data.Aeson (FromJSON, ToJSON)
+import Data.UUID.Types (UUID)
+import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
+import Database.PostgreSQL.Simple.SqlQQ (sql)
+
+import Lib.App.Env (AppEnv)
+import Lib.App.Error (AppError)
+import Lib.Util.App (queryPG, timedAction)
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)

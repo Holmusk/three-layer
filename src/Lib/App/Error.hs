@@ -1,4 +1,6 @@
-module Lib.App.Error where
+module Lib.App.Error
+       ( AppError (..)
+       ) where
 
 data AppError =
     Invalid Text
