@@ -1,16 +1,25 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Lib.Util.JWT where
+module Lib.Util.JWT
+       ( JWTPayload (..)
+       , jwtPayloadToMap
+       , jwtPayloadFromMap
+       , decodeAndVerifyJWTToken
+       , mkJWTToken
+       , mkRandomString
+       ) where
 
-import           Data.Aeson            (Value (..))
-import           Data.Map              (Map)
-import qualified Data.Map              as Map
-import           Data.Time.Clock.POSIX (getPOSIXTime)
-import           Data.UUID.Types       (UUID)
-import qualified Data.UUID.Types       as UUID
-import           Lib.App.Env           (AppEnv (..))
-import           System.Random         (newStdGen, randomRs)
-import qualified Web.JWT               as JWT
+import Data.Aeson (Value (..))
+import Data.Map (Map)
+import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.UUID.Types (UUID)
+import System.Random (newStdGen, randomRs)
+
+import Lib.App.Env (AppEnv (..))
+
+import qualified Data.Map as Map
+import qualified Data.UUID.Types as UUID
+import qualified Web.JWT as JWT
 
 -- Make a random string comprised of a - z of
 -- a given length

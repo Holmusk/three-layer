@@ -1,14 +1,19 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Lib where
+module Lib
+       ( mkAppEnv
+       , runServer
+       ) where
 
-import qualified Data.Map                 as Map
-import           Lib.App
-import           Lib.Server
-import           Lib.Util.JWT             (mkRandomString)
-import           Network.Wai.Handler.Warp
-import           Servant.Server
-import qualified System.Metrics           as Metrics
+import Network.Wai.Handler.Warp (run)
+import Servant.Server (serve)
+
+import Lib.App (AppEnv (..))
+import Lib.Server (API, server)
+import Lib.Util.JWT (mkRandomString)
+
+import qualified Data.Map as Map
+import qualified System.Metrics as Metrics
 
 mkAppEnv :: IO AppEnv
 mkAppEnv = do

@@ -1,9 +1,14 @@
 {-# LANGUAGE TypeOperators #-}
-module Lib.Server where
 
-import           Lib.App
-import           Lib.Server.Auth
-import           Servant.Server
+module Lib.Server
+       ( API
+       , server
+       ) where
+
+import Servant.Server (Handler, Server, hoistServer)
+
+import Lib.App (App, AppEnv, runAppAsHandler)
+import Lib.Server.Auth (AuthAPI, authServer)
 
 type API = AuthAPI
 

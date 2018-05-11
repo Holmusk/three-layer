@@ -1,11 +1,14 @@
-module Lib.App.Env where
+module Lib.App.Env
+       ( AppEnv (..)
+       , Session (..)
+       ) where
 
-import           Data.Map                    (Map)
-import           Data.Pool                   (Pool)
-import           Data.UUID.Types             (UUID)
-import           Database.PostgreSQL.Simple  (Connection)
-import           System.Metrics              (Store)
-import           System.Metrics.Distribution (Distribution)
+import Data.Map (Map)
+import Data.Pool (Pool)
+import Data.UUID.Types (UUID)
+import Database.PostgreSQL.Simple (Connection)
+import System.Metrics (Store)
+import System.Metrics.Distribution (Distribution)
 
 data AppEnv = AppEnv {
     dbPool    :: Pool Connection,

@@ -1,26 +1,28 @@
 {-# LANGUAGE BangPatterns     #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Lib.Util.App(
-  maybeWithM,
-  maybeM,
-  asSingleRow,
-  queryPG,
-  queryPG_,
-  executePG,
-  executePG_,
-  executeManyPG,
-  timedAction
-) where
+module Lib.Util.App
+       ( maybeWithM
+       , maybeM
+       , asSingleRow
+       , queryPG
+       , queryPG_
+       , executePG
+       , executePG_
+       , executeManyPG
+       , timedAction
+       ) where
 
-import           Control.Monad.Except        (MonadError, throwError)
-import qualified Data.Map                    as Map
-import qualified Data.Pool                   as Pool
-import qualified Database.PostgreSQL.Simple  as PG
-import           Lib.App.Env
-import           Lib.App.Error
-import           System.CPUTime              (getCPUTime)
-import qualified System.Metrics              as Metrics
+import Control.Monad.Except (MonadError, throwError)
+import System.CPUTime (getCPUTime)
+
+import Lib.App.Env (AppEnv (..))
+import Lib.App.Error (AppError (..))
+
+import qualified Data.Map as Map
+import qualified Data.Pool as Pool
+import qualified Database.PostgreSQL.Simple as PG
+import qualified System.Metrics as Metrics
 import qualified System.Metrics.Distribution as Distribution
 
 -- Extract the value from a maybe, throwing the given 'AppError' if
