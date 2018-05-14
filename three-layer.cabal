@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 225865dcfad49c71df181dad7b2ff0d1deebf4df61e17474afd07b4e57708672
+-- hash: 9209b203f601892af0869150e2b1b5d5f495509deef983f2c56acba968b6a462
 
 name:           three-layer
 version:        0.1.0.0
@@ -43,6 +43,7 @@ library
     , random
     , resource-pool
     , servant
+    , servant-generic
     , servant-server
     , time
     , universum
@@ -87,6 +88,7 @@ executable three-layer-exe
     , random
     , resource-pool
     , servant
+    , servant-generic
     , servant-server
     , three-layer
     , time
@@ -121,6 +123,7 @@ test-suite three-layer-test
     , random
     , resource-pool
     , servant
+    , servant-generic
     , servant-server
     , tasty
     , tasty-discover
