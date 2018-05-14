@@ -1,4 +1,4 @@
-module AuthSpec where
+module Test.AuthSpec where
 
 import Control.Monad.Except (MonadError)
 import Control.Monad.Logger (MonadLogger, NoLoggingT (..))

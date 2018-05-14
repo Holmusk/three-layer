@@ -1,4 +1,4 @@
-module JWTSpec where
+module Test.JWTSpec where
 
 import Data.UUID.Types (UUID)
 import Hedgehog (MonadGen, Property, forAll, property, (===))
