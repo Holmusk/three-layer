@@ -1,6 +1,4 @@
-{-# LANGUAGE DeriveGeneric    #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Lib.Effects.User
        ( MonadUser (..)

@@ -1,8 +1,6 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE DeriveGeneric    #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TemplateHaskell  #-}
-{-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Lib.Server.Auth
        ( LoginRequest (..)
@@ -29,7 +27,7 @@ import Lib.Util.Password (PasswordPlainText (..), verifyPassword)
 
 data LoginRequest = LoginRequest
   { loginRequestEmail    :: Text
-  , loginRequestPassword :: Text
+  , loginRequestPassword :: PasswordPlainText
   } deriving (Generic, Show, Eq)
 
 instance FromJSON LoginRequest
@@ -59,7 +57,7 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     $(logDebug) $ "Given email address " <> loginRequestEmail <> " not found"
     throwError NotFound
   let (Just User{..}) = mUser
-  let isPasswordCorrect = verifyPassword (PwdPlainText loginRequestPassword) userHash
+  let isPasswordCorrect = verifyPassword loginRequestPassword userHash
   unless isPasswordCorrect $ do
     $(logDebug) $ "Incorrect password for user " <> loginRequestEmail
     throwError (NotAllowed "Invalid Password")

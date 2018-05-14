@@ -1,7 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-
-{-# LANGUAGE DeriveGeneric    #-}
-
 module Lib.Util.Password
        ( PasswordHash (..)
        , PasswordPlainText (..)

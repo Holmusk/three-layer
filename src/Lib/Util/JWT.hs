@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module Lib.Util.JWT
        ( JWTPayload (..)
        , jwtPayloadToMap
