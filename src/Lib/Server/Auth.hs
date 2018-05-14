@@ -15,11 +15,10 @@ module Lib.Server.Auth
 import Control.Monad.Except (MonadError, throwError)
 import Control.Monad.Logger (MonadLogger, logDebug)
 import Data.Aeson (FromJSON, ToJSON)
-import Servant.API ((:<|>) (..), (:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
+import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
-import Servant.Server (ServerT)
 
-import Lib.App (App, AppEnv (..), AppError (..), Session (..))
+import Lib.App (App, AppError (..), Session (..))
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Util.App (maybeWithM, timedAction)

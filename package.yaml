@@ -52,6 +52,8 @@ default-extensions:
 
 library:
   source-dirs: src
+  ghc-options:
+  - -Wall
 
 executables:
   three-layer-exe:

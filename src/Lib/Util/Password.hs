@@ -1,3 +1,5 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Lib.Util.Password
        ( PasswordHash (..)
        , PasswordPlainText (..)
@@ -7,6 +9,7 @@ module Lib.Util.Password
 
 import Control.Monad.Except (MonadError)
 import Data.Aeson (FromJSON (..), ToJSON (..), withText)
+import Database.PostgreSQL.Simple.FromField (FromField)
 
 import Lib.App.Error (AppError (..))
 import Lib.Util.App (maybeWithM)
@@ -14,7 +17,7 @@ import Lib.Util.App (maybeWithM)
 import qualified Crypto.BCrypt as BC
 
 newtype PasswordHash = PwdHash { unPwdHash :: ByteString }
-  deriving (Generic)
+  deriving (Generic, FromField)
 
 instance ToJSON PasswordHash where
   toJSON = toJSON . decodeUtf8 @Text . unPwdHash
