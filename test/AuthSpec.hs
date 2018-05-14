@@ -1,18 +1,20 @@
 module AuthSpec where
 
-import           Control.Monad.Except (MonadError)
-import           Control.Monad.Logger
-import qualified Data.Map             as Map
-import qualified Data.UUID.Types      as UUID
-import           Lib.App
-import           Lib.Effects.Session
-import           Lib.Effects.User
-import           Lib.Server.Auth
-import           Lib.Util.JWT
-import qualified System.Metrics       as Metrics
-import           System.Random
-import           Test.Tasty
-import           Test.Tasty.Hspec
+import Control.Monad.Except (MonadError)
+import Control.Monad.Logger
+import System.Random
+import Test.Tasty
+import Test.Tasty.Hspec
+
+import Lib.App
+import Lib.Effects.Session
+import Lib.Effects.User
+import Lib.Server.Auth
+import Lib.Util.JWT
+
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.UUID.Types as UUID
+import qualified System.Metrics as Metrics
 
 newtype MockApp a = MockApp {
   unMockApp :: NoLoggingT (ReaderT AppEnv (ExceptT AppError IO)) a
@@ -22,9 +24,9 @@ instance MonadSession MockApp
 
 runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
-  sessions <- newMVar Map.empty
+  sessions <- newMVar HashMap.empty
   let jwtSecret = "kjnlkjn"
-  timings <- newIORef Map.empty
+  timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   runExceptT $ runReaderT (runNoLoggingT $ unMockApp action) AppEnv{..}
 

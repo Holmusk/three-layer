@@ -39,6 +39,7 @@ dependencies:
 - ekg
 - ekg-core
 - universum
+- unordered-containers
 
 default-extensions:
 - OverloadedStrings

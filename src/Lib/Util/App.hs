@@ -19,7 +19,7 @@ import System.CPUTime (getCPUTime)
 import Lib.App.Env (AppEnv (..))
 import Lib.App.Error (AppError (..))
 
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Pool as Pool
 import qualified Database.PostgreSQL.Simple as PG
 import qualified System.Metrics as Metrics
@@ -98,7 +98,7 @@ timedAction label action = do
     store <- asks ekgStore
     liftIO $ do
       distMap <- readIORef timingsRef
-      whenNothing (Map.lookup label distMap) $ do
+      whenNothing (HashMap.lookup label distMap) $ do
         newDist <- Metrics.createDistribution label store
-        modifyIORef' timingsRef (Map.insert label newDist)
+        modifyIORef' timingsRef (HashMap.insert label newDist)
         return newDist

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b91ccf1a99982147335ed711f9f045fbc3018fc6962cab1ed74c21de183f0db8
+-- hash: 394a3e65da1aa33ef72d2ecdcead0919b7933e5cb51bc5a9bd1797fff2e06732
 
 name:           three-layer
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , servant-server
     , time
     , universum
+    , unordered-containers
     , uuid-types
     , warp
   exposed-modules:
@@ -90,6 +91,7 @@ executable three-layer-exe
     , three-layer
     , time
     , universum
+    , unordered-containers
     , uuid-types
     , warp
   other-modules:
@@ -127,6 +129,7 @@ test-suite three-layer-test
     , three-layer
     , time
     , universum
+    , unordered-containers
     , uuid-types
     , warp
   other-modules:

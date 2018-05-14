@@ -12,15 +12,15 @@ import Lib.App (AppEnv (..))
 import Lib.Server (API, server)
 import Lib.Util.JWT (mkRandomString)
 
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict as HashMap
 import qualified System.Metrics as Metrics
 
 mkAppEnv :: IO AppEnv
 mkAppEnv = do
   let dbPool = error "Not implemented yet"
-  sessions <- newMVar Map.empty
+  sessions <- newMVar HashMap.empty
   jwtSecret <- mkRandomString 10
-  timings <- newIORef Map.empty
+  timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   Metrics.registerGcMetrics ekgStore
   return AppEnv{..}
