@@ -10,6 +10,7 @@ module Lib.Util.Password
 import Control.Monad.Except (MonadError)
 import Data.Aeson (FromJSON (..), ToJSON (..), withText)
 import Database.PostgreSQL.Simple.FromField (FromField)
+import Elm (ElmType (..))
 
 import Lib.App.Error (AppError (..))
 import Lib.Util.App (maybeWithM)
@@ -19,6 +20,9 @@ import qualified Crypto.BCrypt as BC
 newtype PasswordHash = PwdHash { unPwdHash :: ByteString }
   deriving (Generic, FromField)
 
+instance ElmType PasswordHash where
+  toElmType = toElmType . decodeUtf8 @Text . unPwdHash -- no work because toElmType ignores value
+
 instance ToJSON PasswordHash where
   toJSON = toJSON . decodeUtf8 @Text . unPwdHash
 
@@ -26,7 +30,7 @@ instance FromJSON PasswordHash where
   parseJSON = withText "pwdHash" (pure . PwdHash . encodeUtf8)
 
 newtype PasswordPlainText = PwdPlainText { unPwdPlainText :: Text }
-  deriving (Show, Eq, Generic)
+  deriving (Show, Eq, Generic, ElmType)
 
 instance ToJSON PasswordPlainText
 instance FromJSON PasswordPlainText

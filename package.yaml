@@ -20,27 +20,28 @@ extra-source-files:
 description:         Please see the README on Github at <https://github.com/githubuser/three-layer#readme>
 
 dependencies:
+- aeson
 - base-noprelude >= 4.7 && < 5
+- bcrypt
 - bytestring
+- containers
+- ekg
+- ekg-core
+- elm-export
+- jwt
+- monad-logger
 - mtl
 - postgresql-simple
+- random
 - resource-pool
-- containers
-- bcrypt
 - servant
 - servant-generic
 - servant-server
-- jwt
-- random
-- uuid-types
-- aeson
 - time
-- warp
-- monad-logger
-- ekg
-- ekg-core
 - universum
 - unordered-containers
+- uuid-types
+- warp
 
 default-extensions:
 - DeriveGeneric
@@ -64,6 +65,18 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
+    - three-layer
+
+  generate-elm:
+    main:                Main.hs
+    source-dirs:         generate-elm
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - servant-elm
     - three-layer
 
 tests:

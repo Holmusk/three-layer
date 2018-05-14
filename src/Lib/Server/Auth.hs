@@ -15,6 +15,7 @@ module Lib.Server.Auth
 import Control.Monad.Except (MonadError, throwError)
 import Control.Monad.Logger (MonadLogger, logDebug)
 import Data.Aeson (FromJSON, ToJSON)
+import Elm (ElmType)
 import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
@@ -30,6 +31,7 @@ data LoginRequest = LoginRequest
   , loginRequestPassword :: PasswordPlainText
   } deriving (Generic, Show, Eq)
 
+instance ElmType LoginRequest
 instance FromJSON LoginRequest
 instance ToJSON LoginRequest
 
@@ -37,6 +39,7 @@ newtype LoginResponse = LoginResponse
   { loginResponseToken :: Text
   } deriving (Generic, Show, Eq)
 
+instance ElmType LoginResponse
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
 
