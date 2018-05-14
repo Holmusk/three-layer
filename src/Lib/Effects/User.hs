@@ -10,12 +10,14 @@ module Lib.Effects.User
 import Control.Monad.Except (MonadError)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.UUID.Types (UUID)
+import Database.PostgreSQL.Simple.FromField (FromField)
 import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
 
 import Lib.App.Env (AppEnv)
 import Lib.App.Error (AppError)
 import Lib.Util.App (queryPG, timedAction)
+import Lib.Util.Password (PasswordHash)
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)
@@ -28,20 +30,22 @@ class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m wh
       email = ?
   |] [email]
 
-data User = User {
-  userId    :: UUID,
-  userName  :: Text,
-  userEmail :: Text,
-  userHash  :: Text
-} deriving (Generic)
+data User = User
+  { userId    :: UUID
+  , userName  :: Text
+  , userEmail :: Text
+  , userHash  :: PasswordHash
+  } deriving (Generic)
 
 instance ToJSON User
 instance FromJSON User
 
+instance FromField PasswordHash
+
 instance FromRow User where
   fromRow = do
-    userId <- field
-    userName <- field
+    userId    <- field
+    userName  <- field
     userEmail <- field
-    userHash <- field
+    userHash  <- field
     return User{..}

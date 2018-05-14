@@ -25,19 +25,19 @@ import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Util.App (maybeWithM, timedAction)
 import Lib.Util.JWT (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
-import Lib.Util.Password (verifyPassword)
+import Lib.Util.Password (PasswordPlainText (..), verifyPassword)
 
-data LoginRequest = LoginRequest {
-  loginRequestEmail    :: Text,
-  loginRequestPassword :: Text
-} deriving (Generic, Show, Eq)
+data LoginRequest = LoginRequest
+  { loginRequestEmail    :: Text
+  , loginRequestPassword :: Text
+  } deriving (Generic, Show, Eq)
 
 instance FromJSON LoginRequest
 instance ToJSON LoginRequest
 
-newtype LoginResponse = LoginResponse {
-  loginResponseToken :: Text
-} deriving (Generic, Show, Eq)
+newtype LoginResponse = LoginResponse
+  { loginResponseToken :: Text
+  } deriving (Generic, Show, Eq)
 
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
@@ -59,7 +59,7 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     $(logDebug) $ "Given email address " <> loginRequestEmail <> " not found"
     throwError NotFound
   let (Just User{..}) = mUser
-  let isPasswordCorrect = verifyPassword loginRequestPassword userHash
+  let isPasswordCorrect = verifyPassword (PwdPlainText loginRequestPassword) userHash
   unless isPasswordCorrect $ do
     $(logDebug) $ "Incorrect password for user " <> loginRequestEmail
     throwError (NotAllowed "Invalid Password")

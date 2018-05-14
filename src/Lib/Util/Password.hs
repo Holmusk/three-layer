@@ -1,30 +1,45 @@
 {-# LANGUAGE FlexibleContexts #-}
 
+{-# LANGUAGE DeriveGeneric    #-}
+
 module Lib.Util.Password
-       ( PasswordHash
-       , PasswordPlainText
+       ( PasswordHash (..)
+       , PasswordPlainText (..)
        , mkPasswordHash
        , verifyPassword
        ) where
 
 import Control.Monad.Except (MonadError)
+import Data.Aeson (FromJSON (..), ToJSON (..), withText)
 
 import Lib.App.Error (AppError (..))
 import Lib.Util.App (maybeWithM)
 
 import qualified Crypto.BCrypt as BC
 
-type PasswordHash = Text
-type PasswordPlainText = Text
+newtype PasswordHash = PwdHash { unPwdHash :: ByteString }
+  deriving (Generic)
+
+instance ToJSON PasswordHash where
+  toJSON = toJSON . decodeUtf8 @Text . unPwdHash
+
+instance FromJSON PasswordHash where
+  parseJSON = withText "pwdHash" (pure . PwdHash . encodeUtf8)
+
+newtype PasswordPlainText = PwdPlainText { unPwdPlainText :: Text }
+  deriving (Show, Eq, Generic)
+
+instance ToJSON PasswordPlainText
+instance FromJSON PasswordPlainText
 
 -- Generate a password hash given its plain text. This has to be done in IO as
 -- generating the salt requires RNG
 mkPasswordHash :: (MonadError AppError m, MonadIO m) => PasswordPlainText -> m PasswordHash
-mkPasswordHash password = maybeWithM errorMessage $ liftIO hashText
+mkPasswordHash password = maybeWithM errorMessage $ liftIO hash
   where
-    hash = BC.hashPasswordUsingPolicy BC.slowerBcryptHashingPolicy $ encodeUtf8 password
-    hashText = decodeUtf8 <<$>> hash
+    hashBS = BC.hashPasswordUsingPolicy BC.slowerBcryptHashingPolicy (encodeUtf8 $ unPwdPlainText password)
+    hash = PwdHash <<$>> hashBS
     errorMessage = ServerError "Error generating password hash"
 
 verifyPassword :: PasswordPlainText -> PasswordHash -> Bool
-verifyPassword password hash = BC.validatePassword (encodeUtf8 hash) (encodeUtf8 password)
+verifyPassword (PwdPlainText password) (PwdHash hash) = BC.validatePassword hash (encodeUtf8 password)
