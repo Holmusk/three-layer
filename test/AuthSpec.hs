@@ -1,9 +1,7 @@
 module AuthSpec where
 
 import Control.Monad.Except (MonadError)
-import Control.Monad.Logger
-import System.Random
-import Test.Tasty
+import Control.Monad.Logger (MonadLogger, NoLoggingT (..))
 import Test.Tasty.Hspec
 
 import Lib.App
@@ -27,8 +25,9 @@ runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
   sessions <- newMVar HashMap.empty
   let jwtSecret = "kjnlkjn"
-  timings <- newIORef HashMap.empty
+  timings  <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
+  let dbPool = error "Not implemented"
   runExceptT $ runReaderT (runNoLoggingT $ unMockApp action) AppEnv{..}
 
 instance MonadUser MockApp where

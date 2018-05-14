@@ -55,10 +55,10 @@ decodeAndVerifyJWTToken :: (MonadIO m, MonadReader AppEnv m) => Text -> m (Maybe
 decodeAndVerifyJWTToken token = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- JWT.numericDate <$> liftIO getPOSIXTime
-  pure $ JWT.claims <$> JWT.decodeAndVerifySignature secret token >>= \claimsSet ->
-    case (,) <$> timeNow <*> JWT.exp claimsSet of
-      Just (now, expiryTimeStatedInToken) ->
-        if expiryTimeStatedInToken < now then
-          Nothing
-        else
-          jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet
+  pure $ do
+    claimsSet <- JWT.claims <$> JWT.decodeAndVerifySignature secret token
+    (now, expiryTimeStatedInToken) <- (,) <$> timeNow <*> JWT.exp claimsSet
+    if expiryTimeStatedInToken < now then
+      Nothing
+    else
+      jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet

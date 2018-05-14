@@ -8,7 +8,6 @@ module Lib.Effects.User
 import Control.Monad.Except (MonadError)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.UUID.Types (UUID)
-import Database.PostgreSQL.Simple.FromField (FromField)
 import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
 
@@ -37,8 +36,6 @@ data User = User
 
 instance ToJSON User
 instance FromJSON User
-
-instance FromField PasswordHash
 
 instance FromRow User where
   fromRow = do

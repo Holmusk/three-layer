@@ -92,12 +92,12 @@ timedAction label action = do
   return result
   where
   getOrCreateDistribution :: (MonadIO m, MonadReader AppEnv m) => Text -> m Distribution.Distribution
-  getOrCreateDistribution label = do
+  getOrCreateDistribution lbl = do
     timingsRef <- asks timings
     store <- asks ekgStore
     liftIO $ do
       distMap <- readIORef timingsRef
-      whenNothing (HashMap.lookup label distMap) $ do
-        newDist <- Metrics.createDistribution label store
-        modifyIORef' timingsRef (HashMap.insert label newDist)
+      whenNothing (HashMap.lookup lbl distMap) $ do
+        newDist <- Metrics.createDistribution lbl store
+        modifyIORef' timingsRef (HashMap.insert lbl newDist)
         return newDist

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9209b203f601892af0869150e2b1b5d5f495509deef983f2c56acba968b6a462
+-- hash: 028552acaadba0687f15b26dc34d3849f12e42c0462aea1d905ce54654511189
 
 name:           three-layer
 version:        0.1.0.0
@@ -25,9 +25,25 @@ source-repository head
   location: https://github.com/githubuser/three-layer
 
 library
+  exposed-modules:
+      Lib
+      Lib.App
+      Lib.App.Env
+      Lib.App.Error
+      Lib.Effects.Session
+      Lib.Effects.User
+      Lib.Server
+      Lib.Server.Auth
+      Lib.Util.App
+      Lib.Util.JWT
+      Lib.Util.Password
+      Prelude
+  other-modules:
+      Paths_three_layer
   hs-source-dirs:
       src
   default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
+  ghc-options: -Wall
   build-depends:
       aeson
     , base-noprelude >=4.7 && <5
@@ -50,25 +66,12 @@ library
     , unordered-containers
     , uuid-types
     , warp
-  exposed-modules:
-      Lib
-      Lib.App
-      Lib.App.Env
-      Lib.App.Error
-      Lib.Effects.Session
-      Lib.Effects.User
-      Lib.Server
-      Lib.Server.Auth
-      Lib.Util.App
-      Lib.Util.JWT
-      Lib.Util.Password
-      Prelude
-  other-modules:
-      Paths_three_layer
   default-language: Haskell2010
 
 executable three-layer-exe
   main-is: Main.hs
+  other-modules:
+      Paths_three_layer
   hs-source-dirs:
       app
   default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
@@ -96,13 +99,15 @@ executable three-layer-exe
     , unordered-containers
     , uuid-types
     , warp
-  other-modules:
-      Paths_three_layer
   default-language: Haskell2010
 
 test-suite three-layer-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
+  other-modules:
+      AuthSpec
+      JWTSpec
+      Paths_three_layer
   hs-source-dirs:
       test
   default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
@@ -135,8 +140,4 @@ test-suite three-layer-test
     , unordered-containers
     , uuid-types
     , warp
-  other-modules:
-      AuthSpec
-      JWTSpec
-      Paths_three_layer
   default-language: Haskell2010

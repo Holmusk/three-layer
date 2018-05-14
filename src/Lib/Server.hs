@@ -6,9 +6,9 @@ module Lib.Server
        ) where
 
 import Servant.Generic (toServant)
-import Servant.Server (Handler, Server, hoistServer)
+import Servant.Server (Server, hoistServer)
 
-import Lib.App (App, AppEnv, runAppAsHandler)
+import Lib.App (AppEnv, runAppAsHandler)
 import Lib.Server.Auth (AuthAPI, authServer)
 
 type API = AuthAPI
