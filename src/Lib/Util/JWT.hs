@@ -58,7 +58,5 @@ decodeAndVerifyJWTToken token = do
   pure $ do
     claimsSet <- JWT.claims <$> JWT.decodeAndVerifySignature secret token
     (now, expiryTimeStatedInToken) <- (,) <$> timeNow <*> JWT.exp claimsSet
-    if expiryTimeStatedInToken < now then
-      Nothing
-    else
-      jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet
+    guard (expiryTimeStatedInToken >= now)
+    jwtPayloadFromMap $ JWT.unregisteredClaims claimsSet
