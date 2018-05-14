@@ -16,6 +16,7 @@ import Control.Monad.Except (MonadError, throwError)
 import Control.Monad.Logger (MonadLogger, logDebug)
 import Data.Aeson (FromJSON, ToJSON)
 import Servant.API ((:<|>) (..), (:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
+import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 import Servant.Server (ServerT)
 
 import Lib.App (App, AppEnv (..), AppError (..), Session (..))
@@ -40,15 +41,27 @@ newtype LoginResponse = LoginResponse
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
 
-type AuthAPI =
-  -- Login into the application, retuns a JWT if successful
-  "login" :> ReqBody '[JSON] LoginRequest :> Post '[JSON] LoginResponse
-  -- Check if a given JWT is valid
-  :<|> "login" :> Capture "JWT" Text :> Get '[JSON] NoContent
-  :<|> "logout" :> Capture "JWT" Text :> Get '[JSON] NoContent
+data AuthSite route = AuthSite
+  { -- | Login into the application, retuns a JWT if successful
+    loginApp :: route :-
+      "login" :> ReqBody '[JSON] LoginRequest :> Post '[JSON] LoginResponse
 
-authServer :: ServerT AuthAPI App
-authServer = loginHandler :<|> isLoggedInHandler :<|> logoutHandler
+    -- | Check if a given JWT is valid
+  , loginJWT :: route :-
+      "login" :> Capture "JWT" Text :> Get '[JSON] NoContent
+
+  , logout :: route :-
+      "logout" :> Capture "JWT" Text :> Get '[JSON] NoContent
+  } deriving (Generic)
+
+type AuthAPI = ToServant (AuthSite AsApi)
+
+authServer :: AuthSite (AsServerT App)
+authServer = AuthSite
+  { loginApp = loginHandler
+  , loginJWT = isLoggedInHandler
+  , logout   = logoutHandler
+  }
 
 loginHandler :: (MonadUser m, MonadSession m, MonadLogger m) => LoginRequest -> m LoginResponse
 loginHandler LoginRequest{..} = timedAction "loginHandler" $ do

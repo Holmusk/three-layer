@@ -28,6 +28,7 @@ dependencies:
 - containers
 - bcrypt
 - servant
+- servant-generic
 - servant-server
 - jwt
 - random
