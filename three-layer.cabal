@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 394a3e65da1aa33ef72d2ecdcead0919b7933e5cb51bc5a9bd1797fff2e06732
+-- hash: 225865dcfad49c71df181dad7b2ff0d1deebf4df61e17474afd07b4e57708672
 
 name:           three-layer
 version:        0.1.0.0
@@ -27,7 +27,7 @@ source-repository head
 library
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards TypeApplications
+  default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
   build-depends:
       aeson
     , base-noprelude >=4.7 && <5
@@ -70,7 +70,7 @@ executable three-layer-exe
   main-is: Main.hs
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards TypeApplications
+  default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -103,7 +103,7 @@ test-suite three-layer-test
   main-is: Spec.hs
   hs-source-dirs:
       test
-  default-extensions: OverloadedStrings GeneralizedNewtypeDeriving FlexibleContexts RecordWildCards TypeApplications
+  default-extensions: DeriveGeneric GeneralizedNewtypeDeriving FlexibleContexts OverloadedStrings RecordWildCards TypeApplications
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

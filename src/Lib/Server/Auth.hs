@@ -1,8 +1,6 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE DeriveGeneric    #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TemplateHaskell  #-}
-{-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Lib.Server.Auth
        ( LoginRequest (..)
@@ -25,19 +23,19 @@ import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Util.App (maybeWithM, timedAction)
 import Lib.Util.JWT (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
-import Lib.Util.Password (verifyPassword)
+import Lib.Util.Password (PasswordPlainText (..), verifyPassword)
 
-data LoginRequest = LoginRequest {
-  loginRequestEmail    :: Text,
-  loginRequestPassword :: Text
-} deriving (Generic, Show, Eq)
+data LoginRequest = LoginRequest
+  { loginRequestEmail    :: Text
+  , loginRequestPassword :: PasswordPlainText
+  } deriving (Generic, Show, Eq)
 
 instance FromJSON LoginRequest
 instance ToJSON LoginRequest
 
-newtype LoginResponse = LoginResponse {
-  loginResponseToken :: Text
-} deriving (Generic, Show, Eq)
+newtype LoginResponse = LoginResponse
+  { loginResponseToken :: Text
+  } deriving (Generic, Show, Eq)
 
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse

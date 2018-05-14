@@ -1,5 +1,4 @@
-{-# LANGUAGE BangPatterns     #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Lib.Util.App
        ( maybeWithM

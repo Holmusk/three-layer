@@ -42,9 +42,10 @@ dependencies:
 - unordered-containers
 
 default-extensions:
-- OverloadedStrings
+- DeriveGeneric
 - GeneralizedNewtypeDeriving
 - FlexibleContexts
+- OverloadedStrings
 - RecordWildCards
 - TypeApplications
 
