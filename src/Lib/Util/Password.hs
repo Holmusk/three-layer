@@ -21,7 +21,9 @@ newtype PasswordHash = PwdHash { unPwdHash :: ByteString }
   deriving (Generic, FromField)
 
 instance ElmType PasswordHash where
-  toElmType = toElmType . decodeUtf8 @Text . unPwdHash -- no work because toElmType ignores value
+  toElmType = toElmType . decodeUtf8 @Text . unPwdHash
+  -- the above won't evaluate (and waste our resources) because toElmType function ingores its argument
+  -- `decodeUtf8` is needed only to show how this type will be represented in elm
 
 instance ToJSON PasswordHash where
   toJSON = toJSON . decodeUtf8 @Text . unPwdHash

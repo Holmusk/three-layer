@@ -27,17 +27,17 @@ apiSpec = Spec ["Generated", "Api"]
           )
 
 class RenderElmType (exportTypes :: [*]) where
-  renderType :: Proxy exportTypes -> [Text]
+  renderType    :: Proxy exportTypes -> [Text]
   renderEncoder :: Proxy exportTypes -> [Text]
   renderDecoder :: Proxy exportTypes -> [Text]
 
 instance RenderElmType '[] where
-  renderType = const []
+  renderType    = const []
   renderEncoder = const []
   renderDecoder = const []
 
 instance (ElmType t, RenderElmType ts) => RenderElmType (t ': ts) where
-  renderType _ = [toElmTypeSource $ Proxy @t] <> renderType (Proxy @ts)
+  renderType    _ = [toElmTypeSource    $ Proxy @t] <> renderType    (Proxy @ts)
   renderEncoder _ = [toElmEncoderSource $ Proxy @t] <> renderEncoder (Proxy @ts)
   renderDecoder _ = [toElmDecoderSource $ Proxy @t] <> renderDecoder (Proxy @ts)
 
