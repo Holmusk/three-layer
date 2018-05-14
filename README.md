@@ -149,7 +149,7 @@ newtype AnimalMock a = AnimalMock {
 
 runAnimalMock :: AnimalMock a -> IO (Either AppError a)
 runAnimalMock action = do
-  timings <- newIORef Map.empty
+  timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   runExceptT $ runReaderT (runNoLoggingT $ unAnimalMock action) AppEnv{..}
 

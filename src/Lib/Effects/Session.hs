@@ -9,7 +9,7 @@ import Data.UUID.Types (UUID)
 
 import Lib.App.Env (AppEnv (..), Session)
 
-import qualified Data.Map as Map
+import qualified Data.HashMap.Strict as HashMap
 
 -- class MonadSession
 --  describes a monad that can provide a CRUD interface for a 'Session' type
@@ -18,14 +18,14 @@ class (MonadReader AppEnv m, MonadIO m) => MonadSession m where
   getSession sessionId = do
     sessionsMvar <- asks sessions
     sessionsMap  <- readMVar sessionsMvar
-    return $ Map.lookup sessionId sessionsMap
+    return $ HashMap.lookup sessionId sessionsMap
 
   putSession :: UUID -> Session -> m ()
   putSession sessionId newSession = do
     sessionsMvar <- asks sessions
-    liftIO $ modifyMVar_ sessionsMvar (return . Map.insert sessionId newSession)
+    liftIO $ modifyMVar_ sessionsMvar (return . HashMap.insert sessionId newSession)
 
   deleteSession :: UUID -> m ()
   deleteSession sessionId = do
     sessionsMvar <- asks sessions
-    liftIO $ modifyMVar_ sessionsMvar (return . Map.delete sessionId)
+    liftIO $ modifyMVar_ sessionsMvar (return . HashMap.delete sessionId)

@@ -3,20 +3,19 @@ module Lib.App.Env
        , Session (..)
        ) where
 
-import Data.Map (Map)
 import Data.Pool (Pool)
 import Data.UUID.Types (UUID)
 import Database.PostgreSQL.Simple (Connection)
 import System.Metrics (Store)
 import System.Metrics.Distribution (Distribution)
 
-data AppEnv = AppEnv {
-    dbPool    :: Pool Connection,
-    sessions  :: MVar (Map UUID Session),
-    jwtSecret :: Text,
-    timings   :: IORef (Map Text Distribution),
-    ekgStore  :: Store
-}
+data AppEnv = AppEnv
+  { dbPool    :: Pool Connection
+  , sessions  :: MVar (HashMap UUID Session)
+  , jwtSecret :: Text
+  , timings   :: IORef (HashMap Text Distribution)
+  , ekgStore  :: Store
+  }
 
 newtype Session = Session {
   isLoggedIn :: Bool
