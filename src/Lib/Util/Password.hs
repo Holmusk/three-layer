@@ -1,15 +1,16 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Lib.Util.Password
-       ( PasswordHash (..)
+       ( PasswordHash (unPwdHash)
        , PasswordPlainText (..)
+       , unsafePwdHash
        , mkPasswordHashWithPolicy
        , mkPasswordHash
        , verifyPassword
        ) where
 
 import Control.Monad.Except (MonadError)
-import Data.Aeson (FromJSON (..), ToJSON (..), withText)
+import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Elm (ElmType (..))
 
@@ -18,19 +19,16 @@ import Lib.Util.App (maybeWithM)
 
 import qualified Crypto.BCrypt as BC
 
-newtype PasswordHash = PwdHash { unPwdHash :: ByteString }
+newtype PasswordHash = PwdHash { unPwdHash :: Text }
   deriving (Generic, FromField)
 
-instance ElmType PasswordHash where
-  toElmType = toElmType . decodeUtf8 @Text . unPwdHash
-  -- the above won't evaluate (and waste our resources) because toElmType function ingores its argument
-  -- `decodeUtf8` is needed only to show how this type will be represented in elm
+instance ElmType PasswordHash
 
-instance ToJSON PasswordHash where
-  toJSON = toJSON . decodeUtf8 @Text . unPwdHash
+instance ToJSON PasswordHash
+instance FromJSON PasswordHash
 
-instance FromJSON PasswordHash where
-  parseJSON = withText "pwdHash" (pure . PwdHash . encodeUtf8)
+unsafePwdHash :: Text -> PasswordHash
+unsafePwdHash = PwdHash
 
 newtype PasswordPlainText = PwdPlainText { unPwdPlainText :: Text }
   deriving (Show, Eq, Generic, ElmType)
@@ -47,7 +45,7 @@ mkPasswordHashWithPolicy :: (MonadError AppError m, MonadIO m)
 mkPasswordHashWithPolicy hashPolicy password = maybeWithM errorMessage $ liftIO hash
   where
     hashBS = BC.hashPasswordUsingPolicy hashPolicy (encodeUtf8 $ unPwdPlainText password)
-    hash = PwdHash <<$>> hashBS
+    hash = PwdHash . decodeUtf8 <<$>> hashBS
     errorMessage = ServerError "Error generating password hash"
 
 -- | Generates the password hash with slow hashing policy.
@@ -55,4 +53,4 @@ mkPasswordHash :: (MonadError AppError m, MonadIO m) => PasswordPlainText -> m P
 mkPasswordHash = mkPasswordHashWithPolicy BC.slowerBcryptHashingPolicy
 
 verifyPassword :: PasswordPlainText -> PasswordHash -> Bool
-verifyPassword (PwdPlainText password) (PwdHash hash) = BC.validatePassword hash (encodeUtf8 password)
+verifyPassword (PwdPlainText password) (PwdHash hash) = BC.validatePassword (encodeUtf8 hash) (encodeUtf8 password)
