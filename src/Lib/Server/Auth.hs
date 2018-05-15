@@ -13,9 +13,9 @@ module Lib.Server.Auth
        ) where
 
 import Control.Monad.Except (MonadError, throwError)
-import Control.Monad.Logger (MonadLogger, logDebug)
 import Data.Aeson (FromJSON, ToJSON)
 import Elm (ElmType)
+import Katip (KatipContext, Severity (..), logTM, ls)
 import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
@@ -65,16 +65,16 @@ authServer = AuthSite
   , logout   = logoutHandler
   }
 
-loginHandler :: (MonadUser m, MonadSession m, MonadLogger m) => LoginRequest -> m LoginResponse
+loginHandler :: (MonadUser m, MonadSession m, KatipContext m) => LoginRequest -> m LoginResponse
 loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
   mUser <- getUserByEmail loginRequestEmail
   when (isNothing mUser) $ do
-    $(logDebug) $ "Given email address " <> loginRequestEmail <> " not found"
+    $(logTM) DebugS $ ls $ "Given email address " <> loginRequestEmail <> " not found"
     throwError NotFound
   let (Just User{..}) = mUser
   let isPasswordCorrect = verifyPassword loginRequestPassword userHash
   unless isPasswordCorrect $ do
-    $(logDebug) $ "Incorrect password for user " <> loginRequestEmail
+    $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
     throwError (NotAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
   token <- mkJWTToken (60 * 60 * 24) (JWTPayload userId)
@@ -87,7 +87,7 @@ isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
   unless isLoggedIn $ throwError (NotAllowed "Revoked Session")
   return NoContent
 
-logoutHandler :: (MonadSession m, MonadLogger m) => Text -> m NoContent
+logoutHandler :: (MonadSession m, KatipContext m) => Text -> m NoContent
 logoutHandler token = timedAction "logoutHandler" $ do
   mPayload <- decodeAndVerifyJWTToken token
   case mPayload of
@@ -95,5 +95,5 @@ logoutHandler token = timedAction "logoutHandler" $ do
       deleteSession jwtUserId
       return NoContent
     Nothing -> do
-      $(logDebug) $ token <> " was used to logout when it was invalid"
+      $(logTM) DebugS $ ls $ token <> " was used to logout when it was invalid"
       return NoContent

@@ -5,3 +5,7 @@ extra-deps:
   - lens-labels-0.2.0.1
   - proto-lens-0.3.1.0
   - proto-lens-protoc-0.3.1.0
+
+  - git: https://github.com/Holmusk/katip
+    commit: 77de49c9f070c2f2fd2c2dd3011264145543758d
+    subdirs: [katip]
