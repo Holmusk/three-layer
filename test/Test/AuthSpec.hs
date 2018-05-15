@@ -9,7 +9,7 @@ import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
 import Lib.Util.JWT
-import Lib.Util.Password (PasswordHash (..), PasswordPlainText (..))
+import Lib.Util.Password (PasswordPlainText (..), unsafePwdHash)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.UUID.Types as UUID
@@ -36,7 +36,7 @@ instance MonadUser MockApp where
       userName = "test user",
       userEmail = "test@test.com",
       -- hash of 'password'
-      userHash = PwdHash "$2y$10$GHIz6OuOdv3cUmU5QAPUpO7f2cmVW0b/AB4LGeRlDc4WskmzGWv5e"
+      userHash = unsafePwdHash "$2y$10$GHIz6OuOdv3cUmU5QAPUpO7f2cmVW0b/AB4LGeRlDc4WskmzGWv5e"
   }
   getUserByEmail _ = return Nothing
 
