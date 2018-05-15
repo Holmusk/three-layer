@@ -24,3 +24,6 @@ cabal.project.local~
 
 # emacs tags for go-to-deifinition
 TAGS
+
+# Mac
+.DS_Store

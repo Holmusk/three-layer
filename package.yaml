@@ -2,13 +2,14 @@ name:                three-layer
 version:             0.1.0.0
 github:              "githubuser/three-layer"
 license:             BSD3
-author:              "Author name here"
+author:              "Holmusk"
 maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+copyright:           "2018 Holmusk"
 
 extra-source-files:
 - README.md
 - ChangeLog.md
+- proto/login.proto
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -18,6 +19,12 @@ extra-source-files:
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
 description:         Please see the README on Github at <https://github.com/githubuser/three-layer#readme>
+
+custom-setup:
+  dependencies:
+    - base
+    - Cabal
+    - proto-lens-protoc
 
 dependencies:
 - aeson
@@ -32,6 +39,8 @@ dependencies:
 - monad-logger
 - mtl
 - postgresql-simple
+- proto-lens
+- proto-lens-protoc
 - random
 - resource-pool
 - servant
@@ -55,6 +64,8 @@ library:
   source-dirs: src
   ghc-options:
   - -Wall
+  other-modules:
+    - Proto.Login
 
 executables:
   three-layer-exe:
