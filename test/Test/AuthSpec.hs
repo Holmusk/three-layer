@@ -1,7 +1,8 @@
 module Test.AuthSpec where
 
 import Control.Monad.Except (MonadError)
-import Control.Monad.Logger (MonadLogger, NoLoggingT (..))
+import Katip (Katip, KatipContext)
+import Katip.Monadic (NoLoggingT (..))
 import Test.Tasty.Hspec
 
 import Lib.App
@@ -15,9 +16,10 @@ import qualified Data.HashMap.Strict as HashMap
 import qualified Data.UUID.Types as UUID
 import qualified System.Metrics as Metrics
 
-newtype MockApp a = MockApp {
-  unMockApp :: NoLoggingT (ReaderT AppEnv (ExceptT AppError IO)) a
-} deriving (Functor, Applicative, Monad, MonadError AppError, MonadReader AppEnv, MonadIO, MonadLogger)
+newtype MockApp a = MockApp
+  { unMockApp :: ReaderT AppEnv (NoLoggingT (ExceptT AppError IO)) a
+  } deriving (Functor, Applicative, Monad, MonadError AppError, MonadReader AppEnv,
+              MonadIO, Katip, KatipContext)
 
 instance MonadSession MockApp
 
@@ -28,7 +30,7 @@ runMockApp action = do
   timings  <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   let dbPool = error "Not implemented"
-  runExceptT $ runReaderT (runNoLoggingT $ unMockApp action) AppEnv{..}
+  runExceptT $ runNoLoggingT $ usingReaderT AppEnv{..} $ unMockApp action
 
 instance MonadUser MockApp where
   getUserByEmail "test@test.com" = return . Just $ User {

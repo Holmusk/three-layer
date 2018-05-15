@@ -36,6 +36,7 @@ dependencies:
 - ekg-core
 - elm-export
 - jwt
+- katip
 - monad-logger
 - mtl
 - postgresql-simple

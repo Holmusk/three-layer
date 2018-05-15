@@ -3,13 +3,15 @@
 This package is aimed at being a batteries included starting template for writing web servers using `servant`. It follows the approach detailed [here](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
 
 Things that are included:
-* Custom prelude(uses [`universum`](https://github.com/serokell/universum))
-* Logging integration(uses `monad-logger`)
-* Database helper functions(uses `postgresql-simple`).
-* Monitoring time taken for your `App` actions(uses `ekg`)
-* Password helper functions(uses `bcrypt`)
-* JWT helper functions(uses `jwt`)
-* Testing support(uses `tasty`)
+* Custom prelude (uses [`universum`](https://github.com/serokell/universum))
+* Logging integration (uses `katip`)
+* Database helper functions (uses `postgresql-simple`)
+* Monitoring time taken for your `App` actions (uses `ekg`)
+* Password hashing functions (uses `bcrypt`)
+* JWT helper functions (uses `jwt`)
+* Testing support (uses `tasty` and `hedgehog`)
+
+[TODO]: rewrite code below according to libraries we use
 
 ## Getting started
 
