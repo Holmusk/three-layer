@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/Holmusk/three-layer.svg?style=svg)](https://circleci.com/gh/Holmusk/three-layer)
 # three-layer-servant-starter
 
 This package is aimed at being a batteries included starting template for writing web servers using `servant`. It follows the approach detailed [here](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
