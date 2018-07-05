@@ -25,7 +25,6 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
       Refactor
   other-modules:
       Paths_fix_point
@@ -34,6 +33,8 @@ library
   build-depends:
       base >=4.7 && <5
   default-language: Haskell2010
+
+ghc-options: -Wall
 
 executable fix-point-exe
   main-is: Main.hs
