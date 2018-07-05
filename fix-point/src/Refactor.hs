@@ -3,24 +3,33 @@ module Rename where
 changeLine :: String -> String -> String 
 changeLine newMod line = case words line of 
     -- module names 
-    "module" : s : extra     -> unwords ("module": r1 : extra)
+    "module" : s : extra     -> unwords ("module": (newPref newMod s) : extra)
+
     -- imports which start with Lib
-    "import" : s : extra     -> if take (length "Lib") s == "Lib" 
-                                then unwords ("import": r1 : extra) 
+    "import" : s : extra     -> if take libLen s == "Lib" 
+                                then unwords ("import": (newPref newMod s) : extra) 
                                 else line 
+
     -- reexport where reexport module started with Lib
-    "(":"module" : s : extra -> unwords ("(" :"module": r2 : extra)
-    ",":"module" : s : extra -> unwords ("," :"module": r2 : extra)
+    "(":"module" : s : extra -> unwords ("(" :"module": (newPref newMod s) : extra)
+    ",":"module" : s : extra -> unwords ("," :"module": (newPref newMod s) : extra)
+
     -- Anything else can't be changed
     _ -> line
-  where
-    r1 = renamePrefix newMod $ splitAt (length "Lib") (words line !! 1)
-    r2 = renamePrefix newMod $ splitAt (length "Lib") (words line !! 2)
+
+-- To use and avoid calling length function too many times 
+libLen :: Int
+libLen = length "Lib"
+
 -- Function replaces Lib prefix with given 1st argument 
 renamePrefix :: String -> (String, String) -> String
-renamePrefix s ( _ ,end) = s ++ end 
+renamePrefix newMod (_, end) = newMod ++ end 
 
--- Method to test I could do it without filepath yet 
+-- higher level rename 
+newPref :: String -> String -> String
+newPref newMod s = renamePrefix newMod (splitAt libLen s)
+
+-- Method to test if possible without filepath yet 
 rename :: String -> String -> String
 rename newMod s = unlines [changeLine newMod x | x <- lines s]
 
