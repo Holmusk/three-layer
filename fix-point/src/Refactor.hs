@@ -3,16 +3,16 @@ module Rename where
 changeLine :: String -> String -> String 
 changeLine newMod line = case words line of 
     -- module names 
-    "module" : s : extra     -> unwords ("module": (newPref newMod s) : extra)
+    "module" : s : extra     -> unwords ("module": newPref newMod s : extra)
 
     -- imports which start with Lib
     "import" : s : extra     -> if take libLen s == "Lib" 
-                                then unwords ("import": (newPref newMod s) : extra) 
+                                then unwords ("import": newPref newMod s : extra) 
                                 else line 
 
     -- reexport where reexport module started with Lib
-    "(":"module" : s : extra -> unwords ("(" :"module": (newPref newMod s) : extra)
-    ",":"module" : s : extra -> unwords ("," :"module": (newPref newMod s) : extra)
+    "(":"module" : s : extra -> unwords ("(" :"module": newPref newMod s : extra)
+    ",":"module" : s : extra -> unwords ("," :"module": newPref newMod s : extra)
 
     -- Anything else can't be changed
     _ -> line
