@@ -14,8 +14,8 @@ changeLine newMod line = case words line of
     -- Anything else can't be changed
     _ -> line
   where
-    r1 = renamePrefix newMod $ splitAt (length "Lib") ((words line)!!1)
-    r2 = renamePrefix newMod $ splitAt (length "Lib") ((words line)!!2)
+    r1 = renamePrefix newMod $ splitAt (length "Lib") (words line !! 1)
+    r2 = renamePrefix newMod $ splitAt (length "Lib") (words line !! 2)
 -- Function replaces Lib prefix with given 1st argument 
 renamePrefix :: String -> (String, String) -> String
 renamePrefix s ( _ ,end) = s ++ end 
