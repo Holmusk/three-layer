@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Refactor
   other-modules:
       Paths_fix_point
   hs-source-dirs:
