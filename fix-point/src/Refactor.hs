@@ -5,18 +5,18 @@ changeLine :: String -> String -> String
 changeLine newMod line = case words line of 
     -- module names 
     "module" : s : extra -> 
-        unwords ("module": (transform newMod $ splitAt 3 s) : extra)
+        unwords ("module": transform newMod (splitAt 3 s) : extra)
 
     -- imports which start with Lib
     "import" : s : extra -> 
         if take 3 s == "Lib" then 
-        unwords ("import": (transform newMod $ splitAt 3 s) : extra) 
+        unwords ("import": transform newMod (splitAt 3 s) : extra) 
         else 
             line 
 
     -- reexport where reexport module started with Lib
     "(":"module" : s : extra -> 
-        unwords ("(" :"module": (transform newMod $ splitAt 3 s) : extra)
+        unwords ("(" :"module": transform newMod (splitAt 3 s) : extra)
     
     -- Anything else can't be changed 
     _ -> line
