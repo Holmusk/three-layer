@@ -32,9 +32,11 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , text
   ghc-options: 
      -Wall
   default-language: Haskell2010
+  default-extensions: OverloadedStrings
 
 
 executable fix-point-exe
@@ -47,6 +49,7 @@ executable fix-point-exe
   build-depends:
       base >=4.7 && <5
     , fix-point
+    -- , -XOverloadedStrings
   default-language: Haskell2010
 
 test-suite fix-point-test
