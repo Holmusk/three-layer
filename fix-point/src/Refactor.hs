@@ -1,39 +1,39 @@
 module Rename where 
 
-import qualified Data.Text as T
-import qualified Data.Text.IO as Out
+import qualified Data.Text as Universum
+import qualified Data.Text.IO as Universum
 
-changeLine :: T.Text -> T.Text -> T.Text 
-changeLine newMod line = case T.words line of 
+changeLine :: Universum.Text -> Universum.Text -> Universum.Text 
+changeLine newMod line = case Universum.words line of 
     -- module names 
-    "module" : s : extra     -> T.unwords ("module": prefix s : extra)
+    "module" : s : extra     -> Universum.unwords ("module": prefix s : extra)
 
     -- imports which start with Lib
-    "import" : s : extra     -> if T.take libLen s == "Lib" 
-                                then T.unwords ("import": prefix s : extra) 
+    "import" : s : extra     -> if Universum.take libLen s == "Lib" 
+                                then Universum.unwords ("import": prefix s : extra) 
                                 else line 
 
     -- reexport where reexport module started with Lib
-    "(":"module" : s : extra -> T.unwords ("(" :"module": prefix s : extra)
-    ",":"module" : s : extra -> T.unwords ("," :"module": prefix s : extra)
+    "(":"module" : s : extra -> Universum.unwords ("(" :"module": prefix s : extra)
+    ",":"module" : s : extra -> Universum.unwords ("," :"module": prefix s : extra)
 
     -- Anything else can't be changed
     _ -> line
   where
-    prefix s = renamePrefix newMod (T.splitAt libLen s)
+    prefix s = renamePrefix newMod (Universum.splitAt libLen s)
 
 -- To use and avoid calling length function too many times 
 libLen :: Int
 libLen = 3
 
 -- Function replaces Lib prefix with given 1st argument 
-renamePrefix :: T.Text -> (T.Text, T.Text) -> T.Text
-renamePrefix newMod (_, end) = T.concat [newMod, end] 
+renamePrefix :: Universum.Text -> (Universum.Text, Universum.Text) -> Universum.Text
+renamePrefix newMod (_, end) = Universum.concat [newMod, end] 
 
 -- Method to test if possible without filepath yet 
-rename :: T.Text -> T.Text -> T.Text
-rename newMod s = T.unlines [changeLine newMod x | x <- T.lines s]
+rename :: Universum.Text -> Universum.Text -> Universum.Text
+rename newMod s = Universum.unlines [changeLine newMod x | x <- Universum.lines s]
 
 -- Method with filePath
-contentRename :: (T.Text -> T.Text -> T.Text) -> T.Text -> FilePath -> IO ()
-contentRename f newMod file = f newMod <$> Out.readFile file >>= Out.putStrLn
+contentRename :: (Universum.Text -> Universum.Text -> Universum.Text) -> Universum.Text -> FilePath -> IO ()
+contentRename f newMod file = f newMod <$> Universum.readFile file >>= Universum.putStrLn
