@@ -8,15 +8,14 @@ import qualified Data.Text.IO as TIO
 
 -- Tests to copy and paste into stack repl, make sure in src folder
 {-
-:{
-a = changeLine "CHANGE" "import Lib.App (AppEnv (..)) <- TEST 1"
-b = changeLine "CHANGE" "module Lib where <- TEST 2"
-c = changeLine "CHANGE" "( module Lib ) <- TEST 3"
-d = changeLine "CHANGE" ", module Lib <- TEST 4"
-e = changeLine "CHANGE" "import Servant.Server (serve) <- TEST 5"
-x = [a,b,c,d,e]
+import qualified Data.Text.IO as TIO
+:{  
+TIO.putStrLn $ rename "CHANGE" "import Lib.App (AppEnv (..))\n\
+\module Lib where\n\
+\( module Lib )\n\
+\, module Lib\n\
+\import Servant.Server (serve)"
 :}
-putStr (T.unpack (T.unlines x))
 -}
 changeLine :: Text -> Text -> Text 
 changeLine newMod line = case T.words line of 
