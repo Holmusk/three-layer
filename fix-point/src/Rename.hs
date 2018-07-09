@@ -1,11 +1,23 @@
 module Rename where 
 
 import Data.Text (Text)
-import Data.Semigroup
+import Data.Semigroup ((<>))
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
+-- Tests to copy and paste into stack repl, make sure in src folder
+{-
+:{
+a = changeLine "CHANGE" "import Lib.App (AppEnv (..)) <- TEST 1"
+b = changeLine "CHANGE" "module Lib where <- TEST 2"
+c = changeLine "CHANGE" "( module Lib ) <- TEST 3"
+d = changeLine "CHANGE" ", module Lib <- TEST 4"
+e = changeLine "CHANGE" "import Servant.Server (serve) <- TEST 5"
+x = [a,b,c,d,e]
+:}
+putStr (T.unpack (T.unlines x))
+-}
 changeLine :: Text -> Text -> Text 
 changeLine newMod line = case T.words line of 
     -- module names 
