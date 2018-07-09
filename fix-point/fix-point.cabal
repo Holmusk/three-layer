@@ -49,7 +49,6 @@ executable fix-point-exe
   build-depends:
       base >=4.7 && <5
     , fix-point
-    -- , -XOverloadedStrings
   default-language: Haskell2010
 
 test-suite fix-point-test
