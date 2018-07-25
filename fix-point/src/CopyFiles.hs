@@ -2,16 +2,10 @@ module CopyFiles where
 
 import Control.Applicative
 import Control.Exception (throw)
-import Control.Monad (forM_
-                    , when
-                    , unless)
-import System.Directory (copyFile
-                       , createDirectory
-                       , doesDirectoryExist
-                       , doesFileExist
-                       , listDirectory)
-import System.FilePath ((</>)
-                      , makeRelative)
+import Control.Monad (forM_, unless, when)
+import System.Directory (copyFile, createDirectory, doesDirectoryExist, doesFileExist,
+                         listDirectory)
+import System.FilePath (makeRelative, (</>))
 
 import qualified Rename as R
 
@@ -30,7 +24,7 @@ copyAll source target = do
 
   -- if bottom two lines swapped, infinite creation of target occurs
     content <- listDirectory source
-    let refinedContent = filter (/= (makeRelative homeFP fixPoint)) content
+    let refinedContent = filter (/= makeRelative homeFP fixPoint) content
     createDirectory target
     forM_ refinedContent $ \name -> do
         let sourcePath = source </> name
@@ -41,9 +35,10 @@ copyAll source target = do
         then copyAll sourcePath targetPath
         else copyFile sourcePath targetPath
 
-    where
-        unlessM s r = s >>= flip unless r
-        whenM s r = s >>= flip when r
-        doesFileOrDirectoryExist :: FilePath -> IO Bool
-        doesFileOrDirectoryExist x =
-          or <$> sequence [doesDirectoryExist x, doesFileExist x]
+  where
+    unlessM s r = s >>= flip unless r
+    whenM s r = s >>= flip when r
+
+    doesFileOrDirectoryExist :: FilePath -> IO Bool
+    doesFileOrDirectoryExist x =
+      or <$> sequence [doesDirectoryExist x, doesFileExist x]
