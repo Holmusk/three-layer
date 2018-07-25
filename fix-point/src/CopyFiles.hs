@@ -3,7 +3,8 @@ module CopyFiles where
 import Control.Applicative
 import Control.Exception (throw)
 import Control.Monad (forM_
-                    , when)
+                    , when
+                    , unless)
 import System.Directory (copyFile
                        , createDirectory
                        , doesDirectoryExist
@@ -15,7 +16,7 @@ import qualified Rename as R
 
 copyAll :: FilePath -> FilePath -> IO ()
 copyAll source target = do
-    whenM (not <$> doesDirectoryExist source) $
+    unlessM (doesDirectoryExist source) $
         throw (userError "source does not exist")
     whenM (doesFileOrDirectoryExist target) $
         throw (userError "destination already exists")
@@ -33,6 +34,7 @@ copyAll source target = do
         else copyFile sourcePath targetPath
 
     where
+        unlessM s r = s >>= flip unless r
         whenM s r = s >>= flip when r
         doesFileOrDirectoryExist :: FilePath -> IO Bool
         doesFileOrDirectoryExist x =
