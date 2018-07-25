@@ -19,18 +19,17 @@ source-repository head
 
 library
   exposed-modules:
-      Rename
       CopyFiles
+      Rename
   other-modules:
       Paths_fix_point
   hs-source-dirs:
       src
   build-depends:
       base >=4.7 && <5
-    , text
     , directory
     , filepath
-    , filesystem-trees 
+    , text
   ghc-options:
      -Wall
   default-language: Haskell2010
