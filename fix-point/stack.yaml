@@ -1,1 +1,6 @@
 resolver: lts-11.16
+
+extra-deps:
+  - filesystem-trees-0.1.0.6
+  - directory-1.2.7.1
+  - time-1.7.0.1

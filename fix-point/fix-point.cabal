@@ -1,9 +1,3 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
---
--- see: https://github.com/sol/hpack
---
--- hash: 4a50b2893a321b706d4c697fb5f55fe89bbbfe0c5ceb8012711f9d16879ae520
-
 name:           fix-point
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/fix-point#readme>
@@ -26,6 +20,7 @@ source-repository head
 library
   exposed-modules:
       Rename
+      CopyFiles
   other-modules:
       Paths_fix_point
   hs-source-dirs:
@@ -33,7 +28,10 @@ library
   build-depends:
       base >=4.7 && <5
     , text
-  ghc-options: 
+    , directory
+    , filepath
+    , filesystem-trees 
+  ghc-options:
      -Wall
   default-language: Haskell2010
   default-extensions: OverloadedStrings
