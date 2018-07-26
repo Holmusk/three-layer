@@ -51,5 +51,5 @@ rename newMod s = T.unlines [changeLine newMod x | x <- T.lines s]
 -- Method with filePath
 contentRename :: (Text -> Text -> Text) -> Text -> FilePath -> IO ()
 contentRename f newMod file = do
-  content <- f newMod <$> TIO.readFile file
-  TIO.writeFile file content
+    content <- f newMod <$> TIO.readFile file
+    TIO.writeFile file content

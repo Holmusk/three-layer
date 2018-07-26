@@ -3,6 +3,7 @@ module CopyFiles where
 import Control.Applicative
 import Control.Exception (throw)
 import Control.Monad (forM_, unless, when)
+import Data.Foldable (for_)
 import Data.Text (pack)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist,
                          doesFileExist, listDirectory)
@@ -18,10 +19,9 @@ copyAll source target newName = do
         throw (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
-    content <- listDirectory source
-    let refinedContent = filter (/= "fix-point") content
+    content <- filter (/= "fix-point") <$> listDirectory source
     createDirectory target
-    forM_ refinedContent $ \name -> do
+    for_ content $ \name -> do
         let sourcePath = source </> name
         let targetPath = case name of
                           "Lib"    -> target </> newName
@@ -29,15 +29,14 @@ copyAll source target newName = do
                           _        -> target </> name
         isDirectory <- doesDirectoryExist sourcePath
         -- if directory, recurse until a file is reached
-        -- Then rename
+        -- Then rename the modules inside a haskell file 
         if isDirectory
         then copyAll sourcePath targetPath newName
-        else
-          case takeExtension sourcePath of
-            ".hs" -> do
-              copyFile sourcePath targetPath
-              R.contentRename R.rename (pack newName) targetPath
-            _     -> copyFile sourcePath targetPath
+        else do
+          copyFile sourcePath targetPath
+          if (takeExtension sourcePath == ".hs")
+          then R.contentRename R.rename (pack newName) targetPath
+          else return ()
 
   where
     unlessM s r = s >>= flip unless r
