@@ -3,9 +3,10 @@ module CopyFiles where
 import Control.Applicative
 import Control.Exception (throw)
 import Control.Monad (forM_, unless, when)
-import System.Directory (copyFile, createDirectory, doesDirectoryExist, doesFileExist,
-                         listDirectory)
-import System.FilePath (makeRelative, (</>))
+import Data.Text (pack)
+import System.Directory (copyFile, createDirectory, doesDirectoryExist,
+                         doesFileExist, listDirectory)
+import System.FilePath ((</>), takeExtension)
 
 import qualified Rename as R
 
@@ -28,9 +29,15 @@ copyAll source target newName = do
                           _        -> target </> name
         isDirectory <- doesDirectoryExist sourcePath
         -- if directory, recurse until a file is reached
+        -- Then rename
         if isDirectory
         then copyAll sourcePath targetPath newName
-        else copyFile sourcePath targetPath
+        else
+          case (takeExtension sourcePath) of
+            ".hs" -> do
+              copyFile sourcePath targetPath
+              R.contentRename R.rename (pack newName) targetPath
+            _     -> copyFile sourcePath targetPath
 
   where
     unlessM s r = s >>= flip unless r
