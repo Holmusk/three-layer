@@ -2,13 +2,14 @@ module CopyFiles where
 
 import Control.Applicative
 import Control.Exception (throw)
-import Control.Monad (forM_, unless, when)
+import Control.Monad (unless, when)
 import Data.Foldable (for_)
-import Data.Text (pack)
+import Data.Text (Text)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist,
                          doesFileExist, listDirectory)
 import System.FilePath ((</>), takeExtension)
 
+import qualified Data.Text as T
 import qualified Rename as R
 
 copyAll :: FilePath -> FilePath -> String -> IO ()
@@ -34,8 +35,10 @@ copyAll source target newName = do
         then copyAll sourcePath targetPath newName
         else do
           copyFile sourcePath targetPath
-          when (takeExtension sourcePath == ".hs") $ 
-              R.contentRename R.rename (pack newName) targetPath
+          when (takeExtension sourcePath == ".hs") $
+              R.contentRename R.rename (T.pack newName) targetPath
+          when (name == "package.yaml") $
+              R.contentRename renameYaml (T.pack newName) targetPath
 
   where
     unlessM s r = s >>= flip unless r
@@ -44,3 +47,6 @@ copyAll source target newName = do
     doesFileOrDirectoryExist :: FilePath -> IO Bool
     doesFileOrDirectoryExist x =
       or <$> sequence [doesDirectoryExist x, doesFileExist x]
+
+renameYaml :: Text -> Text -> Text
+renameYaml new s = T.unlines [T.replace "three-layer" new x | x <- T.lines s]
