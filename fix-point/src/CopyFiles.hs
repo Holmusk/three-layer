@@ -34,9 +34,8 @@ copyAll source target newName = do
         then copyAll sourcePath targetPath newName
         else do
           copyFile sourcePath targetPath
-          if takeExtension sourcePath == ".hs"
-          then R.contentRename R.rename (pack newName) targetPath
-          else return ()
+          when (takeExtension sourcePath == ".hs") $ 
+              R.contentRename R.rename (pack newName) targetPath
 
   where
     unlessM s r = s >>= flip unless r
