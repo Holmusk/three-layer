@@ -9,12 +9,6 @@ import System.FilePath (makeRelative, (</>))
 
 import qualified Rename as R
 
-fixPoint :: FilePath
-fixPoint = "/Users/tejas/Desktop/three-layer-Holmusk/fix-point"
-
-homeFP :: FilePath
-homeFP = "/Users/tejas/Desktop/three-layer-Holmusk"
-
 copyAll :: FilePath -> FilePath -> IO ()
 copyAll source target = do
     unlessM (doesDirectoryExist source) $
@@ -24,7 +18,7 @@ copyAll source target = do
 
   -- if bottom two lines swapped, infinite creation of target occurs
     content <- listDirectory source
-    let refinedContent = filter (/= makeRelative homeFP fixPoint) content
+    let refinedContent = filter (/= "fix-point") content
     createDirectory target
     forM_ refinedContent $ \name -> do
         let sourcePath = source </> name
