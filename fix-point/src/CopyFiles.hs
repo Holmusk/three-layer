@@ -29,12 +29,12 @@ copyAll source target newName = do
                           _        -> target </> name
         isDirectory <- doesDirectoryExist sourcePath
         -- if directory, recurse until a file is reached
-        -- Then rename the modules inside a haskell file 
+        -- Then rename the modules inside a haskell file
         if isDirectory
         then copyAll sourcePath targetPath newName
         else do
           copyFile sourcePath targetPath
-          if (takeExtension sourcePath == ".hs")
+          if takeExtension sourcePath == ".hs"
           then R.contentRename R.rename (pack newName) targetPath
           else return ()
 
