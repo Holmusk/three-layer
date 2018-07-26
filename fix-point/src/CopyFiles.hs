@@ -33,7 +33,7 @@ copyAll source target newName = do
         if isDirectory
         then copyAll sourcePath targetPath newName
         else
-          case (takeExtension sourcePath) of
+          case takeExtension sourcePath of
             ".hs" -> do
               copyFile sourcePath targetPath
               R.contentRename R.rename (pack newName) targetPath
