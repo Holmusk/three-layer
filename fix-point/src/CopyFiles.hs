@@ -9,8 +9,8 @@ import System.FilePath (makeRelative, (</>))
 
 import qualified Rename as R
 
-copyAll :: FilePath -> FilePath -> IO ()
-copyAll source target = do
+copyAll :: FilePath -> FilePath -> String -> IO ()
+copyAll source target newName = do
     unlessM (doesDirectoryExist source) $
         throw (userError "source does not exist")
     whenM (doesFileOrDirectoryExist target) $
@@ -22,11 +22,14 @@ copyAll source target = do
     createDirectory target
     forM_ refinedContent $ \name -> do
         let sourcePath = source </> name
-        let targetPath = target </> name
+        let targetPath = case name of
+                          "Lib"    -> target </> newName
+                          "Lib.hs" -> target </> (newName ++ ".hs")
+                          _        -> target </> name
         isDirectory <- doesDirectoryExist sourcePath
         -- if directory, recurse until a file is reached
         if isDirectory
-        then copyAll sourcePath targetPath
+        then copyAll sourcePath targetPath newName
         else copyFile sourcePath targetPath
 
   where
