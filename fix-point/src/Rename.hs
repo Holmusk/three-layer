@@ -19,23 +19,26 @@ TIO.putStrLn $ rename "CHANGE" "import Lib.App (AppEnv (..))\n\
 :}
 -}
 changeLine :: Text -> Text -> Text
-changeLine newMod line = case words line of
-    -- module names
-    "module" : s : extra     -> unwords ("module": prefix s : extra)
-
-    -- imports which start with Lib
-    "import" : s : extra     -> if take libLen (toString s) == "Lib"
-                                then unwords ("import": prefix s : extra)
-                                else line
-
-    -- reexport where reexport module started with Lib
-    "(":"module" : s : extra -> unwords ("(" :"module": prefix s : extra)
-    ",":"module" : s : extra -> unwords ("," :"module": prefix s : extra)
-
-    -- Anything else can't be changed
-    _ -> line
+changeLine newMod line = decide line
   where
     prefix s = renamePrefix newMod (T.splitAt libLen s)
+
+    decide :: Text -> Text
+    decide l = case words l of
+        ("(" : "module" : str : ex) -> if take libLen (toString str) == "Lib"
+                                       then unwords ("(" : "module" : prefix str : ex)
+                                       else l
+        ("," : "module" : str : ex) -> if take libLen (toString str) == "Lib"
+                                       then unwords ("," : "module" : prefix str : ex)
+                                       else l
+        ("import" : str : ex)       -> if take libLen (toString str) == "Lib"
+                                       then unwords ("import" : prefix str : ex)
+                                       else l
+        ("module" : str : ex)       -> if take libLen (toString str) == "Lib"
+                                       then unwords ("module" : prefix str : ex)
+                                       else l
+        _ -> l
+
 
 -- To use and avoid calling length function too many times
 libLen :: Int

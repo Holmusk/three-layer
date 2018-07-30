@@ -29,6 +29,7 @@ library
       base >=4.7 && <5
     , directory
     , filepath
+    , mtl
     , text
     , universum
   ghc-options:
@@ -38,7 +39,7 @@ library
                       NoImplicitPrelude
 
 
-executable fix-point-exe
+executable fix-point
   main-is: Main.hs
   other-modules:
       Paths_fix_point

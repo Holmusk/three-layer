@@ -6,7 +6,8 @@ import Data.Char (toUpper, toLower)
 import Data.Maybe (maybe)
 import Data.Semigroup ((<>))
 import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
-                            fullDesc, header, info, (<**>), execParser, strOption)
+                            fullDesc, header, info, (<**>), execParser,
+                            strArgument, strOption)
 import System.Directory (doesDirectoryExist, getCurrentDirectory)
 
 import CopyFiles (copyAll)
@@ -25,7 +26,7 @@ bootstrap (Options project pref source) = do
     -- let prefix = maybe project upperHead pref
     let prefix = fromMaybe (upperHead project) pref
     let sourceDir = fromMaybe "three-layer" source
-    copyAll project prefix sourceDir
+    copyAll sourceDir project prefix
   where
     upperHead :: String -> String
     upperHead (start:body) = toUpper start : body
@@ -45,9 +46,8 @@ parseOptions = Options
 
 -- Regular options
 parseProject :: Parser String
-parseProject = strOption
-    (  long "project-title"
-    <> metavar "PROJECT_NAME"
+parseProject = strArgument
+    (  metavar "PROJECT_NAME"
     <> help "Name of project")
 
 parsePref :: Parser String
