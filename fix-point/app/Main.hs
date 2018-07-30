@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Applicative (optional)
+import Data.Char (toUpper, toLower)
 import Data.Semigroup ((<>))
 import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
                             fullDesc, header, info, (<**>), execParser, strOption)
@@ -10,19 +11,26 @@ import CopyFiles (copyAll)
 import Rename
 
 main :: IO ()
-main = test =<< execParser opts
+main = bootstrap =<< execParser opts
   where
     opts = info (parseOptions <**> helper)
       (  fullDesc
-      <> progDesc "Test parsing of CLI's"
-      <> header "Test for optparse-applicative")
+      <> progDesc "Refactors with project, prefix and sourcepath with three-layer"
+      <> header "Content refactoring")
 
-test :: Options -> IO ()
-test opts = case opts of
-    (Options proj (Just pref) (Just sd)) -> copyAll sd proj pref
-    (Options proj Nothing (Just sd))     -> copyAll sd proj proj
-    (Options proj (Just pref) Nothing)   -> copyAll "three-layer" proj pref
-    (Options proj Nothing Nothing)       -> copyAll "three-layer" proj proj
+bootstrap :: Options -> IO ()
+bootstrap (Options project pref source) = do
+    let prefix = case pref of
+                     (Just s) -> s
+                     Nothing  -> (f project)
+    let sourceDir = case source of
+                        (Just s) -> s
+                        Nothing  -> "three-layer"
+    copyAll project prefix sourceDir
+  where
+    f :: String -> String
+    f (start:body) = toUpper start : map toLower body
+    f [] = []
 
 data Options = Options
     { projectName :: String
@@ -31,29 +39,26 @@ data Options = Options
     }
 
 parseOptions :: Parser Options
-parseOptions = Options <$> parseProject <*> parsePref <*> parseSD
+parseOptions = Options
+    <$> parseProject
+    <*> optional parsePref
+    <*> optional parseSD
 
 -- Regular options
 parseProject :: Parser String
 parseProject = strOption
     (  long "project-title"
-    <> metavar "PROJECTNAME"
+    <> metavar "PROJECT_NAME"
     <> help "Name of project")
 
-parseOnlyPref :: Parser String
-parseOnlyPref = strOption
+parsePref :: Parser String
+parsePref = strOption
     (  long "prefix-name"
-    <> metavar "PREFIXNAME"
+    <> metavar "PREFIX_NAME"
     <> help "Rename all Lib files and modules to this name")
 
-parsePref :: Parser (Maybe String)
-parsePref = optional parseOnlyPref
-
-parseOnlySD :: Parser String
-parseOnlySD = strOption
+parseSD :: Parser String
+parseSD = strOption
     (  long "source-directory"
-    <> metavar "SOURCEPATH"
+    <> metavar "SOURCE_PATH"
     <> help "Source path must point to three-layer")
-
-parseSD :: Parser (Maybe String)
-parseSD = optional parseOnlySD
