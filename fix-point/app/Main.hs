@@ -2,6 +2,7 @@ module Main where
 
 import Control.Applicative (optional)
 import Data.Char (toUpper, toLower)
+import Data.Maybe (maybe, fromMaybe)
 import Data.Semigroup ((<>))
 import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
                             fullDesc, header, info, (<**>), execParser, strOption)
@@ -20,12 +21,8 @@ main = bootstrap =<< execParser opts
 
 bootstrap :: Options -> IO ()
 bootstrap (Options project pref source) = do
-    let prefix = case pref of
-                     (Just s) -> s
-                     Nothing  -> upperHead project
-    let sourceDir = case source of
-                        (Just s) -> s
-                        Nothing  -> "three-layer"
+    let prefix = maybe project upperHead pref
+    let sourceDir = fromMaybe "three-layer" source
     copyAll project prefix sourceDir
   where
     upperHead :: String -> String
