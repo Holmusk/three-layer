@@ -3,26 +3,28 @@ module CopyFiles where
 import Control.Applicative
 import Control.Exception (throw)
 import Control.Monad (unless, when)
-import Data.Foldable (for_)
 import Data.Text (Text)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist,
                          doesFileExist, listDirectory)
 import System.FilePath ((</>), takeExtension)
+import System.IO.Error (userError)
+import Universum
 
+import qualified Data.Foldable as DF (for_)
 import qualified Data.Text as T
 import qualified Rename as R
 
 copyAll :: FilePath -> FilePath -> String -> IO ()
 copyAll source target newName = do
-    unlessM (doesDirectoryExist source) $
+    unlessM' (doesDirectoryExist source) $
         throw (userError "source does not exist")
-    whenM (doesFileOrDirectoryExist target) $
+    whenM' (doesFileOrDirectoryExist target) $
         throw (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
     content <- filter (/= "fix-point") <$> listDirectory source
     createDirectory target
-    for_ content $ \name -> do
+    DF.for_ content $ \name -> do
         let sourcePath = source </> name
         let targetPath = case name of
                           "Lib"    -> target </> newName
@@ -41,8 +43,8 @@ copyAll source target newName = do
               R.contentRename renameYaml (T.pack newName) targetPath
 
   where
-    unlessM s r = s >>= flip unless r
-    whenM s r = s >>= flip when r
+    unlessM' s r = s >>= flip unless r
+    whenM' s r = s >>= flip when r
 
     doesFileOrDirectoryExist :: FilePath -> IO Bool
     doesFileOrDirectoryExist x =

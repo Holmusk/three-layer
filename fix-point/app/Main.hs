@@ -7,6 +7,7 @@ import Data.Semigroup ((<>))
 import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
                             fullDesc, header, info, (<**>), execParser, strOption)
 import System.Directory (doesDirectoryExist, getCurrentDirectory)
+import Universum 
 
 import CopyFiles (copyAll)
 import Rename
@@ -21,7 +22,8 @@ main = bootstrap =<< execParser opts
 
 bootstrap :: Options -> IO ()
 bootstrap (Options project pref source) = do
-    let prefix = maybe project upperHead pref
+    -- let prefix = maybe project upperHead pref
+    let prefix = fromMaybe (upperHead project) pref
     let sourceDir = fromMaybe "three-layer" source
     copyAll project prefix sourceDir
   where

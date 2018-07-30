@@ -1,7 +1,8 @@
 module Rename where
 
-import Data.Text (Text)
 import Data.Semigroup ((<>))
+import Data.Text (Text)
+import Universum 
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO

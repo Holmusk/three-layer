@@ -30,10 +30,12 @@ library
     , directory
     , filepath
     , text
+    , universum
   ghc-options:
      -Wall
   default-language: Haskell2010
   default-extensions: OverloadedStrings
+                    , NoImplicitPrelude
 
 
 executable fix-point-exe
@@ -47,7 +49,8 @@ executable fix-point-exe
       base >=4.7 && <5
     , directory
     , fix-point
-    , optparse-applicative 
+    , optparse-applicative
+    , universum
   default-language: Haskell2010
 
 test-suite fix-point-test
