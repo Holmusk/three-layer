@@ -23,7 +23,6 @@ test opts = case opts of
     (Options proj Nothing (Just sd))     -> copyAll sd proj proj
     (Options proj (Just pref) Nothing)   -> copyAll "three-layer" proj pref
     (Options proj Nothing Nothing)       -> copyAll "three-layer" proj proj
-test _ = return ()
 
 data Options = Options
     { projectName :: String
