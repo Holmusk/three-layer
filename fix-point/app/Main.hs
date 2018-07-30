@@ -22,15 +22,15 @@ bootstrap :: Options -> IO ()
 bootstrap (Options project pref source) = do
     let prefix = case pref of
                      (Just s) -> s
-                     Nothing  -> f project
+                     Nothing  -> upperHead project
     let sourceDir = case source of
                         (Just s) -> s
                         Nothing  -> "three-layer"
     copyAll project prefix sourceDir
   where
-    f :: String -> String
-    f (start:body) = toUpper start : map toLower body
-    f [] = []
+    upperHead :: String -> String
+    upperHead (start:body) = toUpper start : body
+    upperHead [] = []
 
 data Options = Options
     { projectName :: String
