@@ -1,11 +1,11 @@
 module Rename where
 
+import Universum
+
 import Data.Semigroup ((<>))
 import Data.Text (Text)
-import Universum 
 
 import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
 
 -- Tests to copy and paste into stack repl, make sure in src folder
 {-
@@ -19,18 +19,18 @@ TIO.putStrLn $ rename "CHANGE" "import Lib.App (AppEnv (..))\n\
 :}
 -}
 changeLine :: Text -> Text -> Text
-changeLine newMod line = case T.words line of
+changeLine newMod line = case words line of
     -- module names
-    "module" : s : extra     -> T.unwords ("module": prefix s : extra)
+    "module" : s : extra     -> unwords ("module": prefix s : extra)
 
     -- imports which start with Lib
-    "import" : s : extra     -> if T.take libLen s == "Lib"
-                                then T.unwords ("import": prefix s : extra)
+    "import" : s : extra     -> if take libLen (T.unpack s) == "Lib"
+                                then unwords ("import": prefix s : extra)
                                 else line
 
     -- reexport where reexport module started with Lib
-    "(":"module" : s : extra -> T.unwords ("(" :"module": prefix s : extra)
-    ",":"module" : s : extra -> T.unwords ("," :"module": prefix s : extra)
+    "(":"module" : s : extra -> unwords ("(" :"module": prefix s : extra)
+    ",":"module" : s : extra -> unwords ("," :"module": prefix s : extra)
 
     -- Anything else can't be changed
     _ -> line
@@ -47,10 +47,10 @@ renamePrefix newMod (_, end) = newMod <> end
 
 -- Method to test if possible without filepath yet
 rename :: Text -> Text -> Text
-rename newMod s = T.unlines [changeLine newMod x | x <- T.lines s]
+rename newMod s = unlines [changeLine newMod x | x <- lines s]
 
 -- Method with filePath
 contentRename :: (Text -> Text -> Text) -> Text -> FilePath -> IO ()
 contentRename f newMod file = do
-    content <- f newMod <$> TIO.readFile file
-    TIO.writeFile file content
+    content <- f newMod <$> readFile file
+    writeFile file content

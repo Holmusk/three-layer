@@ -1,30 +1,28 @@
 module CopyFiles where
 
-import Control.Applicative
+import Universum
+
 import Control.Exception (throw)
-import Control.Monad (unless, when)
 import Data.Text (Text)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist,
                          doesFileExist, listDirectory)
 import System.FilePath ((</>), takeExtension)
 import System.IO.Error (userError)
-import Universum
 
-import qualified Data.Foldable as DF (for_)
 import qualified Data.Text as T
 import qualified Rename as R
 
 copyAll :: FilePath -> FilePath -> String -> IO ()
 copyAll source target newName = do
-    unlessM' (doesDirectoryExist source) $
+    unlessM (doesDirectoryExist source) $
         throw (userError "source does not exist")
-    whenM' (doesFileOrDirectoryExist target) $
+    whenM (doesFileOrDirectoryExist target) $
         throw (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
     content <- filter (/= "fix-point") <$> listDirectory source
     createDirectory target
-    DF.for_ content $ \name -> do
+    for_ content $ \name -> do
         let sourcePath = source </> name
         let targetPath = case name of
                           "Lib"    -> target </> newName
@@ -38,17 +36,17 @@ copyAll source target newName = do
         else do
           copyFile sourcePath targetPath
           when (takeExtension sourcePath == ".hs") $
-              R.contentRename R.rename (T.pack newName) targetPath
+              R.contentRename R.rename (toText newName) targetPath
           when (name == "package.yaml") $
-              R.contentRename renameYaml (T.pack newName) targetPath
+              R.contentRename renameYaml (toText newName) targetPath
 
   where
-    unlessM' s r = s >>= flip unless r
-    whenM' s r = s >>= flip when r
+    unlessM s r = s >>= flip unless r
+    whenM s r = s >>= flip when r
 
     doesFileOrDirectoryExist :: FilePath -> IO Bool
     doesFileOrDirectoryExist x =
-      or <$> sequence [doesDirectoryExist x, doesFileExist x]
+      orM [doesDirectoryExist x, doesFileExist x]
 
 renameYaml :: Text -> Text -> Text
-renameYaml new s = T.unlines [T.replace "three-layer" new x | x <- T.lines s]
+renameYaml new s = unlines [T.replace "three-layer" new x | x <- lines s]
