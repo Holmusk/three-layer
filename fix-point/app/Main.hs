@@ -22,7 +22,7 @@ bootstrap :: Options -> IO ()
 bootstrap (Options project pref source) = do
     let prefix = case pref of
                      (Just s) -> s
-                     Nothing  -> (f project)
+                     Nothing  -> f project
     let sourceDir = case source of
                         (Just s) -> s
                         Nothing  -> "three-layer"
