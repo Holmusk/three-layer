@@ -1,77 +1,60 @@
 module Main where
 
+import Control.Applicative (optional)
 import Data.Semigroup ((<>))
-import Options.Applicative (help, Parser, ParserInfo, info, (<**>), header,
-                            helper, execParser, (<|>), metavar, long, short,
-                            fullDesc, progDesc, argument, str)
-import System.Directory (doesDirectoryExist)
+import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
+                            fullDesc, header, info, (<**>), execParser, strOption)
+import System.Directory (doesDirectoryExist, getCurrentDirectory)
 
 import CopyFiles (copyAll)
 import Rename
 
 main :: IO ()
-main = run =<< execParser (args `withInfo` "Create project with given name")
+main = test =<< execParser opts
+  where
+    opts = info (parseOptions <**> helper)
+      (  fullDesc
+      <> progDesc "Test parsing of CLI's"
+      <> header "Test for optparse-applicative")
 
-run :: Args -> IO ()
-run (Args input) = do
-    case input of
-        Project  proj           -> copyAll "three-layer" proj proj
-        ProjPref proj pref      -> copyAll "three-layer" proj pref
-        StringFP path           -> copyAll path "NEWNAME" "NEWDIR"
-        Combo    path proj pref -> copyAll path proj pref
+test :: Options -> IO ()
+test opts = case opts of
+    (Options proj (Just pref) (Just sd)) -> copyAll sd proj pref
+    (Options proj Nothing (Just sd))     -> copyAll sd proj proj
+    (Options proj (Just pref) Nothing)   -> copyAll "three-layer" proj pref
+    (Options proj Nothing Nothing)       -> copyAll "three-layer" proj proj
+test _ = return ()
 
-type Project    = String
-type Prefix     = String
-type SourcePath = FilePath
+data Options = Options
+    { projectName :: String
+    , prefixName :: Maybe String
+    , sourceDirectory :: Maybe String
+    }
 
-data FPInput = Project Project
-             | ProjPref Project Prefix
-             | StringFP SourcePath
-             | Combo SourcePath Project Prefix
+parseOptions :: Parser Options
+parseOptions = Options <$> parseProject <*> parsePref <*> parseSD
 
-data Args = Args FPInput
+-- Regular options
+parseProject :: Parser String
+parseProject = strOption
+    (  long "project-title"
+    <> metavar "PROJECTNAME"
+    <> help "Name of project")
 
-args :: Parser Args
-args = Args <$> parseFPInput
+parseOnlyPref :: Parser String
+parseOnlyPref = strOption
+    (  long "prefix-name"
+    <> metavar "PREFIXNAME"
+    <> help "Rename all Lib files and modules to this name")
 
-parseFPInput :: Parser FPInput
-parseFPInput = project <|> projPref <|> stringFP <|> combo
+parsePref :: Parser (Maybe String)
+parsePref = optional parseOnlyPref
 
-project :: Parser FPInput
-project = Project
-    <$> argument str (metavar "PROJECT NAME" <> help "name of project" )
-
-projPref :: Parser FPInput
-projPref = ProjPref
-    <$> argument str
-        (metavar "PROJECT NAME" <> help "name of project" )
-    <*> argument str
-        (  long "prefix"
-        <> short 'p'
-        <> metavar "PREFIX NAME"
-        <> help "name of prefix" )
-
-stringFP :: Parser FPInput
-stringFP = StringFP <$> argument str
-           (  long "source path"
-           <> short 's'
-           <> metavar "SOURCEPATH"
-           <> help "source path" )
-
-combo :: Parser FPInput
-combo = Combo
-    <$> argument str
-    (  long "source path"  -- This line gave a 'no instance error'... 
-    <> short 's'
+parseOnlySD :: Parser String
+parseOnlySD = strOption
+    (  long "source-directory"
     <> metavar "SOURCEPATH"
-    <> help "source path" )
-    <*> argument str
-        (metavar "PROJECT NAME" <> help "name of project" )
-    <*> argument str
-        (  long "prefix"
-        <> short 'p'
-        <> metavar "PREFIX NAME"
-        <> help "name of prefix" )
+    <> help "Source path must point to three-layer")
 
-withInfo :: Parser a -> String -> ParserInfo a
-withInfo opts desc = info (helper <*> opts) $ progDesc desc
+parseSD :: Parser (Maybe String)
+parseSD = optional parseOnlySD
