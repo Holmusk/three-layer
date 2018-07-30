@@ -19,7 +19,7 @@ TIO.putStrLn $ rename "CHANGE" "import Lib.App (AppEnv (..))\n\
 :}
 -}
 changeLine :: Text -> Text -> Text
-changeLine newMod line = decide line
+changeLine newMod = decide
   where
     prefix s = renamePrefix newMod (T.splitAt libLen s)
 

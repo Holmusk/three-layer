@@ -20,7 +20,7 @@ copyAll source target newName = do
         throw (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
-    content <- filter (norFP3Layer) <$> listDirectory source
+    content <- filter norFP3Layer <$> listDirectory source
     createDirectory target
     for_ content $ \name -> do
         let sourcePath = source </> name
