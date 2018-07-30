@@ -24,7 +24,7 @@ changeLine newMod line = case words line of
     "module" : s : extra     -> unwords ("module": prefix s : extra)
 
     -- imports which start with Lib
-    "import" : s : extra     -> if take libLen (T.unpack s) == "Lib"
+    "import" : s : extra     -> if take libLen (toString s) == "Lib"
                                 then unwords ("import": prefix s : extra)
                                 else line
 

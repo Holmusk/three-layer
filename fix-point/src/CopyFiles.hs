@@ -41,9 +41,6 @@ copyAll source target newName = do
               R.contentRename renameYaml (toText newName) targetPath
 
   where
-    unlessM s r = s >>= flip unless r
-    whenM s r = s >>= flip when r
-
     doesFileOrDirectoryExist :: FilePath -> IO Bool
     doesFileOrDirectoryExist x =
       orM [doesDirectoryExist x, doesFileExist x]

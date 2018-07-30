@@ -2,14 +2,12 @@ module Main where
 
 import Universum
 
-import Control.Applicative 
 import Data.Char (toUpper, toLower)
 import Data.Maybe (maybe)
 import Data.Semigroup ((<>))
 import Options.Applicative (Parser, long, metavar, help, helper, progDesc,
                             fullDesc, header, info, (<**>), execParser, strOption)
 import System.Directory (doesDirectoryExist, getCurrentDirectory)
-
 
 import CopyFiles (copyAll)
 import Rename
