@@ -1,4 +1,4 @@
-module Lib.Util.JWT
+module Lib.Core.Jwt
        ( JWTPayload (..)
        , jwtPayloadToMap
        , jwtPayloadFromMap

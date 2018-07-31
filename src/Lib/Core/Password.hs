@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Lib.Util.Password
+module Lib.Core.Password
        ( PasswordHash (unPwdHash)
        , PasswordPlainText (..)
        , unsafePwdHash
@@ -14,8 +14,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Elm (ElmType (..))
 
-import Lib.App.Error (AppError (..))
-import Lib.Util.App (maybeWithM)
+import Lib.App.Error (AppError (..), maybeWithM)
 
 import qualified Crypto.BCrypt as BC
 

@@ -14,10 +14,12 @@ import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
 import Elm (ElmType (..))
 
+import Lib.App
 import Lib.App.Env (AppEnv)
 import Lib.App.Error (AppError)
-import Lib.Util.App (queryPG, timedAction)
-import Lib.Util.Password (PasswordHash)
+import Lib.Db (queryPG)
+import Lib.Effects.Measure (timedAction)
+import Lib.Core.Password (PasswordHash)
 
 import qualified Data.UUID.Types as UUID
 
@@ -32,6 +34,7 @@ class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m wh
       email = ?
   |] [email]
 
+instance MonadUser App
 data User = User
   { userId    :: UUID
   , userName  :: Text

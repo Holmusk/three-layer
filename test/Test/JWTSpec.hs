@@ -6,7 +6,7 @@ import System.Random
 import Test.Tasty
 import Test.Tasty.Hedgehog
 
-import Lib.Util.JWT
+import Lib.Core.Jwt
 
 import qualified Data.UUID.Types as UUID
 import qualified Hedgehog.Gen as Gen

@@ -9,8 +9,8 @@ import Lib.App
 import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
-import Lib.Util.JWT
-import Lib.Util.Password (PasswordPlainText (..), unsafePwdHash)
+import Lib.Core.Jwt
+import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.UUID.Types as UUID

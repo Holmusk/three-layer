@@ -15,7 +15,6 @@ import Servant.Server (Handler, err400, err401, err404, err500, errBody)
 import Lib.App.Env
 import Lib.App.Error (AppError (..))
 import Lib.Effects.Session (MonadSession)
-import Lib.Effects.User (MonadUser)
 
 -- TODO: inject logger configuration directly
 newtype App a = App
@@ -24,7 +23,7 @@ newtype App a = App
               MonadIO, Katip, KatipContext)
 
 instance MonadSession App
-instance MonadUser App
+
 
 runAppAsHandler :: AppEnv -> App a -> Handler a
 runAppAsHandler env action = do

@@ -10,7 +10,7 @@ import Servant.Server (serve)
 
 import Lib.App (AppEnv (..))
 import Lib.Server (API, server)
-import Lib.Util.JWT (mkRandomString)
+import Lib.Core.Jwt (mkRandomString)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified System.Metrics as Metrics
