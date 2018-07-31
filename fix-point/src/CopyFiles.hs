@@ -20,7 +20,7 @@ copyAll source target newName = do
         throw (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
-    content <- filter norFP3Layer <$> listDirectory source
+    content <- filter wantedFiles <$> listDirectory source
     createDirectory target
     for_ content $ \name -> do
         let sourcePath = source </> name
@@ -44,8 +44,9 @@ copyAll source target newName = do
     doesFileOrDirectoryExist :: FilePath -> IO Bool
     doesFileOrDirectoryExist x = orM [doesDirectoryExist x, doesFileExist x]
 
-    norFP3Layer :: FilePath -> Bool
-    norFP3Layer x = not (x == "fix-point" || x == "three-layer.cabal")
+    wantedFiles :: FilePath -> Bool
+    wantedFiles x = not (x == "fix-point" || x == "three-layer.cabal" ||
+                         x == ".git")
 
 renameYaml :: Text -> Text -> Text
 renameYaml new s = unlines [T.replace "three-layer" new x | x <- lines s]
