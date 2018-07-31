@@ -29,7 +29,6 @@ library
       base >=4.7 && <5
     , directory
     , filepath
-    , mtl
     , text
     , universum
   ghc-options:
