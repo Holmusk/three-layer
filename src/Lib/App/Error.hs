@@ -1,5 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-
 module Lib.App.Error
        ( AppError (..)
        , maybeWithM
