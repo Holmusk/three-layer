@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Lib
@@ -5,15 +6,15 @@ module Lib
        , runServer
        ) where
 
-import Network.Wai.Handler.Warp (run)
-import Servant.Server (serve)
+import           Network.Wai.Handler.Warp (run)
+import           Servant.Server           (serve)
 
-import Lib.App (AppEnv (..))
-import Lib.Server (API, server)
-import Lib.Core.Jwt (mkRandomString)
+import           Lib.App                  (AppEnv (..))
+import           Lib.Core.Jwt             (mkRandomString)
+import           Lib.Server               (API, server)
 
-import qualified Data.HashMap.Strict as HashMap
-import qualified System.Metrics as Metrics
+import qualified Data.HashMap.Strict      as HashMap
+import qualified System.Metrics           as Metrics
 
 mkAppEnv :: IO AppEnv
 mkAppEnv = do

@@ -5,7 +5,7 @@ module Prelude
        , textToLBS
        ) where
 
-import Universum
+import           Universum
 
 import qualified Data.ByteString.Lazy as BSL (fromStrict)
 

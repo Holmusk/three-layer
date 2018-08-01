@@ -1,13 +1,15 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Lib.Effects.Session
        ( MonadSession (..)
        ) where
 
-import Control.Concurrent.MVar (modifyMVar_)
-import Data.UUID.Types (UUID)
+import           Control.Concurrent.MVar (modifyMVar_)
+import           Data.UUID.Types         (UUID)
 
-import Lib.App.Env (AppEnv (..), Session)
+import           Lib.App.Env             (AppEnv (..), Session)
 
-import qualified Data.HashMap.Strict as HashMap
+import qualified Data.HashMap.Strict     as HashMap
 
 -- class MonadSession
 --  describes a monad that can provide a CRUD interface for a 'Session' type

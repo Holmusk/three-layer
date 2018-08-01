@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Lib.Core.Password
@@ -9,14 +10,15 @@ module Lib.Core.Password
        , verifyPassword
        ) where
 
-import Control.Monad.Except (MonadError)
-import Data.Aeson (FromJSON, ToJSON)
-import Database.PostgreSQL.Simple.FromField (FromField)
-import Elm (ElmType (..))
+import           Control.Monad.Except                 (MonadError)
+import           Data.Aeson                           (FromJSON, ToJSON)
+import           Database.PostgreSQL.Simple.FromField (FromField)
+import           Elm                                  (ElmType (..))
 
-import Lib.App.Error (AppError (..), maybeWithM)
+import           Lib.App.Error                        (AppError (..),
+                                                       maybeWithM)
 
-import qualified Crypto.BCrypt as BC
+import qualified Crypto.BCrypt                        as BC
 
 newtype PasswordHash = PwdHash { unPwdHash :: Text }
   deriving (Generic, FromField)
