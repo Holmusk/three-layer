@@ -8,9 +8,9 @@ module Lib.Db
        , executeManyPG
        ) where
 
-import           Lib.App.Env                (AppEnv (..))
+import Lib.App.Env (AppEnv (..))
 
-import qualified Data.Pool                  as Pool
+import qualified Data.Pool as Pool
 import qualified Database.PostgreSQL.Simple as PG
 
 -- Query the database with a given query and args and expect a list of

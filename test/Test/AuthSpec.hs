@@ -2,21 +2,20 @@
 
 module Test.AuthSpec where
 
-import           Control.Monad.Except (MonadError)
-import           Katip                (Katip, KatipContext)
-import           Katip.Monadic        (NoLoggingT (..))
-import           Test.Tasty.Hspec
+import Control.Monad.Except (MonadError)
+import Katip (Katip, KatipContext)
+import Katip.Monadic (NoLoggingT (..))
+import Test.Tasty.Hspec
 
-import           Lib.App
-import           Lib.Core.Jwt
-import           Lib.Core.Password    (PasswordPlainText (..), unsafePwdHash)
-import           Lib.Effects.Session
-import           Lib.Effects.User
-import           Lib.Server.Auth
+import Lib.App
+import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
+import Lib.Effects.Session
+import Lib.Effects.User
+import Lib.Server.Auth
 
-import qualified Data.HashMap.Strict  as HashMap
-import qualified Data.UUID.Types      as UUID
-import qualified System.Metrics       as Metrics
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.UUID.Types as UUID
+import qualified System.Metrics as Metrics
 
 newtype MockApp a = MockApp
   { unMockApp :: ReaderT AppEnv (NoLoggingT (ExceptT AppError IO)) a
@@ -72,6 +71,6 @@ spec_logoutSpec = describe "logout handler" $
   it "should be able to log out a logged in user" $ do
     resp <- runMockApp $ do
       LoginResponse{..} <- loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password")
-      logoutHandler loginResponseToken
+      _ <- logoutHandler loginResponseToken
       isLoggedInHandler loginResponseToken
     resp `shouldBe` Left (NotAllowed "Expired Session")

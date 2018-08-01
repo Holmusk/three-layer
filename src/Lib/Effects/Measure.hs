@@ -3,12 +3,12 @@
 
 module Lib.Effects.Measure (timedAction) where
 
-import           System.CPUTime              (getCPUTime)
+import System.CPUTime (getCPUTime)
 
-import           Lib.App                     (AppEnv, ekgStore, timings)
+import Lib.App (AppEnv, ekgStore, timings)
 
-import qualified Data.HashMap.Strict         as HashMap
-import qualified System.Metrics              as Metrics
+import qualified Data.HashMap.Strict as HashMap
+import qualified System.Metrics as Metrics
 import qualified System.Metrics.Distribution as Distribution
 
 -- | Performs action

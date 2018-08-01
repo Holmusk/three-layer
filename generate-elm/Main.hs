@@ -6,13 +6,12 @@
 
 module Main where
 
-import           Elm              (ElmType (..), toElmDecoderSource,
-                                   toElmEncoderSource, toElmTypeSource)
-import           Servant.API      ((:>))
-import           Servant.Elm      (Spec (..), generateElmForAPI, specsToDir)
+import Elm (ElmType (..), toElmDecoderSource, toElmEncoderSource, toElmTypeSource)
+import Servant.API ((:>))
+import Servant.Elm (Spec (..), generateElmForAPI, specsToDir)
 
-import           Lib.Effects.User (User)
-import           Lib.Server       (API)
+import Lib.Effects.User (User)
+import Lib.Server (API)
 
 type ExportTypes = '[User]
 

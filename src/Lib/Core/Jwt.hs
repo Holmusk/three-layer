@@ -10,17 +10,17 @@ module Lib.Core.Jwt
        , mkRandomString
        ) where
 
-import           Data.Aeson            (Value (..))
-import           Data.Map              (Map)
-import           Data.Time.Clock.POSIX (getPOSIXTime)
-import           Data.UUID.Types       (UUID)
-import           System.Random         (newStdGen, randomRs)
+import Data.Aeson (Value (..))
+import Data.Map (Map)
+import Data.Time.Clock.POSIX (getPOSIXTime)
+import Data.UUID.Types (UUID)
+import System.Random (newStdGen, randomRs)
 
-import           Lib.App.Env           (AppEnv (..))
+import Lib.App.Env (AppEnv (..))
 
-import qualified Data.Map              as Map
-import qualified Data.UUID.Types       as UUID
-import qualified Web.JWT               as JWT
+import qualified Data.Map as Map
+import qualified Data.UUID.Types as UUID
+import qualified Web.JWT as JWT
 
 -- Make a random string comprised of a - z of
 -- a given length

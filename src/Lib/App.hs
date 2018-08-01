@@ -6,19 +6,15 @@ module Lib.App
        , runAppAsHandler
        ) where
 
-import           Control.Monad.Except (MonadError, throwError)
-import           Katip                (ColorStrategy (ColorIfTerminal), Katip,
-                                       KatipContext, KatipContextT,
-                                       Severity (DebugS), Verbosity (V2),
-                                       closeScribes, defaultScribeSettings,
-                                       initLogEnv, mkHandleScribe,
-                                       registerScribe, runKatipContextT)
-import           Servant.Server       (Handler, err400, err401, err404, err500,
-                                       errBody)
+import Control.Monad.Except (MonadError, throwError)
+import Katip (ColorStrategy (ColorIfTerminal), Katip, KatipContext, KatipContextT,
+              Severity (DebugS), Verbosity (V2), closeScribes, defaultScribeSettings, initLogEnv,
+              mkHandleScribe, registerScribe, runKatipContextT)
+import Servant.Server (Handler, err400, err401, err404, err500, errBody)
 
-import           Lib.App.Env
-import           Lib.App.Error        (AppError (..))
-import           Lib.Effects.Session  (MonadSession)
+import Lib.App.Env
+import Lib.App.Error (AppError (..))
+import Lib.Effects.Session (MonadSession)
 
 -- TODO: inject logger configuration directly
 newtype App a = App
@@ -27,7 +23,6 @@ newtype App a = App
               MonadIO, Katip, KatipContext)
 
 instance MonadSession App
-
 
 runAppAsHandler :: AppEnv -> App a -> Handler a
 runAppAsHandler env action = do

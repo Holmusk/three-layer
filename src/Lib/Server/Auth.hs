@@ -13,22 +13,20 @@ module Lib.Server.Auth
        , logoutHandler
        ) where
 
-import           Control.Monad.Except (MonadError, throwError)
-import           Data.Aeson           (FromJSON, ToJSON)
-import           Elm                  (ElmType)
-import           Katip                (KatipContext, Severity (..), logTM, ls)
-import           Servant.API          ((:>), Capture, Get, JSON, NoContent (..),
-                                       Post, ReqBody)
-import           Servant.Generic      ((:-), AsApi, AsServerT, ToServant)
+import Control.Monad.Except (MonadError, throwError)
+import Data.Aeson (FromJSON, ToJSON)
+import Elm (ElmType)
+import Katip (KatipContext, Severity (..), logTM, ls)
+import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
+import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
-import           Lib.App              (App, AppError (..), Session (..))
-import           Lib.App.Error        (maybeWithM)
-import           Lib.Core.Jwt         (JWTPayload (..), decodeAndVerifyJWTToken,
-                                       mkJWTToken)
-import           Lib.Core.Password    (PasswordPlainText (..), verifyPassword)
-import           Lib.Effects.Measure  (timedAction)
-import           Lib.Effects.Session  (MonadSession (..))
-import           Lib.Effects.User     (MonadUser (..), User (..))
+import Lib.App (App, AppError (..), Session (..))
+import Lib.App.Error (maybeWithM)
+import Lib.Core.Jwt (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
+import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
+import Lib.Effects.Measure (timedAction)
+import Lib.Effects.Session (MonadSession (..))
+import Lib.Effects.User (MonadUser (..), User (..))
 
 data LoginRequest = LoginRequest
   { loginRequestEmail    :: Text

@@ -7,7 +7,7 @@ module Lib.App.Error
        , asSingleRow
        ) where
 
-import           Control.Monad.Except (MonadError, throwError)
+import Control.Monad.Except (MonadError, throwError)
 
 data AppError =
     Invalid Text
