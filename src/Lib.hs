@@ -1,6 +1,3 @@
-{-# LANGUAGE RecordWildCards  #-}
-{-# LANGUAGE TypeApplications #-}
-
 module Lib
        ( mkAppEnv
        , runServer

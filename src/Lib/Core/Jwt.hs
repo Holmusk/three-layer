@@ -1,6 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RecordWildCards  #-}
-
 module Lib.Core.Jwt
        ( JWTPayload (..)
        , jwtPayloadToMap

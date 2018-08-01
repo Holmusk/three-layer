@@ -39,6 +39,4 @@ runAppAsHandler env action = do
                $ runKatipContextT logEnv initialContext initialNamespace
                $ unApp action
 
-  case res of
-    Left appError -> throwError $ toHttpError appError
-    Right a       -> return a
+  either (throwError . toHttpError) pure res

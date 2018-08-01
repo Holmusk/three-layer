@@ -4,6 +4,8 @@ module Lib.App.Error
        ( AppError (..)
        , WithError
        , IError
+       , throwOnNothing
+       , notFoundOnNothing
        , throwOnNothingM
        , notFoundOnNothingM
        , isServerError
@@ -20,6 +22,9 @@ module Lib.App.Error
 
 import Control.Monad.Except (MonadError, throwError)
 import Servant.Server (ServantErr, err401, err404, err417, err500, errBody)
+
+-- | Type alias for errors.
+type WithError m = MonadError AppError m
 
 newtype AppError = InternalError IError deriving (Show, Eq)
 
@@ -41,7 +46,6 @@ data IError =
     -- was provided but not in a format that the server
     -- can understand
     | HeaderDecodeError
-    -- | Failed to parse 'CDMP.Effects.Job.Job' from 'Text'.
     | JobDecodeError Text
     deriving (Show, Eq)
 
@@ -79,18 +83,22 @@ headerDecodeError = InternalError HeaderDecodeError
 jobDecodeError :: Text -> AppError
 jobDecodeError = InternalError . JobDecodeError
 
--- | Type alias for errors.
-type WithError m = MonadError AppError m
+throwOnNothing :: WithError m => AppError -> Maybe a -> m a
+throwOnNothing err = maybe (throwError err) pure
 
 -- | Extract the value from a maybe, throwing the given 'AppError' if
 -- the value does not exist
 throwOnNothingM :: (WithError m) => AppError -> m (Maybe a) -> m a
-throwOnNothingM err action = action >>= maybe (throwError err) pure
+throwOnNothingM err action = action >>= throwOnNothing err
+
+-- | Similar to 'throwOnNothing' but throws a 'NotFound' if the value does not exist
+notFoundOnNothing :: WithError m => Maybe a -> m a
+notFoundOnNothing = throwOnNothing notFound
 
 -- | Extract a value from a maybe, throwing a 'NotFound' if  the value
 -- does not exist
 notFoundOnNothingM :: (WithError m) => m (Maybe a) -> m a
-notFoundOnNothingM = throwOnNothingM (InternalError NotFound)
+notFoundOnNothingM = throwOnNothingM notFound
 
 toHttpError :: AppError -> ServantErr
 toHttpError = \case
