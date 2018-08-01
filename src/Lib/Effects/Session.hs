@@ -9,8 +9,7 @@ import Lib.App.Env (AppEnv (..), Session)
 
 import qualified Data.HashMap.Strict as HashMap
 
--- class MonadSession
---  describes a monad that can provide a CRUD interface for a 'Session' type
+-- | describes a monad that can provide a CRUD interface for a 'Session' type
 class (MonadReader AppEnv m, MonadIO m) => MonadSession m where
   getSession :: UUID -> m (Maybe Session)
   getSession sessionId = do
