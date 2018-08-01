@@ -1,8 +1,5 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RecordWildCards  #-}
-{-# LANGUAGE TemplateHaskell  #-}
-{-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE TemplateHaskell #-}
+
 module Lib.Server.Auth
        ( LoginRequest (..)
        , LoginResponse (..)
@@ -21,7 +18,7 @@ import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
 import Lib.App (App, AppError (..), Session (..))
-import Lib.App.Error (maybeWithM)
+import Lib.App.Error (throwOnNothingM)
 import Lib.Core.Jwt (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Effects.Measure (timedAction)
@@ -84,8 +81,8 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
 isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
-  JWTPayload{..} <- maybeWithM (NotAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
-  Session{..} <- maybeWithM (NotAllowed "Expired Session") $ getSession jwtUserId
+  JWTPayload{..} <- throwOnNothingM (NotAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
+  Session{..} <- throwOnNothingM (NotAllowed "Expired Session") $ getSession jwtUserId
   unless isLoggedIn $ throwError (NotAllowed "Revoked Session")
   return NoContent
 

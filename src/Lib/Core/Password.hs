@@ -1,6 +1,3 @@
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
 module Lib.Core.Password
        ( PasswordHash (unPwdHash)
        , PasswordPlainText (..)
@@ -15,7 +12,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Elm (ElmType (..))
 
-import Lib.App.Error (AppError (..), maybeWithM)
+import Lib.App.Error (AppError (..), throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
 
@@ -42,7 +39,7 @@ mkPasswordHashWithPolicy :: (MonadError AppError m, MonadIO m)
                          => BC.HashingPolicy
                          -> PasswordPlainText
                          -> m PasswordHash
-mkPasswordHashWithPolicy hashPolicy password = maybeWithM errorMessage $ liftIO hash
+mkPasswordHashWithPolicy hashPolicy password = throwOnNothingM errorMessage $ liftIO hash
   where
     hashBS = BC.hashPasswordUsingPolicy hashPolicy (encodeUtf8 $ unPwdPlainText password)
     hash = PwdHash . decodeUtf8 <<$>> hashBS

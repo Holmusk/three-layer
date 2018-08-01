@@ -54,12 +54,18 @@ dependencies:
 - warp
 
 default-extensions:
+- BangPatterns
+- DataKinds
 - DeriveGeneric
-- GeneralizedNewtypeDeriving
+- DerivingStrategies
 - FlexibleContexts
+- GeneralizedNewtypeDeriving
+- LambdaCase
 - OverloadedStrings
 - RecordWildCards
+- ScopedTypeVariables
 - TypeApplications
+- TypeOperators
 
 library:
   source-dirs: src

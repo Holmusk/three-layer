@@ -1,8 +1,5 @@
 {-# OPTIONS -fno-warn-orphans #-}
-
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
-{-# LANGUAGE RecordWildCards  #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Lib.Effects.User
        ( MonadUser (..)
@@ -20,14 +17,14 @@ import Lib.App (App)
 import Lib.App.Env (AppEnv)
 import Lib.App.Error (AppError)
 import Lib.Core.Password (PasswordHash)
-import Lib.Db (queryPG)
+import Lib.Db (query)
 import Lib.Effects.Measure (timedAction)
 
 import qualified Data.UUID.Types as UUID
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)
-  getUserByEmail email = timedAction "getUserByEmail" $ safeHead <$> queryPG [sql|
+  getUserByEmail email = timedAction "getUserByEmail" $ safeHead <$> query [sql|
     SELECT
       *
     FROM

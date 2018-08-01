@@ -1,10 +1,11 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DeriveAnyClass  #-}
 
 module Lib.App.Error
        ( AppError (..)
-       , maybeWithM
-       , maybeM
-       , asSingleRow
+       , WithError
+       , throwOnNothingM
+       , notFoundOnNothingM
        ) where
 
 import Control.Monad.Except (MonadError, throwError)
@@ -16,17 +17,15 @@ data AppError =
   | ServerError Text
   deriving (Show, Eq)
 
+-- | Type alias for errors.
+type WithError m = MonadError AppError m
+
 -- Extract the value from a maybe, throwing the given 'AppError' if
 -- the value does not exist
-maybeWithM :: (MonadError AppError m) => AppError -> m (Maybe a) -> m a
-maybeWithM err action = action >>= maybe (throwError err) pure
+throwOnNothingM :: (WithError m) => AppError -> m (Maybe a) -> m a
+throwOnNothingM err action = action >>= maybe (throwError err) pure
 
 -- Extract a value from a maybe, throwing a 'NotFound' if  the value
 -- does not exist
-maybeM :: (MonadError AppError m) => m (Maybe a) -> m a
-maybeM = maybeWithM NotFound
-
--- Helper function working with results from a database when you expect
--- only one row to be returned.
-asSingleRow :: (MonadError AppError m) => m [a] -> m a
-asSingleRow action = maybeM (safeHead <$> action)
+notFoundOnNothingM :: (WithError m) => m (Maybe a) -> m a
+notFoundOnNothingM = throwOnNothingM NotFound

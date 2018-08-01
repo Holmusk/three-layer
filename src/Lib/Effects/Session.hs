@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module Lib.Effects.Session
        ( MonadSession (..)
        ) where

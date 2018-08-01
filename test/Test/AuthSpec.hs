@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Test.AuthSpec where
 
 import Control.Monad.Except (MonadError)
