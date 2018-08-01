@@ -12,7 +12,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Elm (ElmType (..))
 
-import Lib.App.Error (AppError (..), throwOnNothingM)
+import Lib.App.Error (AppError (..), serverError, throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
 
@@ -43,7 +43,7 @@ mkPasswordHashWithPolicy hashPolicy password = throwOnNothingM errorMessage $ li
   where
     hashBS = BC.hashPasswordUsingPolicy hashPolicy (encodeUtf8 $ unPwdPlainText password)
     hash = PwdHash . decodeUtf8 <<$>> hashBS
-    errorMessage = ServerError "Error generating password hash"
+    errorMessage = serverError "Error generating password hash"
 
 -- | Generates the password hash with slow hashing policy.
 mkPasswordHash :: (MonadError AppError m, MonadIO m) => PasswordPlainText -> m PasswordHash
