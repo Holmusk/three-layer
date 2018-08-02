@@ -35,6 +35,7 @@ dependencies:
 - ekg
 - ekg-core
 - elm-export
+- http-api-data
 - jwt
 - katip
 - monad-logger
@@ -47,6 +48,8 @@ dependencies:
 - servant
 - servant-generic
 - servant-server
+- swagger2
+- text
 - time
 - universum
 - unordered-containers

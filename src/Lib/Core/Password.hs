@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass     #-}
+
 module Lib.Core.Password
        ( PasswordHash (unPwdHash)
        , PasswordPlainText (..)
@@ -10,6 +12,8 @@ module Lib.Core.Password
 import Control.Monad.Except (MonadError)
 import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
+import Database.PostgreSQL.Simple.ToField (ToField)
+import Data.Swagger.Internal.Schema
 import Elm (ElmType (..))
 
 import Lib.App.Error (AppError (..), serverError, throwOnNothingM)
@@ -17,21 +21,17 @@ import Lib.App.Error (AppError (..), serverError, throwOnNothingM)
 import qualified Crypto.BCrypt as BC
 
 newtype PasswordHash = PwdHash { unPwdHash :: Text }
-  deriving (Generic, FromField)
-
-instance ElmType PasswordHash
-
-instance ToJSON PasswordHash
-instance FromJSON PasswordHash
+    deriving stock (Show, Generic)
+    deriving newtype (Eq, FromField, ToField)
+    deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema)
 
 unsafePwdHash :: Text -> PasswordHash
 unsafePwdHash = PwdHash
 
 newtype PasswordPlainText = PwdPlainText { unPwdPlainText :: Text }
-  deriving (Show, Eq, Generic, ElmType)
-
-instance ToJSON PasswordPlainText
-instance FromJSON PasswordPlainText
+    deriving stock (Show, Generic)
+    deriving newtype (Eq)
+    deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema)
 
 -- | Generates a password hash given the hashing policy and its plane text.
 -- This has to be done in IO asy generating the salt requires RNG
