@@ -12,8 +12,6 @@ module Lib.Core.Id
 import Data.Aeson (FromJSON, ToJSON)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Database.PostgreSQL.Simple.ToField (ToField)
-import Data.Swagger.Internal.ParamSchema
-import Data.Swagger.Internal.Schema
 import Elm (ElmType)
 import Web.HttpApiData (FromHttpApiData)
 
@@ -21,7 +19,7 @@ import Web.HttpApiData (FromHttpApiData)
 newtype Id a = Id { unId :: Text }
     deriving stock (Show, Generic)
     deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData)
-    deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema, ToParamSchema)
+    deriving anyclass (FromJSON, ToJSON, ElmType)
 
 -- | When we don't care about type of 'Id' but don't want to deal with type variables
 type AnyId = Id ()

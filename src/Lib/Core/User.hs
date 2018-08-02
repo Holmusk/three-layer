@@ -7,7 +7,6 @@ module Lib.Core.User
        ) where
 
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Swagger (ToSchema)
 import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
 import Elm (ElmType)
 
@@ -23,7 +22,7 @@ data User = User
     , userPaymentStatusCode :: Text
     , userOrganization      :: Text
     } deriving (Generic, Show, Eq)
-      deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema)
+      deriving anyclass (FromJSON, ToJSON, ElmType)
 
 instance FromRow User where
     fromRow = do
@@ -42,11 +41,11 @@ data UserDetail = UserDetail
     , userDetailCreatedAt    :: Text
     , userDetailBeaconEvents :: [BeaconEvent]
     } deriving (Generic, Show, Eq)
-      deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema)
+      deriving anyclass (FromJSON, ToJSON, ElmType)
 
 data BeaconEvent = BeaconEvent
     { beaconEventAction     :: Text
     , beaconEventTimestamp  :: Text
     , beaconEventAppVersion :: Maybe Text
     } deriving (Generic, Show, Eq)
-      deriving anyclass (FromJSON, ToJSON, ElmType, ToSchema)
+      deriving anyclass (FromJSON, ToJSON, ElmType)
