@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveAnyClass     #-}
-{-# LANGUAGE ExplicitForAll     #-}
 
 -- | Contains newtype safe wrappers.
 

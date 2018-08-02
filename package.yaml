@@ -48,7 +48,6 @@ dependencies:
 - servant
 - servant-generic
 - servant-server
-- swagger2
 - text
 - time
 - universum
