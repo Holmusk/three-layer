@@ -35,6 +35,7 @@ dependencies:
 - ekg
 - ekg-core
 - elm-export
+- http-api-data
 - jwt
 - katip
 - monad-logger
@@ -47,6 +48,7 @@ dependencies:
 - servant
 - servant-generic
 - servant-server
+- text
 - time
 - universum
 - unordered-containers
@@ -54,12 +56,18 @@ dependencies:
 - warp
 
 default-extensions:
+- BangPatterns
+- DataKinds
 - DeriveGeneric
-- GeneralizedNewtypeDeriving
+- DerivingStrategies
 - FlexibleContexts
+- GeneralizedNewtypeDeriving
+- LambdaCase
 - OverloadedStrings
 - RecordWildCards
+- ScopedTypeVariables
 - TypeApplications
+- TypeOperators
 
 library:
   source-dirs: src
@@ -76,6 +84,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
     dependencies:
     - three-layer
 
@@ -99,6 +108,7 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
     dependencies:
     - hedgehog
     - three-layer

@@ -1,12 +1,11 @@
 module Test.JWTSpec where
 
 import Data.UUID.Types (UUID)
-import Hedgehog (MonadGen, Property, forAll, property, (===))
-import System.Random
+import Hedgehog (MonadGen, forAll, property, (===))
 import Test.Tasty
 import Test.Tasty.Hedgehog
 
-import Lib.Util.JWT
+import Lib.Core.Jwt
 
 import qualified Data.UUID.Types as UUID
 import qualified Hedgehog.Gen as Gen

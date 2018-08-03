@@ -1,5 +1,4 @@
 {-# OPTIONS -fno-warn-orphans #-}
-
 {-# LANGUAGE QuasiQuotes #-}
 
 module Lib.Effects.User
@@ -14,16 +13,18 @@ import Database.PostgreSQL.Simple.FromRow (FromRow (..), field)
 import Database.PostgreSQL.Simple.SqlQQ (sql)
 import Elm (ElmType (..))
 
+import Lib.App (App)
 import Lib.App.Env (AppEnv)
 import Lib.App.Error (AppError)
-import Lib.Util.App (queryPG, timedAction)
-import Lib.Util.Password (PasswordHash)
+import Lib.Core.Password (PasswordHash)
+import Lib.Db (query)
+import Lib.Effects.Measure (timedAction)
 
 import qualified Data.UUID.Types as UUID
 
 class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m where
   getUserByEmail :: Text -> m (Maybe User)
-  getUserByEmail email = timedAction "getUserByEmail" $ safeHead <$> queryPG [sql|
+  getUserByEmail email = timedAction "getUserByEmail" $ safeHead <$> query [sql|
     SELECT
       *
     FROM
@@ -31,6 +32,8 @@ class (MonadReader AppEnv m, MonadError AppError m, MonadIO m) => MonadUser m wh
     WHERE
       email = ?
   |] [email]
+
+instance MonadUser App
 
 data User = User
   { userId    :: UUID
@@ -42,9 +45,9 @@ data User = User
 instance ElmType UUID where
   toElmType = toElmType . UUID.toString
 
-instance ToJSON User
 instance FromJSON User
 instance ElmType User
+instance ToJSON User
 
 instance FromRow User where
   fromRow = do

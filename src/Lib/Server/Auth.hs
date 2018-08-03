@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds       #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
 
 module Lib.Server.Auth
        ( LoginRequest (..)
@@ -20,11 +18,12 @@ import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
 import Lib.App (App, AppError (..), Session (..))
+import Lib.App.Error (notAllowed, notFound, throwOnNothingM)
+import Lib.Core.Jwt (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
+import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
+import Lib.Effects.Measure (timedAction)
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
-import Lib.Util.App (maybeWithM, timedAction)
-import Lib.Util.JWT (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
-import Lib.Util.Password (PasswordPlainText (..), verifyPassword)
 
 data LoginRequest = LoginRequest
   { loginRequestEmail    :: Text
@@ -70,21 +69,21 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
   mUser <- getUserByEmail loginRequestEmail
   when (isNothing mUser) $ do
     $(logTM) DebugS $ ls $ "Given email address " <> loginRequestEmail <> " not found"
-    throwError NotFound
+    throwError notFound
   let (Just User{..}) = mUser
   let isPasswordCorrect = verifyPassword loginRequestPassword userHash
   unless isPasswordCorrect $ do
     $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
-    throwError (NotAllowed "Invalid Password")
+    throwError (notAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
   token <- mkJWTToken (60 * 60 * 24) (JWTPayload userId)
   return $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
 isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
-  JWTPayload{..} <- maybeWithM (NotAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
-  Session{..} <- maybeWithM (NotAllowed "Expired Session") $ getSession jwtUserId
-  unless isLoggedIn $ throwError (NotAllowed "Revoked Session")
+  JWTPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
+  Session{..} <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
+  unless isLoggedIn $ throwError (notAllowed "Revoked Session")
   return NoContent
 
 logoutHandler :: (MonadSession m, KatipContext m) => Text -> m NoContent

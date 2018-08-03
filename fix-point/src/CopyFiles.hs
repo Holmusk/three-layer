@@ -37,8 +37,8 @@ copyAll source target newName = do
           copyFile sourcePath targetPath
           when (takeExtension sourcePath == ".hs") $
               R.contentRename R.rename (toText newName) targetPath
-          when (name == "package.yaml") $
-              R.contentRename renameYaml (toText newName) targetPath
+          when (toRenameFile name) $
+              R.contentRename renameTL (toText newName) targetPath
 
   where
     doesFileOrDirectoryExist :: FilePath -> IO Bool
@@ -48,5 +48,8 @@ copyAll source target newName = do
     wantedFiles x = not (x == "fix-point" || x == "three-layer.cabal" ||
                          x == ".git")
 
-renameYaml :: Text -> Text -> Text
-renameYaml new s = unlines [T.replace "three-layer" new x | x <- lines s]
+    toRenameFile :: FilePath -> Bool
+    toRenameFile x = x == "package.yaml" || x == "Makefile"
+
+renameTL :: Text -> Text -> Text
+renameTL = T.replace "three-layer"

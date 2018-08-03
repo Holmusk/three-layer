@@ -1,13 +1,10 @@
 module Test.Password where
 
-import Control.Monad.Except (MonadError)
-import Lib.App.Error (AppError (..))
-
-import Hedgehog (MonadGen, Property, assert, forAll, property, withTests)
+import Hedgehog (MonadGen, Property, assert, forAll, property)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hedgehog (testProperty)
 
-import Lib.Util.Password (PasswordPlainText (..), mkPasswordHashWithPolicy, verifyPassword)
+import Lib.Core.Password (PasswordPlainText (..), mkPasswordHashWithPolicy, verifyPassword)
 
 import qualified Crypto.BCrypt as BC
 import qualified Hedgehog.Gen as Gen

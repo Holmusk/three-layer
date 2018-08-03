@@ -6,11 +6,11 @@ import Katip.Monadic (NoLoggingT (..))
 import Test.Tasty.Hspec
 
 import Lib.App
+import Lib.App.Error (notFound, notAllowed)
+import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
-import Lib.Util.JWT
-import Lib.Util.Password (PasswordPlainText (..), unsafePwdHash)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.UUID.Types as UUID
@@ -46,10 +46,10 @@ spec_loginSpec :: Spec
 spec_loginSpec = describe "login Handler" $ do
   it "should return a 404 on an unknown email" $
     runMockApp (loginHandler (LoginRequest "unknownemail@test.com" $ PwdPlainText ""))
-      `shouldReturn` Left NotFound
-  it "should return a NotAllowed for a wrong password" $
+      `shouldReturn` Left notFound
+  it "should return a notAllowed for a wrong password" $
     runMockApp (loginHandler (LoginRequest "test@test.com" $ PwdPlainText ""))
-      `shouldReturn` Left (NotAllowed "Invalid Password")
+      `shouldReturn` Left (notAllowed "Invalid Password")
   it "should return a token for the correct password" $ do
     resp <- runMockApp (loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password"))
     resp `shouldSatisfy` isRight
@@ -58,7 +58,7 @@ spec_isLoggedInSpec :: Spec
 spec_isLoggedInSpec = describe "isLoggedIn handler" $ do
   it "should return an error for an invalid JWT token" $
     runMockApp (isLoggedInHandler "")
-      `shouldReturn` Left (NotAllowed "Invalid Token")
+      `shouldReturn` Left (notAllowed "Invalid Token")
   it "should confirm that a valid session is valid" $ do
     resp <- runMockApp $ do
       LoginResponse{..} <- loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password")
@@ -70,6 +70,6 @@ spec_logoutSpec = describe "logout handler" $
   it "should be able to log out a logged in user" $ do
     resp <- runMockApp $ do
       LoginResponse{..} <- loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password")
-      logoutHandler loginResponseToken
+      _ <- logoutHandler loginResponseToken
       isLoggedInHandler loginResponseToken
-    resp `shouldBe` Left (NotAllowed "Expired Session")
+    resp `shouldBe` Left (notAllowed "Expired Session")

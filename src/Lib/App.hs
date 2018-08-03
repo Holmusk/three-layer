@@ -10,12 +10,11 @@ import Control.Monad.Except (MonadError, throwError)
 import Katip (ColorStrategy (ColorIfTerminal), Katip, KatipContext, KatipContextT,
               Severity (DebugS), Verbosity (V2), closeScribes, defaultScribeSettings, initLogEnv,
               mkHandleScribe, registerScribe, runKatipContextT)
-import Servant.Server (Handler, err400, err401, err404, err500, errBody)
+import Servant.Server (Handler)
 
 import Lib.App.Env
-import Lib.App.Error (AppError (..))
+import Lib.App.Error (AppError (..), toHttpError)
 import Lib.Effects.Session (MonadSession)
-import Lib.Effects.User (MonadUser)
 
 -- TODO: inject logger configuration directly
 newtype App a = App
@@ -24,7 +23,6 @@ newtype App a = App
               MonadIO, Katip, KatipContext)
 
 instance MonadSession App
-instance MonadUser App
 
 runAppAsHandler :: AppEnv -> App a -> Handler a
 runAppAsHandler env action = do
@@ -41,9 +39,4 @@ runAppAsHandler env action = do
                $ runKatipContextT logEnv initialContext initialNamespace
                $ unApp action
 
-  case res of
-    Left (Invalid text)     -> throwError $ err400 { errBody = textToLBS text }
-    Left NotFound           -> throwError err404
-    Left (NotAllowed text)  -> throwError $ err401 { errBody = textToLBS text }
-    Left (ServerError text) -> throwError $ err500 { errBody = textToLBS text }
-    Right a                 -> return a
+  either (throwError . toHttpError) pure res
