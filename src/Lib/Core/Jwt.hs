@@ -33,11 +33,8 @@ jwtPayloadToMap JWTPayload{..} = Map.fromList [("id", String $ UUID.toText jwtUs
 
 jwtPayloadFromMap :: Map Text Value -> Maybe JWTPayload
 jwtPayloadFromMap claimsMap = do
-  idVal <- Map.lookup "id" claimsMap
-  mJwtId <- case idVal of
-    String jwtId -> return jwtId
-    _            -> Nothing
-  jwtUserId <- UUID.fromText mJwtId
+  String jwtId <- Map.lookup "id" claimsMap
+  jwtUserId <- UUID.fromText jwtId
   return JWTPayload{..}
 
 mkJWTToken :: (MonadIO m, MonadReader AppEnv m) => Int -> JWTPayload -> m Text
