@@ -52,4 +52,4 @@ copyAll source target newName = do
     toRenameFile x = x == "package.yaml" || x == "Makefile"
 
 renameTL :: Text -> Text -> Text
-renameTL new s = unlines [T.replace "three-layer" new x | x <- lines s]
+renameTL new s = T.replace "three-layer" new s
