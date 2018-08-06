@@ -4,9 +4,9 @@ import Universum
 
 import Control.Exception (throw)
 import Data.Text (Text)
-import System.Directory (copyFile, createDirectory, doesDirectoryExist,
-                         doesFileExist, listDirectory)
-import System.FilePath ((</>), takeExtension)
+import System.Directory (copyFile, createDirectory, doesDirectoryExist, doesFileExist,
+                         listDirectory)
+import System.FilePath (takeExtension, (</>))
 import System.IO.Error (userError)
 
 import qualified Data.Text as T
