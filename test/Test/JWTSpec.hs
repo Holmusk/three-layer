@@ -1,11 +1,11 @@
-module Test.JWTSpec where
+module Test.JwtSpec where
 
 import Data.UUID.Types (UUID)
 import Hedgehog (MonadGen, forAll, property, (===))
-import Test.Tasty
-import Test.Tasty.Hedgehog
+import Test.Tasty (TestTree)
+import Test.Tasty.Hedgehog (testProperty)
 
-import Lib.Core.Jwt
+import Lib.Core.Jwt (JWTPayload (..), jwtPayloadFromMap, jwtPayloadToMap, jwtUserId)
 
 import qualified Data.UUID.Types as UUID
 import qualified Hedgehog.Gen as Gen
@@ -26,10 +26,7 @@ genRandId = do
   b <- genWord32
   c <- genWord32
   d <- genWord32
-  pure $ uuidFromWords (a, b, c, d)
+  pure $ UUID.fromWords a b c d
 
 genWord32 :: MonadGen m => m Word32
 genWord32 = Gen.word32 (Range.constantBounded @Word32)
-
-uuidFromWords :: (Word32, Word32, Word32, Word32) -> UUID.UUID
-uuidFromWords (a,b,c,d) = UUID.fromWords a b c d

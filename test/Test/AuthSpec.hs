@@ -6,7 +6,7 @@ import Katip.Monadic (NoLoggingT (..))
 import Test.Tasty.Hspec
 
 import Lib.App
-import Lib.App.Error (notFound, notAllowed)
+import Lib.App.Error (notAllowed, notFound)
 import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Effects.Session
 import Lib.Effects.User
