@@ -20,7 +20,7 @@ mkAppEnv = do
   let dbPool = error "Not implemented yet"
   sessions <- newMVar HashMap.empty
   randTxt <- mkRandomString 10
-  jwtSecret <- return $ JwtSecret randTxt
+  let jwtSecret = JwtSecret randTxt
   timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   Metrics.registerGcMetrics ekgStore
