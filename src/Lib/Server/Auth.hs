@@ -77,7 +77,7 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
     throwError (notAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
-  token <- mkJWTToken (dayInSeconds) (JWTPayload userId)
+  token <- mkJWTToken dayInSeconds (JWTPayload userId)
   return $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
