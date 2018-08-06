@@ -97,5 +97,5 @@ logoutHandler token = timedAction "logoutHandler" $ do
       deleteSession jwtUserId
       return NoContent
     Nothing -> do
-      $(logTM) DebugS $ ls $ (unJwtToken token) <> " was used to logout when it was invalid"
+      $(logTM) DebugS $ ls $ unJwtToken token <> " was used to logout when it was invalid"
       return NoContent
