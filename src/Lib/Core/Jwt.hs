@@ -1,9 +1,9 @@
 module Lib.Core.Jwt
-       ( JWTPayload (..)
+       ( JwtPayload (..)
        , jwtPayloadToMap
        , jwtPayloadFromMap
-       , decodeAndVerifyJWTToken
-       , mkJWTToken
+       , decodeAndVerifyJwtToken
+       , mkJwtToken
        , mkRandomString
        ) where
 
@@ -25,21 +25,21 @@ import qualified Web.JWT as JWT
 mkRandomString :: (MonadIO m) => Int -> m Text
 mkRandomString len = toText . take len . randomRs ('a', 'z') <$> liftIO newStdGen
 
-newtype JWTPayload = JWTPayload {
+newtype JwtPayload = JwtPayload {
   jwtUserId :: UUID
 } deriving (Eq, Show)
 
-jwtPayloadToMap :: JWTPayload -> Map Text Value
-jwtPayloadToMap JWTPayload{..} = Map.fromList [("id", String $ UUID.toText jwtUserId)]
+jwtPayloadToMap :: JwtPayload -> Map Text Value
+jwtPayloadToMap JwtPayload{..} = Map.fromList [("id", String $ UUID.toText jwtUserId)]
 
-jwtPayloadFromMap :: Map Text Value -> Maybe JWTPayload
+jwtPayloadFromMap :: Map Text Value -> Maybe JwtPayload
 jwtPayloadFromMap claimsMap = do
   String jwtId <- Map.lookup "id" claimsMap
   jwtUserId <- UUID.fromText jwtId
-  return JWTPayload{..}
+  return JwtPayload{..}
 
-mkJWTToken :: (MonadIO m, MonadReader AppEnv m) => Seconds -> JWTPayload -> m Text
-mkJWTToken (Seconds expiry) payload = do
+mkJwtToken :: (MonadIO m, MonadReader AppEnv m) => Seconds -> JwtPayload -> m Text
+mkJwtToken (Seconds expiry) payload = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- liftIO getPOSIXTime
   let expiryTime = timeNow + fromIntegral expiry
@@ -49,8 +49,8 @@ mkJWTToken (Seconds expiry) payload = do
   }
   return $ JWT.encodeSigned JWT.HS256 secret claimsSet
 
-decodeAndVerifyJWTToken :: (MonadIO m, MonadReader AppEnv m) => Text -> m (Maybe JWTPayload)
-decodeAndVerifyJWTToken token = do
+decodeAndVerifyJwtToken :: (MonadIO m, MonadReader AppEnv m) => Text -> m (Maybe JwtPayload)
+decodeAndVerifyJwtToken token = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- JWT.numericDate <$> liftIO getPOSIXTime
   pure $ do

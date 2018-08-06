@@ -1,6 +1,7 @@
 module Lib
        ( mkAppEnv
        , runServer
+       , main
        ) where
 
 import Network.Wai.Handler.Warp (run)
@@ -30,3 +31,6 @@ runServer env = do
     run 8081 application
   where
     application = serve (Proxy @API) (server env)
+
+main :: IO ()
+main = mkAppEnv >>= runServer

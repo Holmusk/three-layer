@@ -19,7 +19,7 @@ import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
 
 import Lib.App (App, AppError (..), Session (..))
 import Lib.App.Error (notAllowed, notFound, throwOnNothingM)
-import Lib.Core.Jwt (JWTPayload (..), decodeAndVerifyJWTToken, mkJWTToken)
+import Lib.Core.Jwt (JwtPayload (..), decodeAndVerifyJwtToken, mkJwtToken)
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Effects.Measure (timedAction)
 import Lib.Effects.Session (MonadSession (..))
@@ -77,21 +77,21 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
     throwError (notAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
-  token <- mkJWTToken dayInSeconds (JWTPayload userId)
+  token <- mkJwtToken dayInSeconds (JwtPayload userId)
   return $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
 isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
-  JWTPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJWTToken token
+  JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
   Session{..} <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
   unless isLoggedIn $ throwError (notAllowed "Revoked Session")
   return NoContent
 
 logoutHandler :: (MonadSession m, KatipContext m) => Text -> m NoContent
 logoutHandler token = timedAction "logoutHandler" $ do
-  mPayload <- decodeAndVerifyJWTToken token
+  mPayload <- decodeAndVerifyJwtToken token
   case mPayload of
-    Just JWTPayload{..} -> do
+    Just JwtPayload{..} -> do
       deleteSession jwtUserId
       return NoContent
     Nothing -> do

@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import qualified Lib
 
 main :: IO ()
-main = mkAppEnv >>= runServer
+main = Lib.main

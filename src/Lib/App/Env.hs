@@ -1,6 +1,7 @@
 module Lib.App.Env
        ( AppEnv (..)
        , Session (..)
+       , JwtSecret
        ) where
 
 import Data.Pool (Pool)
@@ -19,4 +20,8 @@ data AppEnv = AppEnv
 
 newtype Session = Session {
   isLoggedIn :: Bool
+}
+
+newtype JwtSecret = JwtSecret {
+  unJwtSecret :: Text
 }

@@ -14,11 +14,6 @@ import Proto.Common_Fields (date, day, month, seconds, timestamp, year)
 
 import qualified Control.Concurrent as C (threadDelay)
 
--- | Represents the amount of seconds.
-newtype Seconds = Seconds
-    { unSeconds :: Int
-    } deriving (Show, Eq)
-
 utcTimeToDatetime :: UTCTime -> Datetime
 utcTimeToDatetime UTCTime{..} =
   let
@@ -52,6 +47,9 @@ datetimeToUtc datetime =
         { utctDay = fromGregorian dtYear dtMonth dtDay
         , utctDayTime = diffTime
         }
+
+-- | Represents the amount of seconds.
+newtype Seconds = Seconds { unSeconds :: Int } deriving (Show, Eq)
 
 -- | Similar to 'C.threadDelay' but receive 'Seconds' instead of 'Int'.
 threadDelay :: MonadIO m => Seconds -> m ()
