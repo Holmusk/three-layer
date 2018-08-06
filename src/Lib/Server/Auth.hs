@@ -36,12 +36,14 @@ instance FromJSON LoginRequest
 instance ToJSON LoginRequest
 
 newtype LoginResponse = LoginResponse
-  { loginResponseToken :: Text
+  { loginResponseToken :: JwtToken
   } deriving (Generic, Show, Eq)
 
 instance ElmType LoginResponse
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
+
+instance ElmType JwtToken
 
 data AuthSite route = AuthSite
   { -- | Login into the application, retuns a JWT if successful
@@ -50,10 +52,10 @@ data AuthSite route = AuthSite
 
     -- | Check if a given JWT is valid
   , loginJWT :: route :-
-      "login" :> Capture "JWT" Text :> Get '[JSON] NoContent
+      "login" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
 
   , logout :: route :-
-      "logout" :> Capture "JWT" Text :> Get '[JSON] NoContent
+      "logout" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
   } deriving (Generic)
 
 type AuthAPI = ToServant (AuthSite AsApi)
@@ -78,22 +80,22 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     throwError (notAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
   token <- mkJwtToken dayInSeconds (JwtPayload userId)
-  return $ LoginResponse (unJwtToken token)
+  return $ LoginResponse token
 
-isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
+isLoggedInHandler :: (MonadSession m, MonadError AppError m) => JwtToken -> m NoContent
 isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
-  JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken (JwtToken token)
+  JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
   Session{..} <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
   unless isLoggedIn $ throwError (notAllowed "Revoked Session")
   return NoContent
 
-logoutHandler :: (MonadSession m, KatipContext m) => Text -> m NoContent
+logoutHandler :: (MonadSession m, KatipContext m) => JwtToken -> m NoContent
 logoutHandler token = timedAction "logoutHandler" $ do
-  mPayload <- decodeAndVerifyJwtToken (JwtToken token)
+  mPayload <- decodeAndVerifyJwtToken token
   case mPayload of
     Just JwtPayload{..} -> do
       deleteSession jwtUserId
       return NoContent
     Nothing -> do
-      $(logTM) DebugS $ ls $ token <> " was used to logout when it was invalid"
+      $(logTM) DebugS $ ls $ (unJwtToken token) <> " was used to logout when it was invalid"
       return NoContent
