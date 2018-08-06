@@ -22,7 +22,7 @@ type WithDbPool m = (MonadReader AppEnv m, MonadIO m)
 query :: (WithDbPool m, SQL.ToRow q, SQL.FromRow r) => SQL.Query -> q -> m [r]
 query qx args = perform (\conn -> SQL.query conn qx args)
 
--- | Query the database with a given query and no args and expect a list
+-- | Query database with a given query and no args and expect a list
 -- of rows in return
 query_ :: (WithDbPool m, SQL.FromRow r) => SQL.Query -> m [r]
 query_ qx = perform (`SQL.query_` qx)
