@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+message Date {
+  // Year of date. Must be from 1 to 9999, or 0 if specifying a date without
+  // a year.
+  required int32 year = 1;
+
+  // Month of year. Must be from 1 to 12.
+  required int32 month = 2;
+
+  // Day of month. Must be from 1 to 31 and valid for the year and month, or 0
+  // if specifying a year/month where the day is not significant.
+  required int32 day = 3;
+}
+
+message Timestamp {
+  // Represents the seconds elapsed in the day since 00:00
+  required int64 seconds = 1;
+  // Number of nanoseconds elapsed that second
+  required int32 nanos = 2 [default = 0];
+}
+
+message Datetime {
+  required Date date = 1;
+  required Timestamp timestamp = 2;
+}

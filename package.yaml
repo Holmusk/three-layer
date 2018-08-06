@@ -9,7 +9,7 @@ copyright:           "2018 Holmusk"
 extra-source-files:
 - README.md
 - ChangeLog.md
-- proto/login.proto
+- proto/*
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -74,6 +74,8 @@ library:
   ghc-options:
   - -Wall
   other-modules:
+    - Proto.Common
+    - Proto.Common_Fields
     - Proto.Login
 
 executables:
