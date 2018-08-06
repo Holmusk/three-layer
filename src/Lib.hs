@@ -8,7 +8,7 @@ import Network.Wai.Handler.Warp (run)
 import Servant.Server (serve)
 import System.Remote.Monitoring (forkServerWith)
 
-import Lib.App (AppEnv (..))
+import Lib.App (AppEnv (..), JwtSecret (..))
 import Lib.Core.Jwt (mkRandomString)
 import Lib.Server (API, server)
 
@@ -19,7 +19,8 @@ mkAppEnv :: IO AppEnv
 mkAppEnv = do
   let dbPool = error "Not implemented yet"
   sessions <- newMVar HashMap.empty
-  jwtSecret <- mkRandomString 10
+  randTxt <- mkRandomString 10
+  jwtSecret <- return $ JwtSecret randTxt
   timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   Metrics.registerGcMetrics ekgStore

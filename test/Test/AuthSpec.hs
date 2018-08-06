@@ -26,7 +26,7 @@ instance MonadSession MockApp
 runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
   sessions <- newMVar HashMap.empty
-  let jwtSecret = "kjnlkjn"
+  let jwtSecret = JwtSecret "kjnlkjn"
   timings  <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   let dbPool = error "Not implemented"
