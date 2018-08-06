@@ -12,13 +12,12 @@ import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
 test_jwtMapEncodeAndDecode :: [TestTree]
-test_jwtMapEncodeAndDecode = return $ testProperty "jwtMapEncodeAndDecode"
-    $ property $ do
-        randomId <- forAll genRandId
-        let randomJwtPayload = JWTPayload { jwtUserId = randomId }
-        let encoded = jwtPayloadToMap randomJwtPayload
-        let decoded = jwtPayloadFromMap encoded
-        decoded === Just randomJwtPayload
+test_jwtMapEncodeAndDecode = pure $ testProperty "jwtMapEncodeAndDecode" $ property $ do
+    randomId <- forAll genRandId
+    let randomJwtPayload = JWTPayload { jwtUserId = randomId }
+    let encoded = jwtPayloadToMap randomJwtPayload
+    let decoded = jwtPayloadFromMap encoded
+    decoded === Just randomJwtPayload
 
 genRandId :: MonadGen m => m UUID
 genRandId = do
