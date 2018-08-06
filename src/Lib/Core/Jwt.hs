@@ -39,10 +39,10 @@ jwtPayloadFromMap claimsMap = do
   return JWTPayload{..}
 
 mkJWTToken :: (MonadIO m, MonadReader AppEnv m) => Seconds -> JWTPayload -> m Text
-mkJWTToken expiryInSeconds payload = do
+mkJWTToken (Seconds expiry) payload = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- liftIO getPOSIXTime
-  let expiryTime = timeNow + fromIntegral (unSeconds expiryInSeconds)
+  let expiryTime = timeNow + fromIntegral expiry
   let claimsSet = JWT.def {
     JWT.exp = JWT.numericDate expiryTime,
     JWT.unregisteredClaims = jwtPayloadToMap payload
