@@ -10,6 +10,8 @@ import Lib.App (AppEnv (..))
 import Lib.Core.Jwt (mkRandomString)
 import Lib.Server (API, server)
 
+import System.Remote.Monitoring (forkServerWith)
+
 import qualified Data.HashMap.Strict as HashMap
 import qualified System.Metrics as Metrics
 
@@ -24,6 +26,8 @@ mkAppEnv = do
   return AppEnv{..}
 
 runServer :: AppEnv -> IO ()
-runServer env = run 8080 application
+runServer env = do
+    () <$ forkServerWith (ekgStore env) "localhost" 8081
+    run 8081 application
   where
-  application = serve (Proxy @API) (server env)
+    application = serve (Proxy @API) (server env)
