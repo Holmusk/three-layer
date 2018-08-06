@@ -14,6 +14,7 @@ import Data.UUID.Types (UUID)
 import System.Random (newStdGen, randomRs)
 
 import Lib.App.Env (AppEnv (..))
+import Lib.Time (Seconds (..))
 
 import qualified Data.Map as Map
 import qualified Data.UUID.Types as UUID
@@ -37,11 +38,11 @@ jwtPayloadFromMap claimsMap = do
   jwtUserId <- UUID.fromText jwtId
   return JWTPayload{..}
 
-mkJWTToken :: (MonadIO m, MonadReader AppEnv m) => Int -> JWTPayload -> m Text
+mkJWTToken :: (MonadIO m, MonadReader AppEnv m) => Seconds -> JWTPayload -> m Text
 mkJWTToken expiryInSeconds payload = do
   secret <- JWT.secret <$> asks jwtSecret
   timeNow <- liftIO getPOSIXTime
-  let expiryTime = timeNow + fromIntegral expiryInSeconds
+  let expiryTime = timeNow + fromIntegral (unSeconds expiryInSeconds)
   let claimsSet = JWT.def {
     JWT.exp = JWT.numericDate expiryTime,
     JWT.unregisteredClaims = jwtPayloadToMap payload

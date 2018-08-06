@@ -24,6 +24,7 @@ import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Effects.Measure (timedAction)
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
+import Lib.Time (dayInSeconds)
 
 data LoginRequest = LoginRequest
   { loginRequestEmail    :: Text
@@ -76,7 +77,7 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
     $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
     throwError (notAllowed "Invalid Password")
   putSession userId Session { isLoggedIn = True }
-  token <- mkJWTToken (60 * 60 * 24) (JWTPayload userId)
+  token <- mkJWTToken (dayInSeconds) (JWTPayload userId)
   return $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadError AppError m) => Text -> m NoContent
