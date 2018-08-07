@@ -1,12 +1,14 @@
 module Lib
        ( mkAppEnv
        , runServer
+       , main
        ) where
 
 import Network.Wai.Handler.Warp (run)
 import Servant.Server (serve)
+import System.Remote.Monitoring (forkServerWith)
 
-import Lib.App (AppEnv (..))
+import Lib.App (AppEnv (..), JwtSecret (..))
 import Lib.Core.Jwt (mkRandomString)
 import Lib.Server (API, server)
 
@@ -17,13 +19,19 @@ mkAppEnv :: IO AppEnv
 mkAppEnv = do
   let dbPool = error "Not implemented yet"
   sessions <- newMVar HashMap.empty
-  jwtSecret <- mkRandomString 10
+  randTxt <- mkRandomString 10
+  let jwtSecret = JwtSecret randTxt
   timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   Metrics.registerGcMetrics ekgStore
   return AppEnv{..}
 
 runServer :: AppEnv -> IO ()
-runServer env = run 8080 application
+runServer env = do
+    () <$ forkServerWith (ekgStore env) "localhost" 8081
+    run 8081 application
   where
-  application = serve (Proxy @API) (server env)
+    application = serve (Proxy @API) (server env)
+
+main :: IO ()
+main = mkAppEnv >>= runServer

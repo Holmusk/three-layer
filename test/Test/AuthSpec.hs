@@ -6,8 +6,9 @@ import Katip.Monadic (NoLoggingT (..))
 import Test.Tasty.Hspec
 
 import Lib.App
-import Lib.App.Error (notFound, notAllowed)
+import Lib.App.Error (notAllowed, notFound)
 import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
+import Lib.Core.Jwt (JwtToken (..))
 import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
@@ -26,7 +27,7 @@ instance MonadSession MockApp
 runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
   sessions <- newMVar HashMap.empty
-  let jwtSecret = "kjnlkjn"
+  let jwtSecret = JwtSecret "kjnlkjn"
   timings  <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   let dbPool = error "Not implemented"
@@ -57,7 +58,7 @@ spec_loginSpec = describe "login Handler" $ do
 spec_isLoggedInSpec :: Spec
 spec_isLoggedInSpec = describe "isLoggedIn handler" $ do
   it "should return an error for an invalid JWT token" $
-    runMockApp (isLoggedInHandler "")
+    runMockApp (isLoggedInHandler (JwtToken ""))
       `shouldReturn` Left (notAllowed "Invalid Token")
   it "should confirm that a valid session is valid" $ do
     resp <- runMockApp $ do
