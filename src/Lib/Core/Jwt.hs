@@ -17,6 +17,7 @@ import Data.Time.Clock.POSIX (getPOSIXTime)
 import Data.UUID.Types (UUID)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Database.PostgreSQL.Simple.ToField (ToField)
+import Elm (ElmType)
 import System.Random (newStdGen, randomRs)
 import Web.HttpApiData (FromHttpApiData)
 
@@ -31,6 +32,8 @@ import qualified Web.JWT as JWT
 -- a given length
 mkRandomString :: (MonadIO m) => Int -> m Text
 mkRandomString len = toText . take len . randomRs ('a', 'z') <$> liftIO newStdGen
+
+instance ElmType JwtToken
 
 newtype JwtPayload = JwtPayload {
   jwtUserId :: UUID

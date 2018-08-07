@@ -43,8 +43,6 @@ instance ElmType LoginResponse
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
 
-instance ElmType JwtToken
-
 data AuthSite route = AuthSite
   { -- | Login into the application, retuns a JWT if successful
     loginApp :: route :-
