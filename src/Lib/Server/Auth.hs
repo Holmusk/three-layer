@@ -10,91 +10,95 @@ module Lib.Server.Auth
        , logoutHandler
        ) where
 
-import Control.Monad.Except (MonadError, throwError)
+import Control.Monad.Except (throwError)
 import Data.Aeson (FromJSON, ToJSON)
 import Elm (ElmType)
 import Katip (KatipContext, Severity (..), logTM, ls)
 import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.API.Generic ((:-))
 
-import Lib.App (AppError (..), Session (..))
-import Lib.App.Error (notAllowed, notFound, throwOnNothingM)
-import Lib.Core.Jwt (JwtPayload (..), JwtToken (..), decodeAndVerifyJwtToken, mkJwtToken)
+import Lib.App.Error (WithError, notAllowed, notFound, throwOnNothingM)
+import Lib.Core.Email (Email (..))
+import Lib.Core.Id (castId)
+import Lib.Core.Jwt (JwtPayload (..), JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
-import Lib.Effects.Measure (timedAction)
+import Lib.Core.Session (mkNewSession)
+import Lib.Db (WithDbPool)
+import Lib.Effects.Jwt (MonadJwt (..))
+import Lib.Effects.Measure (MonadMeasure (timedAction))
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Server.Types (AppServer, ToApi)
 import Lib.Time (dayInSeconds)
 
 data LoginRequest = LoginRequest
-  { loginRequestEmail    :: Text
-  , loginRequestPassword :: PasswordPlainText
-  } deriving (Generic, Show, Eq)
+    { loginRequestEmail    :: Email
+    , loginRequestPassword :: PasswordPlainText
+    } deriving (Generic, Show, Eq)
 
 instance ElmType LoginRequest
 instance FromJSON LoginRequest
 instance ToJSON LoginRequest
 
 newtype LoginResponse = LoginResponse
-  { loginResponseToken :: JwtToken
-  } deriving (Generic, Show, Eq)
+    { loginResponseToken :: JwtToken
+    } deriving (Generic, Show, Eq)
 
 instance ElmType LoginResponse
 instance FromJSON LoginResponse
 instance ToJSON LoginResponse
 
 data AuthSite route = AuthSite
-  { -- | Login into the application, retuns a JWT if successful
-    loginApp :: route :-
-      "login" :> ReqBody '[JSON] LoginRequest :> Post '[JSON] LoginResponse
+    { -- | Login into the application, retuns a JWT if successful
+      loginApp :: route :-
+        "login" :> ReqBody '[JSON] LoginRequest :> Post '[JSON] LoginResponse
 
-    -- | Check if a given JWT is valid
-  , loginJWT :: route :-
-      "login" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
+      -- | Check if a given JWT is valid
+    , loginJWT :: route :-
+        "login" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
 
-  , logout :: route :-
-      "logout" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
-  } deriving (Generic)
+    , logout :: route :-
+        "logout" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
+    } deriving (Generic)
 
 type AuthAPI = ToApi AuthSite
 
 authServer :: AuthSite AppServer
 authServer = AuthSite
-  { loginApp = loginHandler
-  , loginJWT = isLoggedInHandler
-  , logout   = logoutHandler
-  }
+    { loginApp = loginHandler
+    , loginJWT = isLoggedInHandler
+    , logout   = logoutHandler
+    }
 
-loginHandler :: (MonadUser m, MonadSession m, KatipContext m) => LoginRequest -> m LoginResponse
-loginHandler LoginRequest{..} = timedAction "loginHandler" $ do
-  mUser <- getUserByEmail loginRequestEmail
-  when (isNothing mUser) $ do
-    $(logTM) DebugS $ ls $ "Given email address " <> loginRequestEmail <> " not found"
-    throwError notFound
-  let (Just User{..}) = mUser
-  let isPasswordCorrect = verifyPassword loginRequestPassword userHash
-  unless isPasswordCorrect $ do
-    $(logTM) DebugS $ ls $ "Incorrect password for user " <> loginRequestEmail
-    throwError (notAllowed "Invalid Password")
-  putSession userId Session { isLoggedIn = True }
-  token <- mkJwtToken dayInSeconds (JwtPayload userId)
-  return $ LoginResponse token
+loginHandler :: (MonadUser m, MonadJwt m, MonadSession m, MonadMeasure m, WithDbPool env m, WithError m, KatipContext m)
+             => LoginRequest -> m LoginResponse
+loginHandler LoginRequest{..} = timedAction "loginHandler" $
+    getUserByEmail loginRequestEmail >>= \case
+        Nothing -> do
+            $(logTM) DebugS $ ls $ "Given email address " <> unEmail loginRequestEmail <> " not found"
+            throwError notFound
+        Just User{..} -> do
+            let isPasswordCorrect = verifyPassword loginRequestPassword userHash
+            unless isPasswordCorrect $ do
+                $(logTM) DebugS $ ls $ "Incorrect password for user " <> unEmail loginRequestEmail
+                throwError (notAllowed "Invalid Password")
+            session <- mkNewSession
+            let anyId = castId @() userId
+            putSession anyId session
+            token <- mkJwtToken dayInSeconds (JwtPayload anyId)
+            pure $ LoginResponse token
 
-isLoggedInHandler :: (MonadSession m, MonadError AppError m) => JwtToken -> m NoContent
+isLoggedInHandler :: (MonadSession m, MonadJwt m, MonadMeasure m, WithError m) => JwtToken -> m NoContent
 isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
-  JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
-  Session{..} <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
-  unless isLoggedIn $ throwError (notAllowed "Revoked Session")
-  return NoContent
+    JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
+    session <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
+    whenM (isSessionExpired session) $ throwError (notAllowed "Expired Session")
+    pure NoContent
 
-logoutHandler :: (MonadSession m, KatipContext m) => JwtToken -> m NoContent
+logoutHandler :: (MonadSession m, MonadMeasure m, MonadJwt m, KatipContext m) => JwtToken -> m NoContent
 logoutHandler token = timedAction "logoutHandler" $ do
-  mPayload <- decodeAndVerifyJwtToken token
-  case mPayload of
-    Just JwtPayload{..} -> do
-      deleteSession jwtUserId
-      return NoContent
-    Nothing -> do
-      $(logTM) DebugS $ ls $ unJwtToken token <> " was used to logout when it was invalid"
-      return NoContent
+    decodeAndVerifyJwtToken token >>= \case
+        Just JwtPayload{..} -> deleteSession jwtUserId
+        Nothing ->
+            $(logTM) DebugS $ ls $ unJwtToken token <> " was used to logout when it was invalid"
+    pure NoContent

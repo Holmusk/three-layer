@@ -38,7 +38,6 @@ dependencies:
 - http-api-data
 - jwt
 - katip
-- monad-logger
 - mtl
 - postgresql-simple
 - proto-lens
@@ -56,12 +55,15 @@ dependencies:
 
 default-extensions:
 - BangPatterns
+- ConstraintKinds
 - DataKinds
 - DeriveGeneric
 - DerivingStrategies
 - FlexibleContexts
+- FlexibleInstances
 - GeneralizedNewtypeDeriving
 - LambdaCase
+- MultiParamTypeClasses
 - OverloadedStrings
 - RecordWildCards
 - ScopedTypeVariables

@@ -16,7 +16,7 @@ import Elm (ElmType)
 import Web.HttpApiData (FromHttpApiData)
 
 -- | Wrapper for textual id. Contains phantom type parameter for increased type-safety.
-newtype Id a = Id { unId :: Text }
+newtype Id a = Id { unId :: UUID }
     deriving stock (Show, Generic)
     deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData)
     deriving anyclass (FromJSON, ToJSON, ElmType)
