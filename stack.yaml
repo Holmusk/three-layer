@@ -1,11 +1,8 @@
-resolver: lts-11.8
+resolver: lts-12.6
 
 extra-deps:
-  - base-noprelude-4.10.1.0
+  - base-noprelude-4.11.1.0
   - katip-0.5.5.1
-  - lens-labels-0.2.0.1
-  - proto-lens-0.3.1.0
-  - proto-lens-protoc-0.3.1.0
 
 ghc-options:
   "$locals": -fhide-source-paths

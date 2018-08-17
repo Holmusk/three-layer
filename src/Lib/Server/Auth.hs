@@ -15,15 +15,16 @@ import Data.Aeson (FromJSON, ToJSON)
 import Elm (ElmType)
 import Katip (KatipContext, Severity (..), logTM, ls)
 import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
-import Servant.Generic ((:-), AsApi, AsServerT, ToServant)
+import Servant.API.Generic ((:-))
 
-import Lib.App (App, AppError (..), Session (..))
+import Lib.App (AppError (..), Session (..))
 import Lib.App.Error (notAllowed, notFound, throwOnNothingM)
 import Lib.Core.Jwt (JwtPayload (..), JwtToken (..), decodeAndVerifyJwtToken, mkJwtToken)
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Effects.Measure (timedAction)
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
+import Lib.Server.Types (AppServer, ToApi)
 import Lib.Time (dayInSeconds)
 
 data LoginRequest = LoginRequest
@@ -56,9 +57,9 @@ data AuthSite route = AuthSite
       "logout" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
   } deriving (Generic)
 
-type AuthAPI = ToServant (AuthSite AsApi)
+type AuthAPI = ToApi AuthSite
 
-authServer :: AuthSite (AsServerT App)
+authServer :: AuthSite AppServer
 authServer = AuthSite
   { loginApp = loginHandler
   , loginJWT = isLoggedInHandler

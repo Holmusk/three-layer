@@ -5,7 +5,7 @@ module Lib.Server
        , server
        ) where
 
-import Servant.Generic (toServant)
+import Servant.API.Generic (toServant)
 import Servant.Server (Server, hoistServer)
 
 import Lib.App (AppEnv, runAppAsHandler)
