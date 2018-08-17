@@ -115,6 +115,5 @@ tests:
     - hedgehog
     - three-layer
     - tasty
-    - tasty-discover
     - tasty-hspec
     - tasty-hedgehog

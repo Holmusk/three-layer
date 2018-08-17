@@ -1,17 +1,19 @@
-module Test.Password where
+module Test.Core.Password
+       ( pwdHashVerify
+       ) where
 
-import Hedgehog (MonadGen, assert, forAll, property)
-import Test.Tasty (TestTree)
-import Test.Tasty.Hedgehog (testProperty)
+import Hedgehog (MonadGen, assert, forAll)
 
 import Lib.Core.Password (PasswordPlainText (..), mkPasswordHashWithPolicy, verifyPassword)
+
+import Test.Common (Test, prop)
 
 import qualified Crypto.BCrypt as BC
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
-test_pwdHashVerified :: [TestTree]
-test_pwdHashVerified = pure $ testProperty "Password verification" $ property $ do
+pwdHashVerify :: Test
+pwdHashVerify = prop "Password verification" $ do
     randomPwd <- forAll genPwd
     whenRightM (runExceptT $ mkPasswordHashWithPolicy
       BC.fastBcryptHashingPolicy randomPwd) $ \pwdHash -> assert $ verifyPassword randomPwd pwdHash
