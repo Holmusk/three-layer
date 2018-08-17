@@ -1,4 +1,6 @@
-module Test.AuthSpec where
+module Test.Auth
+       ( authSpecs
+       ) where
 
 import Control.Monad.Except (MonadError)
 import Katip (Katip, KatipContext)
@@ -7,11 +9,13 @@ import Test.Tasty.Hspec
 
 import Lib.App
 import Lib.App.Error (notAllowed, notFound)
-import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Core.Jwt (JwtToken (..))
+import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
+
+import Test.Common (Test, joinSpecs)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.UUID.Types as UUID
@@ -43,8 +47,15 @@ instance MonadUser MockApp where
   }
   getUserByEmail _ = return Nothing
 
-spec_loginSpec :: Spec
-spec_loginSpec = describe "login Handler" $ do
+authSpecs :: Test
+authSpecs = joinSpecs "Auth"
+    [ loginSpec
+    , isLoggedInSpec
+    , logoutSpec
+    ]
+
+loginSpec :: Spec
+loginSpec = describe "login Handler" $ do
   it "should return a 404 on an unknown email" $
     runMockApp (loginHandler (LoginRequest "unknownemail@test.com" $ PwdPlainText ""))
       `shouldReturn` Left notFound
@@ -55,8 +66,8 @@ spec_loginSpec = describe "login Handler" $ do
     resp <- runMockApp (loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password"))
     resp `shouldSatisfy` isRight
 
-spec_isLoggedInSpec :: Spec
-spec_isLoggedInSpec = describe "isLoggedIn handler" $ do
+isLoggedInSpec :: Spec
+isLoggedInSpec = describe "isLoggedIn handler" $ do
   it "should return an error for an invalid JWT token" $
     runMockApp (isLoggedInHandler (JwtToken ""))
       `shouldReturn` Left (notAllowed "Invalid Token")
@@ -66,8 +77,8 @@ spec_isLoggedInSpec = describe "isLoggedIn handler" $ do
       isLoggedInHandler loginResponseToken
     resp `shouldSatisfy` isRight
 
-spec_logoutSpec :: Spec
-spec_logoutSpec = describe "logout handler" $
+logoutSpec :: Spec
+logoutSpec = describe "logout handler" $
   it "should be able to log out a logged in user" $ do
     resp <- runMockApp $ do
       LoginResponse{..} <- loginHandler (LoginRequest "test@test.com" $ PwdPlainText "password")
