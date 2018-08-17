@@ -46,7 +46,6 @@ dependencies:
 - random
 - resource-pool
 - servant
-- servant-generic
 - servant-server
 - text
 - time
