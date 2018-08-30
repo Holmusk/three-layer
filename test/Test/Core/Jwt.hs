@@ -5,6 +5,7 @@ module Test.Core.Jwt
 import Data.UUID.Types (UUID)
 import Hedgehog (MonadGen, forAll, (===))
 
+import Lib.Core.Id (Id (..))
 import Lib.Core.Jwt (JwtPayload (..), jwtPayloadFromMap, jwtPayloadToMap, jwtUserId)
 
 import Test.Common (Test, prop)
@@ -16,7 +17,7 @@ import qualified Hedgehog.Range as Range
 jwtMapEncodeAndDecode :: Test
 jwtMapEncodeAndDecode = prop "jwtMapEncodeAndDecode" $ do
     randomId <- forAll genRandId
-    let randomJwtPayload = JwtPayload { jwtUserId = randomId }
+    let randomJwtPayload = JwtPayload { jwtUserId = Id randomId }
     let encoded = jwtPayloadToMap randomJwtPayload
     let decoded = jwtPayloadFromMap encoded
     decoded === Just randomJwtPayload
@@ -27,11 +28,11 @@ jwtMapEncodeAndDecode = prop "jwtMapEncodeAndDecode" $ do
 
 genRandId :: MonadGen m => m UUID
 genRandId = do
-  a <- genWord32
-  b <- genWord32
-  c <- genWord32
-  d <- genWord32
-  pure $ UUID.fromWords a b c d
+    a <- genWord32
+    b <- genWord32
+    c <- genWord32
+    d <- genWord32
+    pure $ UUID.fromWords a b c d
 
 genWord32 :: MonadGen m => m Word32
 genWord32 = Gen.word32 (Range.constantBounded @Word32)

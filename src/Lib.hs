@@ -8,8 +8,8 @@ import Network.Wai.Handler.Warp (run)
 import Servant.Server (serve)
 import System.Remote.Monitoring (forkServerWith)
 
-import Lib.App (AppEnv (..), JwtSecret (..))
-import Lib.Core.Jwt (mkRandomString)
+import Lib.App (AppEnv (..))
+import Lib.Core.Jwt (JwtSecret (..), mkRandomString)
 import Lib.Server (API, server)
 
 import qualified Data.HashMap.Strict as HashMap
@@ -24,6 +24,7 @@ mkAppEnv = do
   timings <- newIORef HashMap.empty
   ekgStore <- Metrics.newStore
   Metrics.registerGcMetrics ekgStore
+  let sessionExpiry = 600
   return AppEnv{..}
 
 runServer :: AppEnv -> IO ()

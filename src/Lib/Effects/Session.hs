@@ -1,28 +1,58 @@
 module Lib.Effects.Session
        ( MonadSession (..)
+         -- * Internals of 'MonadSession'
+       , getSessionApp
+       , putSessionApp
+       , deleteSessionApp
+       , isSessionExpiredApp
        ) where
 
 import Control.Concurrent.MVar (modifyMVar_)
-import Data.UUID.Types (UUID)
+import Data.Time.Clock (getCurrentTime)
 
-import Lib.App.Env (AppEnv (..), Session)
+import Lib.App (App (..), Has (..), grab)
+import Lib.Core.Id (AnyId)
+import Lib.Core.Session (Session (..), SessionExpiry (..), Sessions, sessionExpired)
 
 import qualified Data.HashMap.Strict as HashMap
 
--- | describes a monad that can provide a CRUD interface for a 'Session' type
-class (MonadReader AppEnv m, MonadIO m) => MonadSession m where
-  getSession :: UUID -> m (Maybe Session)
-  getSession sessionId = do
-    sessionsMvar <- asks sessions
-    sessionsMap  <- readMVar sessionsMvar
-    return $ HashMap.lookup sessionId sessionsMap
+-- class MonadSession
+--  describes a monad that can provide a CRUD interface for a 'Session' type
 
-  putSession :: UUID -> Session -> m ()
-  putSession sessionId newSession = do
-    sessionsMvar <- asks sessions
-    liftIO $ modifyMVar_ sessionsMvar (return . HashMap.insert sessionId newSession)
+-- class MonadSession
+--  describes a monad that can provide a CRUD interface for a 'Session' type
+class Monad m => MonadSession m where
+    getSession       :: AnyId -> m (Maybe Session)
+    putSession       :: AnyId -> Session -> m ()
+    deleteSession    :: AnyId -> m ()
+    isSessionExpired :: Session -> m Bool
 
-  deleteSession :: UUID -> m ()
-  deleteSession sessionId = do
-    sessionsMvar <- asks sessions
-    liftIO $ modifyMVar_ sessionsMvar (return . HashMap.delete sessionId)
+instance MonadSession App where
+    getSession       = getSessionApp
+    putSession       = putSessionApp
+    deleteSession    = deleteSessionApp
+    isSessionExpired = isSessionExpiredApp
+
+type WithSession r m = (MonadReader r m, Has Sessions r, Has SessionExpiry r, MonadIO m)
+
+getSessionApp :: WithSession r m => AnyId -> m (Maybe Session)
+getSessionApp sessionId = do
+    sessionsMvar <- grab
+    sessionsMap <- readMVar sessionsMvar
+    pure $ HashMap.lookup sessionId sessionsMap
+
+putSessionApp :: WithSession r m => AnyId -> Session -> m ()
+putSessionApp sessionId newSession = do
+    sessionsMvar <- grab
+    liftIO $ modifyMVar_ sessionsMvar (pure . HashMap.insert sessionId newSession)
+
+deleteSessionApp :: WithSession r m => AnyId -> m ()
+deleteSessionApp sessionId = do
+    sessionsMvar <- grab @Sessions
+    liftIO $ modifyMVar_ sessionsMvar (pure . HashMap.delete sessionId)
+
+isSessionExpiredApp :: WithSession r m => Session -> m Bool
+isSessionExpiredApp session = do
+    currentTime <- liftIO getCurrentTime
+    expiry <- grab @SessionExpiry
+    pure $ sessionExpired expiry currentTime session
