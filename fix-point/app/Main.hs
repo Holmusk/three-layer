@@ -1,7 +1,5 @@
 module Main where
 
-import Universum
-
 import Data.Char (toLower, toUpper)
 import Data.Maybe (maybe)
 import Data.Semigroup ((<>))

@@ -1,7 +1,5 @@
 module CopyFiles where
 
-import Universum
-
 import Control.Exception (throw)
 import Data.Text (Text)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist, doesFileExist,
