@@ -1,7 +1,5 @@
 module Rename where
 
-import Universum
-
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 
@@ -55,5 +53,5 @@ rename newMod s = unlines [changeLine newMod x | x <- lines s]
 -- Method with filePath
 contentRename :: (Text -> Text -> Text) -> Text -> FilePath -> IO ()
 contentRename f newMod file = do
-    content <- f newMod <$> readFile file
-    writeFile file content
+    content <- f newMod <$> readFileText file
+    writeFileText file content

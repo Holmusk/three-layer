@@ -46,7 +46,7 @@ executeMany qx args = perform (\conn -> SQL.executeMany conn qx args)
 -- | Helper function working with results from a database when you expect
 -- only one row to be returned.
 asSingleRow :: (WithError m) => m [a] -> m a
-asSingleRow action = notFoundOnNothingM (safeHead <$> action)
+asSingleRow action = notFoundOnNothingM (viaNonEmpty head <$> action)
 
 perform :: WithDbPool env m => (SQL.Connection -> IO b) -> m b
 perform f = do

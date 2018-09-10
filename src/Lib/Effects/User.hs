@@ -26,7 +26,7 @@ instance MonadUser App where
     getUserByEmail = getUserByEmailApp
 
 getUserByEmailApp :: (WithDbPool env m, MonadMeasure m) => Email -> m (Maybe User)
-getUserByEmailApp email = timedAction "getUserByEmail" $ safeHead <$> query [sql|
+getUserByEmailApp email = timedAction "getUserByEmail" $ viaNonEmpty head <$> query [sql|
     SELECT
       *
     FROM

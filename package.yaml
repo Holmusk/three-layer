@@ -1,9 +1,9 @@
 name:                three-layer
-version:             0.1.0.0
-github:              "githubuser/three-layer"
+version:             0.0.0
+github:              "Holmusk/three-layer"
 license:             BSD3
 author:              "Holmusk"
-maintainer:          "example@example.com"
+maintainer:          "tech@holmusk.com"
 copyright:           "2018 Holmusk"
 
 extra-source-files:
@@ -18,7 +18,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/githubuser/three-layer#readme>
+description:         Please see the README on Github at <https://github.com/Holmusk/three-layer#readme>
 
 custom-setup:
   dependencies:
@@ -28,7 +28,7 @@ custom-setup:
 
 dependencies:
 - aeson
-- base-noprelude >= 4.7 && < 5
+- base-noprelude >= 4.11 && < 5
 - bcrypt
 - bytestring
 - containers
@@ -38,17 +38,18 @@ dependencies:
 - http-api-data
 - jwt
 - katip
+- lens
 - mtl
 - postgresql-simple
 - proto-lens
 - proto-lens-protoc
 - random
+- relude
 - resource-pool
 - servant
 - servant-server
 - text
 - time
-- universum
 - unordered-containers
 - uuid-types
 - warp

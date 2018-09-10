@@ -1,24 +1,25 @@
+cabal-version:  2.0
 name:           fix-point
-version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/fix-point#readme>
-homepage:       https://github.com/githubuser/fix-point#readme
-bug-reports:    https://github.com/githubuser/fix-point/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2018 Author name here
+version:        0.0.0
+description:    Please see the README on GitHub
+homepage:       https://github.com/holmusk/three-layer
+bug-reports:    https://github.com/holmusk/three-layer/issues
+author:         Tejas Chandrasekar
+maintainer:     tech@holmusk.com
+copyright:      2018 Holmusk
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     README.md
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/fix-point
+  location: https://github.com/Holmusk/three-layer
 
 library
   exposed-modules:
+      Prelude
       CopyFiles
       Rename
   other-modules:
@@ -26,17 +27,15 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      base-noprelude >=4.11 && <5
     , directory
     , filepath
+    , relude ^>= 0.3.0
     , text
-    , universum
   ghc-options:
      -Wall
   default-language: Haskell2010
   default-extensions: OverloadedStrings
-                      NoImplicitPrelude
-
 
 executable fix-point
   main-is: Main.hs
@@ -46,11 +45,11 @@ executable fix-point
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      base-noprelude
     , directory
     , fix-point
     , optparse-applicative
-    , universum
+    , relude
   default-language: Haskell2010
 
 test-suite fix-point-test
@@ -62,6 +61,6 @@ test-suite fix-point-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      base-noprelude
     , fix-point
   default-language: Haskell2010

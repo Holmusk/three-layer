@@ -1,24 +1,23 @@
 {-# OPTIONS -fno-warn-orphans #-}
 
--- | Uses @universum as default prelude
+-- | Uses @relude@ as default prelude.
 
 module Prelude
-       ( module Universum
+       ( module Relude
+       , module Control.Lens
        , UUID
-       , textToLBS
        ) where
 
-import Universum
+-- Reexport
+import Relude
 
+import Control.Lens ((.~), (^.))
 import Data.UUID.Types (UUID)
+
+-- Internal
 import Elm (ElmType (..))
 
-import qualified Data.ByteString.Lazy as BSL (fromStrict)
 import qualified Data.UUID.Types as UUID
 
--- | Converts 'Text' to 'LByteString'.
-textToLBS :: Text -> LByteString
-textToLBS = BSL.fromStrict . encodeUtf8
-
 instance ElmType UUID where
-  toElmType = toElmType . UUID.toString
+    toElmType = toElmType . UUID.toString

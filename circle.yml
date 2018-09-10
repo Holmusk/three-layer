@@ -23,7 +23,7 @@ jobs:
       - image: holmusk/haskell-ci
     steps:
       - checkout
-      - run: /root/.local/bin/hlint . -h .hlint-universum.yaml
+      - run: /root/.local/bin/hlint . -h .hlint-relude.yaml
 
 workflows:
   version: 2

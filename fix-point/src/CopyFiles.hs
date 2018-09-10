@@ -1,8 +1,6 @@
 module CopyFiles where
 
-import Universum
-
-import Control.Exception (throw)
+import Control.Exception (throwIO)
 import Data.Text (Text)
 import System.Directory (copyFile, createDirectory, doesDirectoryExist, doesFileExist,
                          listDirectory)
@@ -15,9 +13,9 @@ import qualified Rename as R
 copyAll :: FilePath -> FilePath -> String -> IO ()
 copyAll source target newName = do
     unlessM (doesDirectoryExist source) $
-        throw (userError "source does not exist")
+        throwIO (userError "source does not exist")
     whenM (doesFileOrDirectoryExist target) $
-        throw (userError "destination already exists")
+        throwIO (userError "destination already exists")
 
   -- if bottom two lines swapped, infinite creation of target occurs
     content <- filter wantedFiles <$> listDirectory source

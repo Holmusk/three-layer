@@ -1,10 +1,13 @@
 [![CircleCI](https://circleci.com/gh/Holmusk/three-layer.svg?style=svg)](https://circleci.com/gh/Holmusk/three-layer)
+
 # three-layer-servant-starter
 
-This package is aimed at being a batteries included starting template for writing web servers using `servant`. It follows the approach detailed [here](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
+This package is aimed at being a batteries included starting template for
+writing web servers using `servant`. It follows the approach detailed
+[here](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
 
 Things that are included:
-* Custom prelude (uses [`universum`](https://github.com/serokell/universum))
+* Custom prelude (uses [`relude`](https://github.com/kowainik/relude))
 * Logging integration (uses `katip`)
 * Database helper functions (uses `postgresql-simple`)
 * Monitoring time taken for your `App` actions (uses `ekg`)
@@ -12,7 +15,7 @@ Things that are included:
 * JWT helper functions (uses `jwt`)
 * Testing support (uses `tasty` and `hedgehog`)
 
-[TODO]: rewrite code below according to libraries we use
+[TODO]: rewrite code below according to the recent updated code structure
 
 ## Getting started
 
