@@ -18,4 +18,4 @@ prop name = pure . testProperty name . property
 
 -- | Joins list of specs into single test group with given name.
 joinSpecs :: TestName -> [Spec] -> Test
-joinSpecs name specs = testGroup name <$> concatMapM testSpecs specs
+joinSpecs name specs = testGroup name <$> foldMapA testSpecs specs

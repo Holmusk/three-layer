@@ -28,7 +28,7 @@ custom-setup:
 
 dependencies:
 - aeson
-- base-noprelude >= 4.7 && < 5
+- base-noprelude >= 4.11 && < 5
 - bcrypt
 - bytestring
 - containers
@@ -38,17 +38,18 @@ dependencies:
 - http-api-data
 - jwt
 - katip
+- lens
 - mtl
 - postgresql-simple
 - proto-lens
 - proto-lens-protoc
 - random
+- relude
 - resource-pool
 - servant
 - servant-server
 - text
 - time
-- universum
 - unordered-containers
 - uuid-types
 - warp

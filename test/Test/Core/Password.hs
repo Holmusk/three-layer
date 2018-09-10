@@ -15,8 +15,8 @@ import qualified Hedgehog.Range as Range
 pwdHashVerify :: Test
 pwdHashVerify = prop "Password verification" $ do
     randomPwd <- forAll genPwd
-    whenRightM (runExceptT $ mkPasswordHashWithPolicy
-      BC.fastBcryptHashingPolicy randomPwd) $ \pwdHash -> assert $ verifyPassword randomPwd pwdHash
+    let hashPwd = mkPasswordHashWithPolicy BC.fastBcryptHashingPolicy randomPwd
+    whenRightM_ (runExceptT hashPwd) $ \pwdHash -> assert $ verifyPassword randomPwd pwdHash
 
 genPwd :: MonadGen m => m PasswordPlainText
 genPwd = PwdPlainText <$> Gen.text (Range.constant 8 40) Gen.alphaNum

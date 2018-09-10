@@ -5,6 +5,7 @@ module Lib.App.Monad
        , runAppAsIO
        ) where
 
+import Control.Exception (bracket)
 import Control.Monad.Except (MonadError, throwError)
 import Katip (ColorStrategy (ColorIfTerminal), Katip, KatipContext, KatipContextT,
               Severity (DebugS), Verbosity (V2), closeScribes, defaultScribeSettings, initLogEnv,
