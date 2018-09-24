@@ -16,7 +16,7 @@ import Lib.Core.Password (PasswordHash)
 import Lib.Core.Email (Email)
 import Lib.Core.Id (Id)
 import Lib.Db (WithDbPool, query)
-import Lib.Effects.Measure (MonadMeasure (timedAction))
+import Lib.Effects.Measure (MonadMeasure, timedAction)
 
 
 class MonadUser m where
@@ -26,7 +26,7 @@ instance MonadUser App where
     getUserByEmail = getUserByEmailApp
 
 getUserByEmailApp :: (WithDbPool env m, MonadMeasure m) => Email -> m (Maybe User)
-getUserByEmailApp email = timedAction "getUserByEmail" $ viaNonEmpty head <$> query [sql|
+getUserByEmailApp email = timedAction $ viaNonEmpty head <$> query [sql|
     SELECT
       *
     FROM
