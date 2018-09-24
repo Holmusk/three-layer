@@ -25,7 +25,7 @@ import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Core.Session (mkNewSession)
 import Lib.Db (WithDbPool)
 import Lib.Effects.Jwt (MonadJwt (..))
-import Lib.Effects.Measure (MonadMeasure (timedAction))
+import Lib.Effects.Measure (MonadMeasure, timedAction)
 import Lib.Effects.Session (MonadSession (..))
 import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Server.Types (AppServer, ToApi)
@@ -72,7 +72,7 @@ authServer = AuthSite
 
 loginHandler :: (MonadUser m, MonadJwt m, MonadSession m, MonadMeasure m, WithDbPool env m, WithError m, KatipContext m)
              => LoginRequest -> m LoginResponse
-loginHandler LoginRequest{..} = timedAction "loginHandler" $
+loginHandler LoginRequest{..} = timedAction $
     getUserByEmail loginRequestEmail >>= \case
         Nothing -> do
             $(logTM) DebugS $ ls $ "Given email address " <> unEmail loginRequestEmail <> " not found"
@@ -89,14 +89,14 @@ loginHandler LoginRequest{..} = timedAction "loginHandler" $
             pure $ LoginResponse token
 
 isLoggedInHandler :: (MonadSession m, MonadJwt m, MonadMeasure m, WithError m) => JwtToken -> m NoContent
-isLoggedInHandler token = timedAction "isLoggedInHandler" $ do
+isLoggedInHandler token = timedAction $ do
     JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
     session <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
     whenM (isSessionExpired session) $ throwError (notAllowed "Expired Session")
     pure NoContent
 
 logoutHandler :: (MonadSession m, MonadMeasure m, MonadJwt m, KatipContext m) => JwtToken -> m NoContent
-logoutHandler token = timedAction "logoutHandler" $ do
+logoutHandler token = timedAction $ do
     decodeAndVerifyJwtToken token >>= \case
         Just JwtPayload{..} -> deleteSession jwtUserId
         Nothing ->

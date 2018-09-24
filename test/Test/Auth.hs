@@ -14,7 +14,7 @@ import Lib.Core.Id (Id (..))
 import Lib.Core.Jwt (JwtSecret (..), JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Effects.Jwt
-import Lib.Effects.Measure
+import Lib.Effects.Measure (MonadTimed (..), timedActionImpl)
 import Lib.Effects.Session
 import Lib.Effects.User
 import Lib.Server.Auth
@@ -54,8 +54,8 @@ instance MonadJwt MockApp where
     mkJwtToken = mkJwtTokenApp
     decodeAndVerifyJwtToken = decodeAndVerifyJwtTokenApp
 
-instance MonadMeasure MockApp where
-    timedAction = timedActionApp
+instance MonadTimed MockApp where
+    timedAction = timedActionImpl
 
 instance MonadSession MockApp where
     getSession = getSessionApp
