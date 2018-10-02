@@ -1,10 +1,13 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Lib.Server.Auth
-       ( LoginRequest (..)
+       ( -- * API
+         LoginRequest (..)
        , LoginResponse (..)
        , AuthAPI
        , authServer
+
+         -- * Handlers
        , loginHandler
        , isLoggedInHandler
        , logoutHandler
@@ -31,6 +34,7 @@ import Lib.Effects.User (MonadUser (..), User (..))
 import Lib.Server.Types (AppServer, ToApi)
 import Lib.Time (dayInSeconds)
 
+
 data LoginRequest = LoginRequest
     { loginRequestEmail    :: Email
     , loginRequestPassword :: PasswordPlainText
@@ -50,28 +54,35 @@ instance ToJSON LoginResponse
 
 data AuthSite route = AuthSite
     { -- | Login into the application, retuns a JWT if successful
-      loginApp :: route :-
-        "login" :> ReqBody '[JSON] LoginRequest :> Post '[JSON] LoginResponse
+      loginRoute :: route
+        :- "login"
+        :> ReqBody '[JSON] LoginRequest
+        :> Post '[JSON] LoginResponse
 
       -- | Check if a given JWT is valid
-    , loginJWT :: route :-
-        "login" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
+    , isLoggedInRoute :: route
+        :- "login"
+        :> Capture "JWT" JwtToken
+        :> Get '[JSON] NoContent
 
-    , logout :: route :-
-        "logout" :> Capture "JWT" JwtToken :> Get '[JSON] NoContent
+    , logoutRoute :: route
+        :- "logout"
+        :> Capture "JWT" JwtToken
+        :> Get '[JSON] NoContent
     } deriving (Generic)
 
 type AuthAPI = ToApi AuthSite
 
 authServer :: AuthSite AppServer
 authServer = AuthSite
-    { loginApp = loginHandler
-    , loginJWT = isLoggedInHandler
-    , logout   = logoutHandler
+    { loginRoute   = loginHandler
+    , isLoggedInRoute = isLoggedInHandler
+    , logoutRoute     = logoutHandler
     }
 
-loginHandler :: (MonadUser m, MonadJwt m, MonadSession m, MonadMeasure m, WithDbPool env m, WithError m, KatipContext m)
-             => LoginRequest -> m LoginResponse
+loginHandler
+    :: (MonadUser m, MonadJwt m, MonadSession m, MonadMeasure m, WithDbPool env m, WithError m, KatipContext m)
+    => LoginRequest -> m LoginResponse
 loginHandler LoginRequest{..} = timedAction $
     getUserByEmail loginRequestEmail >>= \case
         Nothing -> do
