@@ -51,17 +51,17 @@ instance MonadUser MockApp where
   getUserByEmail _ = return Nothing
 
 instance MonadJwt MockApp where
-    mkJwtToken = mkJwtTokenApp
-    decodeAndVerifyJwtToken = decodeAndVerifyJwtTokenApp
+    mkJwtToken = mkJwtTokenImpl
+    decodeAndVerifyJwtToken = decodeAndVerifyJwtTokenImpl
 
 instance MonadTimed MockApp where
     timedAction = timedActionImpl
 
 instance MonadSession MockApp where
-    getSession = getSessionApp
-    putSession = putSessionApp
-    deleteSession = deleteSessionApp
-    isSessionExpired = isSessionExpiredApp
+    getSession = getSessionImpl
+    putSession = putSessionImpl
+    deleteSession = deleteSessionImpl
+    isSessionExpired = isSessionExpiredImpl
 
 authSpecs :: Test
 authSpecs = joinSpecs "Auth"

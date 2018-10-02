@@ -23,10 +23,10 @@ class MonadUser m where
     getUserByEmail :: Email -> m (Maybe User)
 
 instance MonadUser App where
-    getUserByEmail = getUserByEmailApp
+    getUserByEmail = getUserByEmailImpl
 
-getUserByEmailApp :: (WithDbPool env m, MonadMeasure m) => Email -> m (Maybe User)
-getUserByEmailApp email = timedAction $ viaNonEmpty head <$> query [sql|
+getUserByEmailImpl :: (WithDbPool env m, MonadMeasure m) => Email -> m (Maybe User)
+getUserByEmailImpl email = timedAction $ viaNonEmpty head <$> query [sql|
     SELECT
       *
     FROM

@@ -3,8 +3,8 @@ module Lib.Effects.Jwt
          MonadJwt (..)
 
          -- * Internals of 'MonadJwt'
-       , mkJwtTokenApp
-       , decodeAndVerifyJwtTokenApp
+       , mkJwtTokenImpl
+       , decodeAndVerifyJwtTokenImpl
        ) where
 
 import Data.Time.Clock.POSIX (getPOSIXTime)
@@ -20,12 +20,13 @@ class Monad m => MonadJwt m where
     decodeAndVerifyJwtToken :: JwtToken -> m (Maybe JwtPayload)
 
 instance MonadJwt App where
-    mkJwtToken = mkJwtTokenApp
-    decodeAndVerifyJwtToken = decodeAndVerifyJwtTokenApp
+    mkJwtToken = mkJwtTokenImpl
+    decodeAndVerifyJwtToken = decodeAndVerifyJwtTokenImpl
 
-mkJwtTokenApp :: (MonadIO m, MonadReader r m, Has JwtSecret r)
-              => Seconds -> JwtPayload -> m JwtToken
-mkJwtTokenApp (Seconds expiry) payload = do
+mkJwtTokenImpl
+    :: (MonadIO m, MonadReader r m, Has JwtSecret r)
+    => Seconds -> JwtPayload -> m JwtToken
+mkJwtTokenImpl (Seconds expiry) payload = do
     secret <- JWT.secret . unJwtSecret <$> grab
     timeNow <- liftIO getPOSIXTime
     let expiryTime = timeNow + fromIntegral expiry
@@ -35,9 +36,10 @@ mkJwtTokenApp (Seconds expiry) payload = do
             }
     pure $ JwtToken $ JWT.encodeSigned JWT.HS256 secret claimsSet
 
-decodeAndVerifyJwtTokenApp :: (MonadIO m, MonadReader r m, Has JwtSecret r)
-                           => JwtToken -> m (Maybe JwtPayload)
-decodeAndVerifyJwtTokenApp (JwtToken token) = do
+decodeAndVerifyJwtTokenImpl
+    :: (MonadIO m, MonadReader r m, Has JwtSecret r)
+    => JwtToken -> m (Maybe JwtPayload)
+decodeAndVerifyJwtTokenImpl (JwtToken token) = do
     secret <- JWT.secret  . unJwtSecret <$> grab
     timeNow <- JWT.numericDate <$> liftIO getPOSIXTime
     pure $ do

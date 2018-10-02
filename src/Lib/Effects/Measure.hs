@@ -24,7 +24,7 @@ instance MonadTimed App where
 
 type MonadMeasure m = (HasCallStack, MonadTimed m)
 
--- Measure the time taken to perform the given action and store it
+-- | Measure the time taken to perform the given action and store it
 -- in the 'timings' distribution with the given label
 timedActionImpl
     :: forall r m a .
