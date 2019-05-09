@@ -1,7 +1,17 @@
 resolver: lts-13.20
 
 extra-deps:
-  - katip-0.5.5.1
-
-ghc-options:
-  "$locals": -fhide-source-paths
+  - ansi-terminal-0.9
+  - co-log-0.3.0.0
+  - co-log-core-0.2.0.0
+  - chronos-1.0.5
+  - torsor-0.1 # for chronos
+  - jwt-0.9.0
+  - proto-lens-0.5.0.0
+  - proto-lens-protoc-0.5.0.0
+  - proto-lens-runtime-0.5.0.0
+  - relude-0.5.0
+  - servant-0.16.0.1
+  - servant-server-0.16
+  - tasty-hedgehog-0.2.0.0
+  - typerep-map-0.3.2

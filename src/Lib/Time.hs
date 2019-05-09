@@ -12,8 +12,8 @@ module Lib.Time
 import Data.Time.Calendar (fromGregorian, toGregorian)
 import Data.Time.Clock (UTCTime (..), diffTimeToPicoseconds, secondsToDiffTime)
 
-import Proto.Common (Date (..), Datetime (..), Timestamp (..))
-import Proto.Common_Fields (date, day, month, seconds, nanos, timestamp, year)
+import Proto.Common (Date, Datetime, Timestamp)
+import Proto.Common_Fields (date, day, month, nanos, seconds, timestamp, year)
 
 import qualified Control.Concurrent as C (threadDelay)
 

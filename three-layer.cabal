@@ -1,0 +1,173 @@
+cabal-version:       2.4
+name:                three-layer
+version:             0.0.0.0
+synopsis:            Three layer cake Haskell implementation
+description:         Please see the README on Github at <https://github.com/Holmusk/three-layer#readme>
+homepage:            https://github.com/Holmusk/three-layer#readme
+bug-reports:         https://github.com/Holmusk/three-layer/issues
+author:              Holmusk
+maintainer:          Holmusk <tech@holmusk.com>
+copyright:           2018-2019 Holmusk
+license:             BSD-3-Clause
+license-file:        LICENSE
+build-type:          Custom
+extra-doc-files:     README.md
+                     ChangeLog.md
+extra-source-files:  proto/common.proto
+                     proto/login.proto
+tested-with:         GHC == 8.6.5
+
+source-repository head
+  type:                git
+  location:            https://github.com/holmusk/haia.git
+
+custom-setup
+  setup-depends: Cabal
+               , base
+               , proto-lens-setup ^>= 0.4.0.2
+
+common common-options
+  build-depends:       base-noprelude ^>= 4.12.0.0
+                     , relude ^>= 0.5.0
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
+  default-extensions:  BangPatterns
+                       ConstraintKinds
+                       DataKinds
+                       DeriveGeneric
+                       DerivingStrategies
+                       FlexibleContexts
+                       FlexibleInstances
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
+                       KindSignatures
+                       LambdaCase
+                       MultiParamTypeClasses
+                       OverloadedStrings
+                       OverloadedLabels
+                       RecordWildCards
+                       ScopedTypeVariables
+                       TypeApplications
+                       TypeFamilies
+                       TypeOperators
+
+library
+  import:              common-options
+  hs-source-dirs:      src
+  exposed-modules:     Prelude
+                       Lib
+                         -- application monad
+                         Lib.App
+                           Lib.App.Env
+                           Lib.App.Error
+                           Lib.App.Monad
+
+                         -- core modules
+                         Lib.Core.Admin
+                         Lib.Core.Email
+                         Lib.Core.Id
+                         Lib.Core.Jwt
+                         Lib.Core.Password
+                         Lib.Core.Session
+                         Lib.Core.User
+
+                         Lib.Db
+
+                         -- effects
+                         Lib.Effects.Jwt
+                         Lib.Effects.Log
+                         Lib.Effects.Measure
+                         Lib.Effects.Session
+                         Lib.Effects.User
+
+                         -- Server
+                         Lib.Server
+                           Lib.Server.Auth
+                           Lib.Server.Types
+
+                         Lib.Time
+  other-modules:       Proto.Common
+                       Proto.Common_Fields
+                       Proto.Login
+                       Proto.Login_Fields
+  autogen-modules:     Proto.Common
+                       Proto.Common_Fields
+                       Proto.Login
+                       Proto.Login_Fields
+
+  build-tool-depends:  proto-lens-protoc:proto-lens-protoc
+  build-depends:       aeson >= 1.4
+                     , bcrypt ^>= 0.0.11
+                     , bytestring ^>= 0.10
+                     , co-log ^>= 0.3.0
+                     , containers >= 0.6
+                     , ekg ^>= 0.4.0.15
+                     , ekg-core ^>= 0.1.1.6
+                     , elm-export
+                     , http-api-data ^>= 0.4
+                     , jwt ^>= 0.9.0
+                     , lens ^>= 4.17
+                     , mtl ^>= 2.2.2
+                     , postgresql-simple ^>= 0.6.1
+                     , proto-lens ^>= 0.5.0.0
+                     , proto-lens-protoc ^>= 0.5.0.0
+                     , proto-lens-runtime ^>= 0.5.0.0
+                     , random ^>= 1.1
+                     , resource-pool
+                     , servant ^>= 0.16
+                     , servant-server ^>= 0.16
+                     , text
+                     , time >= 1.8 && < 1.10
+                     , unordered-containers
+                     , uuid-types
+                     , warp ^>= 3.2
+
+executable generate-elm
+  import:              common-options
+  hs-source-dirs:      generate-elm
+  main-is:             Main.hs
+  other-modules:       Paths_three_layer
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       three-layer
+                     , elm-export
+                     , servant
+                     , servant-elm
+
+executable three-layer-exe
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  other-modules:       Paths_three_layer
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       three-layer
+
+test-suite three-layer-test
+  import:              common-options
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:       Test.Auth
+                       Test.Common
+                       Test.Core.Jwt
+                       Test.Core.Password
+                       Paths_three_layer
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       three-layer
+                     , bcrypt
+                     , hedgehog
+                     , ekg-core
+                     , mtl
+                     , tasty
+                     , tasty-hspec
+                     , tasty-hedgehog
+                     , unordered-containers
+                     , uuid-types

@@ -1,14 +1,11 @@
 module Main where
 
-import Data.Char (toLower, toUpper)
-import Data.Maybe (maybe)
-import Data.Semigroup ((<>))
+import Data.Char (toUpper)
 import Options.Applicative (Parser, execParser, fullDesc, header, help, helper, info, long, metavar,
                             progDesc, strArgument, strOption, (<**>))
-import System.Directory (doesDirectoryExist, getCurrentDirectory)
 
 import CopyFiles (copyAll)
-import Rename
+
 
 main :: IO ()
 main = bootstrap =<< execParser opts
