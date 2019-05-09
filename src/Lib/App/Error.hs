@@ -1,13 +1,14 @@
 {-# LANGUAGE ConstraintKinds #-}
 
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Lib.App.Error
        ( AppError (..)
+       , AppException (..)
        , WithError
        , IError
-       , throwOnNothing
-       , notFoundOnNothing
-       , throwOnNothingM
-       , notFoundOnNothingM
+
+         -- * Internal error helpers
        , isServerError
        , isNotAllowed
        , isInvalid
@@ -18,16 +19,34 @@ module Lib.App.Error
        , headerDecodeError
        , jobDecodeError
        , toHttpError
+
+         -- * Error throwing helpers
+       , throwOnNothing
+       , throwOnNothingM
+       , notFoundOnNothing
+       , notFoundOnNothingM
        ) where
 
 import Control.Monad.Except (MonadError, throwError)
-import Servant.Server (ServantErr, err401, err404, err417, err500, errBody)
+import Servant.Server (ServerError, err401, err404, err417, err500, errBody)
+
 
 -- | Type alias for errors.
 type WithError m = MonadError AppError m
 
-newtype AppError = InternalError IError deriving (Show, Eq)
+{- | Exception wrapper around 'AppError'. Useful when you need to throw/catch
+'AppError' as 'Exception'.
+-}
+newtype AppException = AppException
+    { unAppException :: AppError
+    } deriving (Show)
+      deriving anyclass (Exception)
 
+-- | App errors type.
+newtype AppError = InternalError IError
+    deriving (Show, Eq)
+
+-- | App internal errors.
 data IError =
     -- | General not found
       NotFound
@@ -83,6 +102,10 @@ headerDecodeError = InternalError HeaderDecodeError
 jobDecodeError :: Text -> AppError
 jobDecodeError = InternalError . JobDecodeError
 
+----------------------------------------------------------------------------
+-- Helpers
+----------------------------------------------------------------------------
+
 throwOnNothing :: WithError m => AppError -> Maybe a -> m a
 throwOnNothing err = maybe (throwError err) pure
 
@@ -100,13 +123,12 @@ notFoundOnNothing = throwOnNothing notFound
 notFoundOnNothingM :: (WithError m) => m (Maybe a) -> m a
 notFoundOnNothingM = throwOnNothingM notFound
 
-toHttpError :: AppError -> ServantErr
+toHttpError :: AppError -> ServerError
 toHttpError = \case
-  InternalError err ->
-    case err of
-      NotFound          -> err404
-      ServerError msg   -> err500 { errBody = encodeUtf8 msg }
-      NotAllowed msg    -> err401 { errBody = encodeUtf8 msg }
-      Invalid msg       -> err417 { errBody = encodeUtf8 msg }
-      HeaderDecodeError -> err401 { errBody = "Unable to decode header" }
-      JobDecodeError er -> err401 { errBody = encodeUtf8 er }
+    InternalError err -> case err of
+        NotFound          -> err404
+        ServerError msg   -> err500 { errBody = encodeUtf8 msg }
+        NotAllowed msg    -> err401 { errBody = encodeUtf8 msg }
+        Invalid msg       -> err417 { errBody = encodeUtf8 msg }
+        HeaderDecodeError -> err401 { errBody = "Unable to decode header" }
+        JobDecodeError er -> err401 { errBody = encodeUtf8 er }

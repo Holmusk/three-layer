@@ -16,7 +16,6 @@ module Lib.Server.Auth
 import Control.Monad.Except (throwError)
 import Data.Aeson (FromJSON, ToJSON)
 import Elm (ElmType)
-import Katip (KatipContext, Severity (..), logTM, ls)
 import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
 import Servant.API.Generic ((:-))
 
@@ -81,17 +80,25 @@ authServer = AuthSite
     }
 
 loginHandler
-    :: (MonadUser m, MonadJwt m, MonadSession m, MonadMeasure m, WithDbPool env m, WithError m, KatipContext m)
-    => LoginRequest -> m LoginResponse
+    :: ( MonadUser m
+       , MonadJwt m
+       , MonadSession m
+       , MonadMeasure m
+       , WithDbPool env m
+       , WithError m
+       , WithLog env m
+       )
+    => LoginRequest
+    -> m LoginResponse
 loginHandler LoginRequest{..} = timedAction $
     getUserByEmail loginRequestEmail >>= \case
         Nothing -> do
-            $(logTM) DebugS $ ls $ "Given email address " <> unEmail loginRequestEmail <> " not found"
+            log D $ "Given email address " <> unEmail loginRequestEmail <> " not found"
             throwError notFound
         Just User{..} -> do
             let isPasswordCorrect = verifyPassword loginRequestPassword userHash
             unless isPasswordCorrect $ do
-                $(logTM) DebugS $ ls $ "Incorrect password for user " <> unEmail loginRequestEmail
+                log D $ "Incorrect password for user " <> unEmail loginRequestEmail
                 throwError (notAllowed "Invalid Password")
             session <- mkNewSession
             let anyId = castId @() userId
@@ -99,17 +106,30 @@ loginHandler LoginRequest{..} = timedAction $
             token <- mkJwtToken dayInSeconds (JwtPayload anyId)
             pure $ LoginResponse token
 
-isLoggedInHandler :: (MonadSession m, MonadJwt m, MonadMeasure m, WithError m) => JwtToken -> m NoContent
+isLoggedInHandler
+    :: ( MonadSession m
+       , MonadJwt m
+       , MonadMeasure m
+       , WithError m
+       )
+    => JwtToken
+    -> m NoContent
 isLoggedInHandler token = timedAction $ do
     JwtPayload{..} <- throwOnNothingM (notAllowed "Invalid Token") $ decodeAndVerifyJwtToken token
-    session <- throwOnNothingM (notAllowed "Expired Session") $ getSession jwtUserId
+    session <- throwOnNothingM (notAllowed "Expired Session") $ getSession unJwtPayload
     whenM (isSessionExpired session) $ throwError (notAllowed "Expired Session")
     pure NoContent
 
-logoutHandler :: (MonadSession m, MonadMeasure m, MonadJwt m, KatipContext m) => JwtToken -> m NoContent
+logoutHandler
+    :: ( MonadSession m
+       , MonadMeasure m
+       , MonadJwt m
+       , WithLog env m
+       )
+    => JwtToken
+    -> m NoContent
 logoutHandler token = timedAction $ do
     decodeAndVerifyJwtToken token >>= \case
-        Just JwtPayload{..} -> deleteSession jwtUserId
-        Nothing ->
-            $(logTM) DebugS $ ls $ unJwtToken token <> " was used to logout when it was invalid"
+        Just JwtPayload{..} -> deleteSession unJwtPayload
+        Nothing -> log D $ unJwtToken token <> " was used to logout when it was invalid"
     pure NoContent
