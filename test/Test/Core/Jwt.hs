@@ -26,6 +26,7 @@ jwtMapEncodeAndDecode = prop "jwtMapEncodeAndDecode" $ do
 -- Generators
 ----------------------------------------------------------------------------
 
+{- HLINT ignore "Use <$>" -}
 genRandId :: MonadGen m => m UUID
 genRandId = do
     a <- genWord32

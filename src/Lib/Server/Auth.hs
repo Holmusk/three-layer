@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Lib.Server.Auth
        ( -- * API
          LoginRequest (..)
