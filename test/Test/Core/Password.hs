@@ -19,4 +19,4 @@ pwdHashVerify = prop "Password verification" $ do
     whenRightM_ (runExceptT hashPwd) $ \pwdHash -> assert $ verifyPassword randomPwd pwdHash
 
 genPwd :: MonadGen m => m PasswordPlainText
-genPwd = PwdPlainText <$> Gen.text (Range.constant 8 40) Gen.alphaNum
+genPwd = PasswordPlainText <$> Gen.text (Range.constant 8 40) Gen.alphaNum

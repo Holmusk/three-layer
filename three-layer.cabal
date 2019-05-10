@@ -45,6 +45,7 @@ common common-options
                        DataKinds
                        DeriveGeneric
                        DerivingStrategies
+                       DerivingVia
                        FlexibleContexts
                        FlexibleInstances
                        GeneralizedNewtypeDeriving
@@ -112,7 +113,7 @@ library
                      , containers >= 0.6
                      , ekg ^>= 0.4.0.15
                      , ekg-core ^>= 0.1.1.6
-                     , elm-export
+                     , elm-street
                      , http-api-data ^>= 0.4
                      , jwt ^>= 0.9.0
                      , lens ^>= 4.17
@@ -124,11 +125,11 @@ library
                      , random ^>= 1.1
                      , resource-pool
                      , servant ^>= 0.16
+                     , servant-proto-lens ^>= 0.1.0.3
                      , servant-server ^>= 0.16
                      , text
                      , time >= 1.8 && < 1.10
                      , unordered-containers
-                     , uuid-types
                      , warp ^>= 3.2
 
 executable generate-elm
@@ -138,9 +139,7 @@ executable generate-elm
   other-modules:       Paths_three_layer
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       three-layer
-                     , elm-export
-                     , servant
-                     , servant-elm
+                     , elm-street
 
 executable three-layer-exe
   import:              common-options
@@ -170,4 +169,3 @@ test-suite three-layer-test
                      , tasty-hspec
                      , tasty-hedgehog
                      , unordered-containers
-                     , uuid-types

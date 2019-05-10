@@ -8,31 +8,44 @@ module Prelude
        ( module Relude
        , module Colog
        , module Control.Lens
+       , module Json
+       , module Elm
        , module Proto
+       , module Sql
+       , module Web
 
        , WithLog
-       , UUID
        ) where
 
 -- Reexport
 import Relude
 
 import Control.Lens ((.~), (^.))
-import Data.UUID.Types (UUID)
 
 import Colog (pattern D, pattern E, pattern I, LogAction (..), Severity (..), pattern W, log)
 
+import Data.Aeson as Json (FromJSON (parseJSON), ToJSON (toJSON))
+
 import Data.ProtoLens.Message as Proto (defMessage)
 
--- Internal
-import Elm (ElmType (..))
+import Elm (Elm (..), ElmStreet (..), elmStreetParseJson, elmStreetToJson)
 
-import qualified Data.UUID.Types as UUID
+import Database.PostgreSQL.Simple.FromField as Sql (FromField (fromField))
+import Database.PostgreSQL.Simple.FromRow as Sql (FromRow (fromRow), field)
+import Database.PostgreSQL.Simple.SqlQQ as Sql (sql)
+import Database.PostgreSQL.Simple.ToField as Sql (ToField (toField))
+import Database.PostgreSQL.Simple.ToRow as Sql (ToRow (toRow))
+import Database.PostgreSQL.Simple.Types as Sql (Only (..))
+
+import Servant.API as Web ((:>), Capture, Get, Header, Header', JSON, NoContent (NoContent), Post,
+                           QueryParam, QueryParam', ReqBody)
+import Servant.API.ContentTypes.Proto as Web (Proto)
+import Servant.API.Generic as Web ((:-), toServant)
+import Web.HttpApiData as Web (FromHttpApiData (..), ToHttpApiData (..))
+
+-- Internal
 import qualified Colog (Message, WithLog)
 
 
 -- | 'Colog.WithLog' alias specialized to 'Message' data type.
 type WithLog env m = Colog.WithLog env Colog.Message m
-
-instance ElmType UUID where
-    toElmType = toElmType . UUID.toString

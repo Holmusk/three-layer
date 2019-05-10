@@ -1,6 +1,3 @@
-{-# LANGUAGE DeriveAnyClass     #-}
-{-# LANGUAGE DerivingStrategies #-}
-
 module Lib.Core.Jwt
        ( JwtPayload (..)
        , JwtToken (..)
@@ -12,17 +9,12 @@ module Lib.Core.Jwt
        , mkRandomString
        ) where
 
-import Data.Aeson (FromJSON, ToJSON, Value (..))
-import Database.PostgreSQL.Simple.FromField (FromField)
-import Database.PostgreSQL.Simple.ToField (ToField)
-import Elm (ElmType)
+import Data.Aeson (Value (..))
 import System.Random (newStdGen, randomRs)
-import Web.HttpApiData (FromHttpApiData)
 
 import Lib.Core.Id (AnyId, Id (..))
 
 import qualified Data.Map as Map
-import qualified Data.UUID.Types as UUID
 import qualified Web.JWT as Jwt
 
 ----------------------------------------------------------------------------
@@ -37,8 +29,7 @@ newtype JwtSecret = JwtSecret
 newtype JwtToken = JwtToken
     { unJwtToken :: Text
     } deriving stock (Show, Generic)
-      deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData)
-      deriving anyclass (FromJSON, ToJSON, ElmType)
+      deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData, FromJSON, ToJSON, Elm)
 
 -- | Stores user id.
 newtype JwtPayload = JwtPayload
@@ -53,12 +44,12 @@ mkRandomString len = toText . take len . randomRs ('a', 'z') <$> liftIO newStdGe
 
 jwtPayloadToMap :: JwtPayload -> Jwt.ClaimsMap
 jwtPayloadToMap JwtPayload{..} = Jwt.ClaimsMap $ Map.fromList
-    [("id", String $ UUID.toText $ unId unJwtPayload)]
+    [("id", String $ unId unJwtPayload)]
 
 jwtPayloadFromMap :: Jwt.ClaimsMap -> Maybe JwtPayload
 jwtPayloadFromMap (Jwt.ClaimsMap claimsMap) = do
     idVal <- Map.lookup "id" claimsMap
     unJwtPayload <- case idVal of
-        String jwtId -> Id <$> UUID.fromText jwtId
+        String jwtId -> pure $ Id jwtId
         _            -> Nothing
     pure JwtPayload{..}
