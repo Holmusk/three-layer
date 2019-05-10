@@ -25,6 +25,10 @@ encodeUser x = E.object
 encodeId : Id -> Value
 encodeId x = E.string x.unId
 
-
+encodeLoginRequest : LoginRequest -> Value
+encodeLoginRequest x = E.object
+    [ ("email", E.string x.email)
+    , ("password", E.string x.password)
+    ]
 
 

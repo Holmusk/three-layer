@@ -20,6 +20,9 @@ type alias Id =
     { unId : String
     }
 
-
+type alias LoginRequest =
+    { email : String
+    , password : String
+    }
 
 

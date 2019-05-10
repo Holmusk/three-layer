@@ -24,6 +24,9 @@ decodeUser = D.succeed User
 decodeId : Decoder Id
 decodeId = D.map Id D.string
 
-
+decodeLoginRequest : Decoder LoginRequest
+decodeLoginRequest = D.succeed LoginRequest
+    |> required "email" D.string
+    |> required "password" D.string
 
 
