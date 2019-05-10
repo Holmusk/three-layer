@@ -11,20 +11,18 @@ module Lib.Server.Auth
        , logoutHandler
        ) where
 
-import Control.Monad.Except (throwError)
 
-import Lib.App.Error (WithError, notAllowed, notFound, throwOnNothingM)
+import Lib.App.Error (WithError, notAllowed, throwOnNothingM, throwError)
 import Lib.Core.Email (Email (..))
 import Lib.Core.Id (castId)
 import Lib.Core.Jwt (JwtPayload (..), JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Core.Session (mkNewSession)
 import Lib.Core.User (User (..))
-import Lib.Db (WithDbPool)
+import Lib.Db (WithDb, getUserByEmail)
 import Lib.Effects.Jwt (MonadJwt (..))
 import Lib.Effects.Measure (MonadMeasure, timedAction)
 import Lib.Effects.Session (MonadSession (..))
-import Lib.Effects.User (MonadUser (..))
 import Lib.Server.Types (AppServer, ToApi)
 import Lib.Time (dayInSeconds)
 
@@ -69,31 +67,26 @@ authServer = AuthSite
     }
 
 loginHandler
-    :: ( MonadUser m
-       , MonadJwt m
+    :: ( MonadJwt m
        , MonadSession m
        , MonadMeasure m
-       , WithDbPool env m
+       , WithDb env m
        , WithError m
        , WithLog env m
        )
     => LoginRequest
     -> m LoginResponse
-loginHandler LoginRequest{..} = timedAction $
-    getUserByEmail loginRequestEmail >>= \case
-        Nothing -> do
-            log D $ "Given email address " <> unEmail loginRequestEmail <> " not found"
-            throwError notFound
-        Just User{..} -> do
-            let isPasswordCorrect = verifyPassword loginRequestPassword userHash
-            unless isPasswordCorrect $ do
-                log D $ "Incorrect password for user " <> unEmail loginRequestEmail
-                throwError (notAllowed "Invalid Password")
-            session <- mkNewSession
-            let anyId = castId @() userId
-            putSession anyId session
-            token <- mkJwtToken dayInSeconds (JwtPayload anyId)
-            pure $ LoginResponse token
+loginHandler LoginRequest{..} = timedAction $ do
+    User{..} <- getUserByEmail loginRequestEmail
+    let isPasswordCorrect = verifyPassword loginRequestPassword userHash
+    unless isPasswordCorrect $ do
+        log D $ "Incorrect password for user " <> unEmail loginRequestEmail
+        throwError (notAllowed "Invalid Password")
+    session <- mkNewSession
+    let anyId = castId @() userId
+    putSession anyId session
+    token <- mkJwtToken dayInSeconds (JwtPayload anyId)
+    pure $ LoginResponse token
 
 isLoggedInHandler
     :: ( MonadSession m

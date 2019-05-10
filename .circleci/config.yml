@@ -3,6 +3,10 @@ jobs:
   build-and-test-backend:
     docker:
       - image: holmusk/haskell-ci
+      - image: circleci/postgres:10-alpine-ram
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: three-layer
     steps:
       - checkout
       - restore-cache:

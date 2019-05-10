@@ -7,7 +7,7 @@ module Lib.Core.Password
        , verifyPassword
        ) where
 
-import Lib.App.Error (WithError, AppError, serverError, throwOnNothingM)
+import Lib.App.Error (WithError, AppErrorType, serverError, throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
 
@@ -45,7 +45,7 @@ mkPasswordHashWithPolicy hashPolicy password = throwOnNothingM errorMessage hash
     hashText :: m (Maybe PasswordHash)
     hashText = PasswordHash . decodeUtf8 <<$>> hashBS
 
-    errorMessage :: AppError
+    errorMessage :: AppErrorType
     errorMessage = serverError "Error generating password hash"
 
 -- | Generates the password hash with slow hashing policy.

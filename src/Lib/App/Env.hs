@@ -25,7 +25,7 @@ type DbPool = Pool Connection
 type Timings = IORef (HashMap Text Distribution)
 
 data Env (m :: Type -> Type) = Env
-    { envDbPool        ::  DbPool
+    { envDbPool        :: !DbPool
     , envSessions      :: !Sessions
     , envJwtSecret     :: !JwtSecret
     , envTimings       :: !Timings

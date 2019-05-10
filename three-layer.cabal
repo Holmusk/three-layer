@@ -82,13 +82,15 @@ library
                          Lib.Core.User
 
                          Lib.Db
+                           Lib.Db.Functions
+                           Lib.Db.Schema
+                           Lib.Db.User
 
                          -- effects
                          Lib.Effects.Jwt
                          Lib.Effects.Log
                          Lib.Effects.Measure
                          Lib.Effects.Session
-                         Lib.Effects.User
 
                          -- Server
                          Lib.Server
@@ -109,12 +111,14 @@ library
   build-depends:       aeson >= 1.4
                      , bcrypt ^>= 0.0.11
                      , bytestring ^>= 0.10
+                     , case-insensitive ^>= 1.2
                      , co-log ^>= 0.3.0
                      , containers >= 0.6
                      , ekg ^>= 0.4.0.15
                      , ekg-core ^>= 0.1.1.6
                      , elm-street
                      , http-api-data ^>= 0.4
+                     , http-types ^>= 0.12
                      , jwt ^>= 0.9.0
                      , lens ^>= 4.17
                      , mtl ^>= 2.2.2
@@ -153,17 +157,20 @@ test-suite three-layer-test
   import:              common-options
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
+
   main-is:             Spec.hs
   other-modules:       Test.Auth
+                       Test.Assert
                        Test.Common
                        Test.Core.Jwt
                        Test.Core.Password
-                       Paths_three_layer
+
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       three-layer
                      , bcrypt
                      , hedgehog
                      , ekg-core
+                     , hspec
                      , mtl
                      , tasty
                      , tasty-hspec
