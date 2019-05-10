@@ -1,21 +1,13 @@
+-- | Common helpers for writing tests.
+
 module Test.Common
-       ( Test
-       , joinSpecs
-       , prop
+       ( joinSpecs
        ) where
 
-import Hedgehog (PropertyT, property)
-import Test.Tasty (TestName, TestTree, testGroup)
-import Test.Tasty.Hedgehog (testProperty)
-import Test.Tasty.Hspec (Spec, testSpecs)
+import Test.Hspec (Spec, describe)
 
--- | Convenient type alias to not have extra import
-type Test = IO TestTree
-
--- | Helper function to create property tests.
-prop :: TestName -> PropertyT IO () -> Test
-prop name = pure . testProperty name . property
+import Lib.App (AppEnv)
 
 -- | Joins list of specs into single test group with given name.
-joinSpecs :: TestName -> [Spec] -> Test
-joinSpecs name specs = testGroup name <$> foldMapA testSpecs specs
+joinSpecs :: String -> [AppEnv -> Spec] -> AppEnv -> Spec
+joinSpecs name specs env = describe name $ traverse_ ($ env) specs

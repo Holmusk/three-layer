@@ -2,7 +2,7 @@
 -- \i sql/schema.sql
 
 CREATE TABLE IF NOT EXISTS users
-( id         SERIAL                   NOT NULL
+( id         TEXT                     NOT NULL
 , email      TEXT                     NOT NULL
 , name       TEXT                     NOT NULL
 , pwd_hash   TEXT                     NOT NULL

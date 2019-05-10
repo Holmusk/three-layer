@@ -172,7 +172,8 @@ test-suite three-layer-test
                      , ekg-core
                      , hspec
                      , mtl
-                     , tasty
-                     , tasty-hspec
-                     , tasty-hedgehog
+                     , hedgehog ^>= 0.6.1
+                     , hspec
+                     , hspec-core
+                     , resource-pool
                      , unordered-containers

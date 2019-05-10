@@ -2,63 +2,65 @@ module Test.Auth
        ( authSpecs
        ) where
 
-import Test.Tasty.Hspec
+import Test.Hspec (Spec, describe, it)
 
-import Lib (mkAppEnv)
-import Lib.App (App, AppError (..), AppErrorType, notAllowed, notFound, runAppAsIO)
+import Lib.App (AppEnv, WithError, notAllowed)
+import Lib.App.Env ()
 import Lib.Core.Email (Email (..))
 import Lib.Core.Jwt (JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..))
-import Lib.Db (prepareDb)
+import Lib.Db (WithDb, singleRowError)
+import Lib.Effects.Jwt (MonadJwt)
+import Lib.Effects.Measure (MonadMeasure)
+import Lib.Effects.Session (MonadSession)
 import Lib.Server.Auth
 
-import Test.Assert ()
-import Test.Common (Test, joinSpecs)
+import Test.Assert (failsWith, succeeds)
+import Test.Common (joinSpecs)
 
 
-authSpecs :: Test
+authSpecs :: AppEnv -> Spec
 authSpecs = joinSpecs "Auth"
     [ loginSpec
     , isLoggedInSpec
     , logoutSpec
     ]
 
-launchApp :: App a -> IO (Either AppErrorType a)
-launchApp app = mkAppEnv >>= \env -> runAppAsIO env (prepareDb >> app) >>= \case
-    Left AppError{..} -> pure $ Left appErrorType
-    Right res -> pure $ Right res
+loginSpec :: AppEnv -> Spec
+loginSpec env = describe "login Handler" $ do
+    it "should return a 404 on an unknown email" $
+        env & tryLog "unknownemail@test.com" "" `failsWith` singleRowError
+    it "should return a notAllowed for a wrong password" $
+        env & tryLog testEmail "" `failsWith` notAllowed "Invalid Password"
+    it "should return a token for the correct password" $
+        env & succeeds (tryLog testEmail "123")
 
-loginSpec :: Spec
-loginSpec = describe "login Handler" $ do
-  it "should return a 404 on an unknown email" $
-    launchApp (loginHandler (LoginRequest (Email "unknownemail@test.com") $ PasswordPlainText ""))
-      `shouldReturn` Left notFound
-  it "should return a notAllowed for a wrong password" $
-    launchApp (loginHandler (LoginRequest testEmail $ PasswordPlainText ""))
-      `shouldReturn` Left (notAllowed "Invalid Password")
-  it "should return a token for the correct password" $ do
-    resp <- launchApp (loginHandler (LoginRequest testEmail $ PasswordPlainText "123"))
-    resp `shouldSatisfy` isRight
+isLoggedInSpec :: AppEnv -> Spec
+isLoggedInSpec env = describe "isLoggedIn handler" $ do
+    it "should return an error for an invalid JWT token" $
+      env & isLoggedInHandler (JwtToken "") `failsWith` notAllowed "Invalid Token"
+    it "should confirm that a valid session is valid" $
+        env & succeeds
+            (tryLog testEmail "123" >>= \LoginResponse{..} -> isLoggedInHandler loginResponseToken)
 
-isLoggedInSpec :: Spec
-isLoggedInSpec = describe "isLoggedIn handler" $ do
-  it "should return an error for an invalid JWT token" $
-    launchApp (isLoggedInHandler (JwtToken ""))
-      `shouldReturn` Left (notAllowed "Invalid Token")
-  it "should confirm that a valid session is valid" $ do
-    resp <- launchApp $ do
-      LoginResponse{..} <- loginHandler (LoginRequest testEmail $ PasswordPlainText "123")
-      isLoggedInHandler loginResponseToken
-    resp `shouldSatisfy` isRight
+logoutSpec :: AppEnv -> Spec
+logoutSpec env = describe "logout handler" $
+    it "should be able to log out a logged in user" $
+        env & ( tryLog testEmail "123"
+              >>= \LoginResponse{..} -> logoutHandler loginResponseToken
+              >> isLoggedInHandler loginResponseToken
+              ) `failsWith` notAllowed "Expired Session"
 
-logoutSpec :: Spec
-logoutSpec = describe "logout handler" $
-  it "should be able to log out a logged in user" $ do
-    resp <- launchApp $ do
-      LoginResponse{..} <- loginHandler (LoginRequest testEmail $ PasswordPlainText "123")
-      _ <- logoutHandler loginResponseToken
-      isLoggedInHandler loginResponseToken
-    resp `shouldBe` Left (notAllowed "Expired Session")
+testEmail :: Text
+testEmail = "test@test.com"
 
-testEmail :: Email
-testEmail = Email "test@test.com"
+tryLog
+    :: ( MonadJwt m
+       , MonadSession m
+       , MonadMeasure m
+       , WithDb env m
+       , WithError m
+       , WithLog env m
+       )
+    => Text -> Text -> m LoginResponse
+tryLog email pwd = loginHandler (LoginRequest (Email email) $ PasswordPlainText pwd)
