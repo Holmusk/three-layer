@@ -1,7 +1,5 @@
-{-# LANGUAGE DeriveAnyClass     #-}
-
 module Lib.Core.Password
-       ( PasswordHash (unPwdHash)
+       ( PasswordHash (unPasswordHash)
        , PasswordPlainText (..)
        , unsafePwdHash
        , mkPasswordHashWithPolicy
@@ -9,44 +7,51 @@ module Lib.Core.Password
        , verifyPassword
        ) where
 
-import Control.Monad.Except (MonadError)
-import Data.Aeson (FromJSON, ToJSON)
-import Database.PostgreSQL.Simple.FromField (FromField)
-import Database.PostgreSQL.Simple.ToField (ToField)
-import Elm (ElmType (..))
-
-import Lib.App.Error (AppError (..), serverError, throwOnNothingM)
+import Lib.App.Error (WithError, AppError, serverError, throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
 
-newtype PasswordHash = PwdHash { unPwdHash :: Text }
-    deriving stock (Show, Generic)
-    deriving newtype (Eq, FromField, ToField)
-    deriving anyclass (FromJSON, ToJSON, ElmType)
+-- | Paasword hash.
+newtype PasswordHash = PasswordHash
+    { unPasswordHash :: Text
+    } deriving stock (Show, Generic)
+      deriving newtype (Eq, FromField, ToField, FromJSON, ToJSON, Elm)
 
+-- | Unsafe function for constructing 'PasswordHash'. Used mostly for testing.
 unsafePwdHash :: Text -> PasswordHash
-unsafePwdHash = PwdHash
+unsafePwdHash = PasswordHash
 
-newtype PasswordPlainText = PwdPlainText { unPwdPlainText :: Text }
-    deriving stock (Show, Generic)
-    deriving newtype (Eq)
-    deriving anyclass (FromJSON, ToJSON, ElmType)
+-- | Password in plain text.
+newtype PasswordPlainText = PasswordPlainText
+    { unPasswordPlainText :: Text
+    } deriving stock (Show, Generic)
+      deriving newtype (Eq, FromJSON, ToJSON, Elm)
+
 
 -- | Generates a password hash given the hashing policy and its plane text.
--- This has to be done in IO asy generating the salt requires RNG
-mkPasswordHashWithPolicy :: (MonadError AppError m, MonadIO m)
-                         => BC.HashingPolicy
-                         -> PasswordPlainText
-                         -> m PasswordHash
-mkPasswordHashWithPolicy hashPolicy password = throwOnNothingM errorMessage $ liftIO hash
+-- This has to be done in IO asy generating the salt requires RNG.
+mkPasswordHashWithPolicy
+    :: forall m . (WithError m, MonadIO m)
+    => BC.HashingPolicy
+    -> PasswordPlainText
+    -> m PasswordHash
+mkPasswordHashWithPolicy hashPolicy password = throwOnNothingM errorMessage hashText
   where
-    hashBS = BC.hashPasswordUsingPolicy hashPolicy (encodeUtf8 $ unPwdPlainText password)
-    hash = PwdHash . decodeUtf8 <<$>> hashBS
+    hashBS :: m (Maybe ByteString)
+    hashBS = liftIO $ BC.hashPasswordUsingPolicy
+        hashPolicy
+        (encodeUtf8 $ unPasswordPlainText password)
+
+    hashText :: m (Maybe PasswordHash)
+    hashText = PasswordHash . decodeUtf8 <<$>> hashBS
+
+    errorMessage :: AppError
     errorMessage = serverError "Error generating password hash"
 
 -- | Generates the password hash with slow hashing policy.
-mkPasswordHash :: (MonadError AppError m, MonadIO m) => PasswordPlainText -> m PasswordHash
+mkPasswordHash :: (WithError m, MonadIO m) => PasswordPlainText -> m PasswordHash
 mkPasswordHash = mkPasswordHashWithPolicy BC.slowerBcryptHashingPolicy
 
 verifyPassword :: PasswordPlainText -> PasswordHash -> Bool
-verifyPassword (PwdPlainText password) (PwdHash hash) = BC.validatePassword (encodeUtf8 hash) (encodeUtf8 password)
+verifyPassword (PasswordPlainText password) (PasswordHash hash) =
+    BC.validatePassword (encodeUtf8 hash) (encodeUtf8 password)

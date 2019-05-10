@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingVia #-}
+
 module Lib.Server.Auth
        ( -- * API
          LoginRequest (..)
@@ -12,10 +14,6 @@ module Lib.Server.Auth
        ) where
 
 import Control.Monad.Except (throwError)
-import Data.Aeson (FromJSON, ToJSON)
-import Elm (ElmType)
-import Servant.API ((:>), Capture, Get, JSON, NoContent (..), Post, ReqBody)
-import Servant.API.Generic ((:-))
 
 import Lib.App.Error (WithError, notAllowed, notFound, throwOnNothingM)
 import Lib.Core.Email (Email (..))
@@ -23,11 +21,12 @@ import Lib.Core.Id (castId)
 import Lib.Core.Jwt (JwtPayload (..), JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..), verifyPassword)
 import Lib.Core.Session (mkNewSession)
+import Lib.Core.User (User (..))
 import Lib.Db (WithDbPool)
 import Lib.Effects.Jwt (MonadJwt (..))
 import Lib.Effects.Measure (MonadMeasure, timedAction)
 import Lib.Effects.Session (MonadSession (..))
-import Lib.Effects.User (MonadUser (..), User (..))
+import Lib.Effects.User (MonadUser (..))
 import Lib.Server.Types (AppServer, ToApi)
 import Lib.Time (dayInSeconds)
 
@@ -36,18 +35,12 @@ data LoginRequest = LoginRequest
     { loginRequestEmail    :: Email
     , loginRequestPassword :: PasswordPlainText
     } deriving (Generic, Show, Eq)
-
-instance ElmType LoginRequest
-instance FromJSON LoginRequest
-instance ToJSON LoginRequest
+      deriving (FromJSON, ToJSON, Elm) via ElmStreet LoginRequest
 
 newtype LoginResponse = LoginResponse
     { loginResponseToken :: JwtToken
     } deriving (Generic, Show, Eq)
-
-instance ElmType LoginResponse
-instance FromJSON LoginResponse
-instance ToJSON LoginResponse
+      deriving newtype (FromJSON, ToJSON, Elm)
 
 data AuthSite route = AuthSite
     { -- | Login into the application, retuns a JWT if successful
