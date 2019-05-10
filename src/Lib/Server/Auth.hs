@@ -1,5 +1,3 @@
-{-# LANGUAGE DerivingVia #-}
-
 module Lib.Server.Auth
        ( -- * API
          LoginRequest (..)

@@ -45,6 +45,7 @@ common common-options
                        DataKinds
                        DeriveGeneric
                        DerivingStrategies
+                       DerivingVia
                        FlexibleContexts
                        FlexibleInstances
                        GeneralizedNewtypeDeriving

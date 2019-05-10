@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DerivingVia    #-}
 
 module Lib.Core.Admin
        ( Admin (..)
