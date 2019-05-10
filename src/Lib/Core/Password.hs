@@ -11,7 +11,7 @@ import Lib.App.Error (WithError, AppError, serverError, throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
 
--- | Paasword hash.
+-- | Password hash.
 newtype PasswordHash = PasswordHash
     { unPasswordHash :: Text
     } deriving stock (Show, Generic)
