@@ -1,48 +1,50 @@
 module Lib.App.Monad
        ( -- * Application monad
          App (..)
-       , runAppAsHandler
+       , AppEnv
        , runAppAsIO
        ) where
 
-import Control.Exception (bracket)
-import Control.Monad.Except (MonadError, throwError)
-import Katip (ColorStrategy (ColorIfTerminal), Katip, KatipContext, KatipContextT,
-              Severity (DebugS), Verbosity (V2), closeScribes, defaultScribeSettings, initLogEnv,
-              mkHandleScribe, registerScribe, runKatipContextT)
-import Servant.Server (Handler)
+import Control.Exception (catch, throwIO, try)
+import Control.Monad.Except (MonadError (..))
+import Relude.Extra.Bifunctor (firstF)
 
-import Lib.App.Env (AppEnv)
-import Lib.App.Error (AppError, toHttpError)
+import Lib.App.Env (Env)
+import Lib.App.Error (AppError, AppException (..))
 
--- TODO: inject logger configuration directly
+
+-- | 'Env' data type parameterized by 'App' monad
+type AppEnv = Env App
+
+-- | Main application monad.
 newtype App a = App
-  { unApp :: KatipContextT (ReaderT AppEnv (ExceptT AppError IO)) a
-  } deriving (Monad, Functor, Applicative, MonadReader AppEnv, MonadError AppError,
-              MonadIO, Katip, KatipContext)
+    { unApp :: ReaderT AppEnv IO a
+    } deriving (Functor, Applicative, Monad, MonadIO, MonadReader AppEnv)
 
--- don't ask why; the only way to move logging into separate function and forget
--- about it
-withLogger :: ((KatipContextT m a -> m a) -> IO b) -> IO b
-withLogger unKatip = do
-    -- TODO: make severity configurable
-    handleScribe <- mkHandleScribe ColorIfTerminal stdout DebugS V2
-    let mkLogEnv = registerScribe "stdout" handleScribe defaultScribeSettings =<< initLogEnv "MyApp" "production"
+instance MonadError AppError App where
+    throwError :: AppError -> App a
+    throwError = liftIO . throwIO . AppException
+    {-# INLINE throwError #-}
 
-    bracket mkLogEnv closeScribes $ \logEnv -> do
-        -- TODO: provide something meaningfull instead of initial context
-        let initialContext = ()  -- this context will be attached to every log
-                                 -- in your app and merged w/ subsequent contexts
-        let initialNamespace = "app"
+    catchError :: App a -> (AppError -> App a) -> App a
+    catchError action handler = App $ ReaderT $ \env -> do
+        let ioAction = runApp env action
+        ioAction `catch` \(AppException e) -> runApp env $ handler e
+    {-# INLINE catchError #-}
 
-        unKatip (runKatipContextT logEnv initialContext initialNamespace)
+{- | Helper for running route handlers in IO. Catches exception of type
+'AppException' and unwraps 'AppError' from it.
 
-runAppAsHandler :: AppEnv -> App a -> Handler a
-runAppAsHandler env app = do
-    res <- liftIO $ runAppAsIO env app
-    either (\e -> print e >> throwError (toHttpError e)) pure res
-
--- | Helper for running route handlers in IO.
+Do not use this function to run the application. Use runners with logging from
+"Lib.Effects.Log" module to also log the error.
+-}
 runAppAsIO :: AppEnv -> App a -> IO (Either AppError a)
-runAppAsIO env app = withLogger $ \unKatip ->
-    runExceptT $ usingReaderT env $ unKatip $ unApp app
+runAppAsIO env = firstF unAppException . try . runApp env
+
+{- | Helper for running 'App'.
+
+Do not use this function to run the application. Use runners with logging from
+"Lib.Effects.Log" module to also log the error.
+-}
+runApp :: AppEnv -> App a -> IO a
+runApp env = usingReaderT env . unApp

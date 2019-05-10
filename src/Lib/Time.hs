@@ -1,7 +1,10 @@
 module Lib.Time
-       ( Seconds (..)
-       , datetimeToUtc
+       ( -- * Protobuf related functions
+         datetimeToUtc
        , utcTimeToDatetime
+
+         -- * 'Seconds' related functions
+       , Seconds (..)
        , dayInSeconds
        , threadDelay
        ) where
@@ -9,33 +12,33 @@ module Lib.Time
 import Data.Time.Calendar (fromGregorian, toGregorian)
 import Data.Time.Clock (UTCTime (..), diffTimeToPicoseconds, secondsToDiffTime)
 
-import Proto.Common (Date (..), Datetime (..), Timestamp (..))
-import Proto.Common_Fields (date, day, month, seconds, timestamp, year)
+import Proto.Common (Date, Datetime, Timestamp)
+import Proto.Common_Fields (date, day, month, nanos, seconds, timestamp, year)
 
 import qualified Control.Concurrent as C (threadDelay)
 
+
+----------------------------------------------------------------------------
+-- Deal with protobuf
+----------------------------------------------------------------------------
+
 utcTimeToDatetime :: UTCTime -> Datetime
-utcTimeToDatetime UTCTime{..} =
-  let
+utcTimeToDatetime UTCTime{..} = defMessage @Datetime
+    & date .~ datePart
+    & timestamp .~ timePart
+  where
     (dyear, dmon, dday) = toGregorian utctDay
-    datePart = Date
-      { _Date'year = fromIntegral dyear
-      , _Date'month = fromIntegral dmon
-      , _Date'day = fromIntegral dday
-      , _Date'_unknownFields = mempty
-      }
+
+    datePart = defMessage @Date
+        & year  .~ fromIntegral dyear
+        & month .~ fromIntegral dmon
+        & day   .~ fromIntegral dday
+
     secondsInDay = diffTimeToPicoseconds utctDayTime `div` (10 ^ (12 :: Int))
-    timePart = Timestamp
-      { _Timestamp'seconds = fromIntegral secondsInDay
-      , _Timestamp'nanos = 0
-      , _Timestamp'_unknownFields = mempty
-      }
-  in
-    Datetime
-      { _Datetime'date = datePart
-      , _Datetime'timestamp = timePart
-      , _Datetime'_unknownFields = mempty
-      }
+
+    timePart = defMessage @Timestamp
+        & seconds .~ fromIntegral secondsInDay
+        & nanos   .~ 0
 
 datetimeToUtc :: Datetime -> UTCTime
 datetimeToUtc datetime =
@@ -47,6 +50,11 @@ datetimeToUtc datetime =
         { utctDay = fromGregorian dtYear dtMonth dtDay
         , utctDayTime = diffTime
         }
+
+----------------------------------------------------------------------------
+-- Deal with seconds
+----------------------------------------------------------------------------
+
 
 -- | Represents the amount of seconds.
 newtype Seconds = Seconds { unSeconds :: Int } deriving (Show, Eq)

@@ -8,7 +8,8 @@ module Lib.Server
 import Servant.API.Generic (toServant)
 import Servant.Server (Server, hoistServer)
 
-import Lib.App (AppEnv, runAppAsHandler)
+import Lib.App (AppEnv)
+import Lib.Effects.Log (runAppAsHandler)
 import Lib.Server.Auth (AuthAPI, authServer)
 
 type API = AuthAPI

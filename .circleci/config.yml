@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build-and-test-backend:
+    docker:
+      - image: holmusk/haskell-ci
+    steps:
+      - checkout
+      - restore-cache:
+          key: stack-{{ .Environment.CACHE_VERSION }}-{{ checksum "stack.yaml" }}
+      - run: curl https://raw.githubusercontent.com/kowainik/relude/55968311244690f5cc8b4484a37a63d988ea2ec4/.hlint.yaml -o .hlint-relude.yaml
+      - run: curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml .
+      - run: stack install -j1 && stack test --fast
+      - save_cache:
+          key: stack-{{ .Environment.CACHE_VERSION }}-{{ checksum "stack.yaml" }}
+          paths:
+            - "~/.stack"
+            - ".stack-work"
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build-and-test-backend

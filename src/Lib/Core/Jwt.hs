@@ -13,7 +13,6 @@ module Lib.Core.Jwt
        ) where
 
 import Data.Aeson (FromJSON, ToJSON, Value (..))
-import Data.Map (Map)
 import Database.PostgreSQL.Simple.FromField (FromField)
 import Database.PostgreSQL.Simple.ToField (ToField)
 import Elm (ElmType)
@@ -24,21 +23,26 @@ import Lib.Core.Id (AnyId, Id (..))
 
 import qualified Data.Map as Map
 import qualified Data.UUID.Types as UUID
+import qualified Web.JWT as Jwt
 
 ----------------------------------------------------------------------------
 -- Types
 ----------------------------------------------------------------------------
 
-newtype JwtSecret = JwtSecret { unJwtSecret :: Text }
+newtype JwtSecret = JwtSecret
+    { unJwtSecret :: Text
+    }
 
 
-newtype JwtToken = JwtToken { unJwtToken :: Text }
-    deriving stock (Show, Generic)
-    deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData)
-    deriving anyclass (FromJSON, ToJSON, ElmType)
+newtype JwtToken = JwtToken
+    { unJwtToken :: Text
+    } deriving stock (Show, Generic)
+      deriving newtype (Eq, Ord, Hashable, FromField, ToField, FromHttpApiData)
+      deriving anyclass (FromJSON, ToJSON, ElmType)
 
+-- | Stores user id.
 newtype JwtPayload = JwtPayload
-    { jwtUserId :: AnyId
+    { unJwtPayload :: AnyId
     } deriving (Eq, Show)
 
 
@@ -47,11 +51,14 @@ mkRandomString :: (MonadIO m) => Int -> m Text
 mkRandomString len = toText . take len . randomRs ('a', 'z') <$> liftIO newStdGen
 
 
-jwtPayloadToMap :: JwtPayload -> Map Text Value
-jwtPayloadToMap JwtPayload{..} = Map.fromList [("id", String $ UUID.toText $ unId jwtUserId)]
+jwtPayloadToMap :: JwtPayload -> Jwt.ClaimsMap
+jwtPayloadToMap JwtPayload{..} = Jwt.ClaimsMap $ Map.fromList
+    [("id", String $ UUID.toText $ unId unJwtPayload)]
 
-jwtPayloadFromMap :: Map Text Value -> Maybe JwtPayload
-jwtPayloadFromMap claimsMap = do
-    String jwtId <- Map.lookup "id" claimsMap
-    jwtUserId <- Id <$> UUID.fromText jwtId
+jwtPayloadFromMap :: Jwt.ClaimsMap -> Maybe JwtPayload
+jwtPayloadFromMap (Jwt.ClaimsMap claimsMap) = do
+    idVal <- Map.lookup "id" claimsMap
+    unJwtPayload <- case idVal of
+        String jwtId -> Id <$> UUID.fromText jwtId
+        _            -> Nothing
     pure JwtPayload{..}

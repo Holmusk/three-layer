@@ -2,18 +2,20 @@ module Test.Auth
        ( authSpecs
        ) where
 
-import Control.Monad.Except (MonadError)
-import Katip (Katip, KatipContext)
-import Katip.Monadic (NoLoggingT (..))
+import Control.Exception (catch, throwIO, try)
+import Control.Monad.Except (MonadError (..))
+import Relude.Extra.Bifunctor (firstF)
 import Test.Tasty.Hspec
 
 import Lib.App
+import Lib.App.Env ()
 import Lib.App.Error (notAllowed, notFound)
 import Lib.Core.Email (Email (..))
 import Lib.Core.Id (Id (..))
 import Lib.Core.Jwt (JwtSecret (..), JwtToken (..))
 import Lib.Core.Password (PasswordPlainText (..), unsafePwdHash)
 import Lib.Effects.Jwt
+import Lib.Effects.Log (mainLogAction)
 import Lib.Effects.Measure (MonadTimed (..), timedActionImpl)
 import Lib.Effects.Session
 import Lib.Effects.User
@@ -26,29 +28,40 @@ import qualified Data.UUID.Types as UUID
 import qualified System.Metrics as Metrics
 
 newtype MockApp a = MockApp
-  { unMockApp :: ReaderT AppEnv (NoLoggingT (ExceptT AppError IO)) a
-  } deriving (Functor, Applicative, Monad, MonadError AppError, MonadReader AppEnv,
-              MonadIO, Katip, KatipContext)
+    { unMockApp :: ReaderT (Env MockApp) IO a
+    } deriving (Functor, Applicative, Monad, MonadReader (Env MockApp), MonadIO)
+
+instance MonadError AppError MockApp where
+    throwError :: AppError -> MockApp a
+    throwError = liftIO . throwIO . AppException
+    {-# INLINE throwError #-}
+
+    catchError :: MockApp a -> (AppError -> MockApp a) -> MockApp a
+    catchError action handler = MockApp $ ReaderT $ \env -> do
+        let ioAction = usingReaderT env $ unMockApp action
+        ioAction `catch` \(AppException e) -> usingReaderT env $ unMockApp $ handler e
+    {-# INLINE catchError #-}
 
 runMockApp :: MockApp a -> IO (Either AppError a)
 runMockApp action = do
-  sessions <- newMVar HashMap.empty
-  let jwtSecret = JwtSecret "kjnlkjn"
-  timings  <- newIORef HashMap.empty
-  ekgStore <- Metrics.newStore
-  let dbPool = error "Not implemented"
-  let sessionExpiry = 600
-  runExceptT $ runNoLoggingT $ usingReaderT AppEnv{..} $ unMockApp action
+    envSessions <- newMVar HashMap.empty
+    let envJwtSecret = JwtSecret "kjnlkjn"
+    envTimings  <- newIORef HashMap.empty
+    envEkgStore <- Metrics.newStore
+    let envDbPool = error "Not implemented"
+    let envSessionExpiry = 600
+    let envLogAction = mainLogAction D
+    firstF unAppException $ try $ usingReaderT Env{..} $ unMockApp action
 
 instance MonadUser MockApp where
-  getUserByEmail e@(Email "test@test.com") = pure . Just $ User {
-      userId = Id UUID.nil,
-      userName = "test user",
-      userEmail = e,
-      -- hash of 'password'
-      userHash = unsafePwdHash "$2y$10$GHIz6OuOdv3cUmU5QAPUpO7f2cmVW0b/AB4LGeRlDc4WskmzGWv5e"
-  }
-  getUserByEmail _ = return Nothing
+    getUserByEmail e@(Email "test@test.com") = pure . Just $ User
+        { userId = Id UUID.nil
+        , userName = "test user"
+        , userEmail = e
+          -- hash of 'password'
+        , userHash = unsafePwdHash "$2y$10$GHIz6OuOdv3cUmU5QAPUpO7f2cmVW0b/AB4LGeRlDc4WskmzGWv5e"
+        }
+    getUserByEmail _ = return Nothing
 
 instance MonadJwt MockApp where
     mkJwtToken = mkJwtTokenImpl

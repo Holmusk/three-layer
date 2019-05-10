@@ -1,1 +1,4 @@
-resolver: lts-11.16
+resolver: lts-13.20
+
+extra-deps:
+  - relude-0.5.0

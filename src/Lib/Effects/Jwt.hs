@@ -27,20 +27,20 @@ mkJwtTokenImpl
     :: (MonadIO m, MonadReader r m, Has JwtSecret r)
     => Seconds -> JwtPayload -> m JwtToken
 mkJwtTokenImpl (Seconds expiry) payload = do
-    secret <- JWT.secret . unJwtSecret <$> grab
+    secret <- JWT.hmacSecret . unJwtSecret <$> grab
     timeNow <- liftIO getPOSIXTime
     let expiryTime = timeNow + fromIntegral expiry
-    let claimsSet = JWT.def
+    let claimsSet = mempty
             { JWT.exp = JWT.numericDate expiryTime
             , JWT.unregisteredClaims = jwtPayloadToMap payload
             }
-    pure $ JwtToken $ JWT.encodeSigned JWT.HS256 secret claimsSet
+    pure $ JwtToken $ JWT.encodeSigned secret claimsSet
 
 decodeAndVerifyJwtTokenImpl
     :: (MonadIO m, MonadReader r m, Has JwtSecret r)
     => JwtToken -> m (Maybe JwtPayload)
 decodeAndVerifyJwtTokenImpl (JwtToken token) = do
-    secret <- JWT.secret  . unJwtSecret <$> grab
+    secret <- JWT.hmacSecret . unJwtSecret <$> grab
     timeNow <- JWT.numericDate <$> liftIO getPOSIXTime
     pure $ do
         claimsSet <- JWT.claims <$> JWT.decodeAndVerifySignature secret token

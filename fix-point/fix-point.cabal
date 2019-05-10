@@ -1,66 +1,83 @@
-cabal-version:  2.0
-name:           fix-point
-version:        0.0.0
-description:    Please see the README on GitHub
-homepage:       https://github.com/holmusk/three-layer
-bug-reports:    https://github.com/holmusk/three-layer/issues
-author:         Tejas Chandrasekar
-maintainer:     tech@holmusk.com
-copyright:      2018 Holmusk
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
-extra-source-files:
-    README.md
+cabal-version:       2.4
+name:                fix-point
+version:             0.0.0.0
+synopsis:            Create three-layer project
+description:         Please see the README on GitHub
+homepage:            https://github.com/holmusk/three-layer
+bug-reports:         https://github.com/holmusk/three-layer/issues
+author:              Tejas Chandrasekar
+maintainer:          Holmusk <tech@holmusk.com>
+copyright:           2018-2019 Holmusk
+license:             BSD-3-Clause
+license-file:        LICENSE
+build-type:          Simple
+extra-source-files:  README.md
+tested-with:         GHC == 8.6.5
 
 source-repository head
-  type: git
-  location: https://github.com/Holmusk/three-layer
+  type:                git
+  location:            https://github.com/Holmusk/three-layer
+
+common common-options
+  build-depends:       base-noprelude ^>= 4.12.0.0
+                     , relude ^>= 0.5.0
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -Wpartial-fields
+
+  default-language:    Haskell2010
+  default-extensions:  BangPatterns
+                       ConstraintKinds
+                       DataKinds
+                       DeriveGeneric
+                       DerivingStrategies
+                       FlexibleContexts
+                       FlexibleInstances
+                       GeneralizedNewtypeDeriving
+                       InstanceSigs
+                       KindSignatures
+                       LambdaCase
+                       MultiParamTypeClasses
+                       OverloadedStrings
+                       OverloadedLabels
+                       RecordWildCards
+                       ScopedTypeVariables
+                       TypeApplications
+                       TypeFamilies
+                       TypeOperators
 
 library
-  exposed-modules:
-      Prelude
-      CopyFiles
-      Rename
-  other-modules:
-      Paths_fix_point
-  hs-source-dirs:
-      src
-  build-depends:
-      base-noprelude >=4.11 && <5
-    , directory
-    , filepath
-    , relude ^>= 0.3.0
-    , text
-  ghc-options:
-     -Wall
-  default-language: Haskell2010
-  default-extensions: OverloadedStrings
+  import:              common-options
+  hs-source-dirs:      src
+  exposed-modules:     Prelude
+                       CopyFiles
+                       Rename
+  other-modules:       Paths_fix_point
+  build-depends:       directory
+                     , filepath
+                     , text
 
 executable fix-point
-  main-is: Main.hs
-  other-modules:
-      Paths_fix_point
-  hs-source-dirs:
-      app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base-noprelude
-    , directory
-    , fix-point
-    , optparse-applicative
-    , relude
-  default-language: Haskell2010
+  import:              common-options
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  other-modules:       Paths_fix_point
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       directory
+                     , fix-point
+                     , optparse-applicative
 
 test-suite fix-point-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_fix_point
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base-noprelude
-    , fix-point
-  default-language: Haskell2010
+  import:              common-options
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  other-modules:       Paths_fix_point
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       fix-point
