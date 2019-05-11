@@ -10,6 +10,7 @@ import System.Remote.Monitoring (forkServerWith)
 
 import Lib.App (AppEnv, Env (..))
 import Lib.Core.Jwt (JwtSecret (..), mkRandomString)
+import Lib.Db (initialisePool)
 import Lib.Effects.Log (mainLogAction)
 import Lib.Server (API, server)
 
@@ -18,12 +19,15 @@ import qualified System.Metrics as Metrics
 
 mkAppEnv :: IO AppEnv
 mkAppEnv = do
-    let envDbPool = error "Not implemented yet"
+    -- IO configuration
+    envDbPool   <- initialisePool
     envSessions <- newMVar HashMap.empty
-    randTxt <- mkRandomString 10
-    let envJwtSecret = JwtSecret randTxt
-    envTimings <- newIORef HashMap.empty
+    envTimings  <- newIORef HashMap.empty
     envEkgStore <- Metrics.newStore
+    randTxt     <- mkRandomString 10
+    let envJwtSecret = JwtSecret randTxt
+
+    -- pure configuration
     let envSessionExpiry = 600
     let envLogAction = mainLogAction D
     pure Env{..}

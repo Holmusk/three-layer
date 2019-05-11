@@ -15,5 +15,4 @@ extra-deps:
   - servant-0.16.0.1
   - servant-server-0.16
   - servant-proto-lens-0.1.0.3
-  - tasty-hedgehog-0.2.0.0
   - typerep-map-0.3.2
