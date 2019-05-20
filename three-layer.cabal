@@ -135,6 +135,7 @@ library
                      , time >= 1.8 && < 1.10
                      , unordered-containers
                      , warp ^>= 3.2
+                     , clock
 
 executable generate-elm
   import:              common-options
