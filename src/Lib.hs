@@ -9,6 +9,7 @@ import Servant.Server (serve)
 import System.Remote.Monitoring (forkServerWith)
 
 import Lib.App (AppEnv, Env (..))
+import Lib.Config (Config (..), loadConfig)
 import Lib.Core.Jwt (JwtSecret (..), mkRandomString)
 import Lib.Db (initialisePool)
 import Lib.Effects.Log (mainLogAction)
@@ -17,10 +18,10 @@ import Lib.Server (API, server)
 import qualified Data.HashMap.Strict as HashMap
 import qualified System.Metrics as Metrics
 
-mkAppEnv :: IO AppEnv
-mkAppEnv = do
+mkAppEnv :: Config -> IO AppEnv
+mkAppEnv Config{..} = do
     -- IO configuration
-    envDbPool   <- initialisePool
+    envDbPool   <- initialisePool cDbCredentials
     envSessions <- newMVar HashMap.empty
     envTimings  <- newIORef HashMap.empty
     envEkgStore <- Metrics.newStore
@@ -29,7 +30,7 @@ mkAppEnv = do
 
     -- pure configuration
     let envSessionExpiry = 600
-    let envLogAction = mainLogAction D
+    let envLogAction = mainLogAction cLogSeverity
     pure Env{..}
 
 runServer :: AppEnv -> IO ()
@@ -42,4 +43,4 @@ runServer env@Env{..} = do
     application = serve (Proxy @API) (server env)
 
 main :: IO ()
-main = mkAppEnv >>= runServer
+main = loadConfig >>= mkAppEnv >>= runServer

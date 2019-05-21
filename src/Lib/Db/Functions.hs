@@ -28,12 +28,8 @@ import qualified Database.PostgreSQL.Simple as Sql
 type WithDb env m = (MonadReader env m, Has DbPool env, MonadIO m)
 
 -- | Create 'Pool.Pool' by given credentials.
-initialisePool :: IO DbPool
-initialisePool = Pool.createPool (Sql.connectPostgreSQL credentials) Sql.close 10 5 10
-  where
-    -- TODO: put into TOML config
-    credentials :: ByteString
-    credentials = "host=localhost port=5432 user=root dbname=three-layer"
+initialisePool :: ByteString -> IO DbPool
+initialisePool credentials = Pool.createPool (Sql.connectPostgreSQL credentials) Sql.close 10 5 10
 
 -- | Performs a query without arguments and returns the resulting rows.
 queryRaw

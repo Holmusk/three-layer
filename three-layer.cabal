@@ -72,6 +72,8 @@ library
                            Lib.App.Error
                            Lib.App.Monad
 
+                         Lib.Config
+
                          -- core modules
                          Lib.Core.Admin
                          Lib.Core.Email
@@ -133,6 +135,7 @@ library
                      , servant-server ^>= 0.16
                      , text
                      , time >= 1.8 && < 1.10
+                     , tomland ^>= 1.0.0
                      , unordered-containers
                      , warp ^>= 3.2
 

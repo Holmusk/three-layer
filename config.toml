@@ -1,0 +1,2 @@
+dbCredentials = "host=localhost port=5432 user=root dbname=three-layer"
+log.severity  = "Debug"
