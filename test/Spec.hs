@@ -8,6 +8,7 @@ import Test.Hspec.Core.Spec (sequential)
 
 import Lib (mkAppEnv)
 import Lib.App (AppEnv, Env (..))
+import Lib.Config (loadConfig)
 import Lib.Db (prepareDb)
 import Lib.Effects.Log (runAppLogIO_)
 
@@ -35,7 +36,7 @@ hedgehogTests = Group "Roundtrip properties"
 
 main :: IO ()
 main = bracket
-    mkAppEnv
+    (loadConfig >>= mkAppEnv)
     (\Env{..} -> Pool.destroyAllResources envDbPool)
     runTests
   where
