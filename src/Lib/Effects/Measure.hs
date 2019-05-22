@@ -7,11 +7,11 @@ module Lib.Effects.Measure
        ) where
 
 import Relude.Extra.CallStack (ownName)
-import System.CPUTime (getCPUTime)
 
 import Lib.App (App, Has (..), Timings, grab)
 
 import qualified Data.HashMap.Strict as HashMap
+import qualified GHC.Clock as Clock
 import qualified System.Metrics as Metrics
 import qualified System.Metrics.Distribution as Distribution
 
@@ -36,10 +36,10 @@ timedActionImpl
        )
     => m a -> m a
 timedActionImpl action = do
-    start <- liftIO getCPUTime
+    start <- liftIO Clock.getMonotonicTimeNSec
     !result <- action
-    end <- liftIO getCPUTime
-    let !timeTaken = fromIntegral (end - start) * 1e-12
+    end <- liftIO Clock.getMonotonicTimeNSec
+    let !timeTaken = fromIntegral (end - start) * 1e-9
     dist <- getOrCreateDistribution $ toText ownName
     liftIO $ Distribution.add dist timeTaken
     return result
