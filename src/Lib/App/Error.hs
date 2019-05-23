@@ -75,7 +75,7 @@ newtype AppException = AppException
     } deriving (Show)
       deriving anyclass (Exception)
 
--- | 'HaiaErrorType' with the corresponding 'CallStack'.
+-- | 'AppErrorType' with the corresponding 'CallStack'.
 data AppError = AppError
     { appErrorCallStack :: !SourcePosition
     , appErrorType      :: !AppErrorType
@@ -86,7 +86,7 @@ newtype AppErrorType = InternalError IError
     deriving (Show, Eq)
 
 {- | The internal errors that can be thrown. These errors are meant to be
-handled within Haia and cover exceptional circumstances/coding errors.
+handled within the application and cover exceptional circumstances/coding errors.
 -}
 data IError
     {- | General not found. -}
@@ -199,12 +199,12 @@ limitError = InternalError LimitError
 -- Helpers
 ----------------------------------------------------------------------------
 
--- | Extract the value from a maybe, throwing the given 'HaiaError' if
+-- | Extract the value from a maybe, throwing the given 'AppError' if
 -- the value does not exist
 throwOnNothing :: WithError m => AppErrorType -> Maybe a -> m a
 throwOnNothing err = withFrozenCallStack . maybe (throwError err) pure
 
--- | Extract the value from a 'Maybe' in @m@, throwing the given 'HaiaError' if
+-- | Extract the value from a 'Maybe' in @m@, throwing the given 'AppError' if
 -- the value does not exist
 throwOnNothingM :: WithError m => AppErrorType -> m (Maybe a) -> m a
 throwOnNothingM err action = withFrozenCallStack $ action >>= throwOnNothing err
