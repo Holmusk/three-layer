@@ -43,7 +43,7 @@ import qualified Servant.Server as Servant (ServerError)
 
 
 -- | Type alias for errors.
-type WithError m = MonadError AppError m
+type WithError m = (MonadError AppError m, HasCallStack)
 
 -- | Specialized version of 'E.throwError'
 throwError :: WithError m => AppErrorType -> m a
