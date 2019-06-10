@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeOperators #-}
-
 module Lib.Server
        ( API
        , server
