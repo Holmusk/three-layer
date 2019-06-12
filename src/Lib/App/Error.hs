@@ -1,5 +1,3 @@
-{-# LANGUAGE ConstraintKinds #-}
-
 {-# LANGUAGE DeriveAnyClass #-}
 
 module Lib.App.Error
