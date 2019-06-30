@@ -1,5 +1,3 @@
-{-# LANGUAGE KindSignatures #-}
-
 -- | This module introduce aliases to use for @servant-generic@ types and functions writing.
 
 module Lib.Server.Types
