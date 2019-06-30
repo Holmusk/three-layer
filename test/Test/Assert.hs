@@ -49,11 +49,7 @@ satisfies app p env = runAppAsIO env app >>= \case
 -- | Checks whether action fails and returns given error.
 failsWith :: (Show a) => App a -> AppErrorType -> AppEnv -> Expectation
 failsWith app err env = runAppAsIO env app >>= \case
-    Left e@AppError{..} ->
-        if appErrorType == err
-            then appErrorType `shouldBe` err
-            else expectationFailure $
-                "Expected 'Failure' with: " <> show err <> " but got: " <> show e
+    Left AppError{..} -> appErrorType `shouldBe` err
     Right a -> expectationFailure $
         "Expected 'Failure' with: " <> show err <> " but got: " <> show a
 
