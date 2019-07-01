@@ -1,5 +1,5 @@
-[![CircleCI](https://circleci.com/gh/Holmusk/three-layer.svg?style=svg)](https://circleci.com/gh/Holmusk/three-layer)
 ![Logo](https://holmusk.dev/images/projects/three_layer.png)
+[![CircleCI](https://circleci.com/gh/Holmusk/three-layer.svg?style=svg)](https://circleci.com/gh/Holmusk/three-layer)
 
 # three-layer
 
@@ -11,8 +11,8 @@ architecture pattern.
 Haskell ibraries used in here:
 * [`relude`](https://github.com/kowainik/relude): alternative prelude; here
   `base-noprelude` trick is used.
-* [`co-log`](https://github.com/kowainik/relude): composable contravariant
-  comonadic logging library.
+* [`co-log`](https://github.com/kowainik/co-log):
+  [composable contravariant comonadic logging library](https://kowainik.github.io/posts/2018-09-25-co-log).
 * [`postgresql-simple`](http://hackage.haskell.org/package/postgresql-simple):
   mid-level PostgreSQL client library for database interaction.
 * [`servant`](http://hackage.haskell.org/package/servant): family of libraries
@@ -20,7 +20,7 @@ Haskell ibraries used in here:
 * [`elm-street`](https://github.com/Holmusk/elm-street): bridge between Elm and
   Haskell - generating Elm data types, JSON encoders and decoders automatically
   from Haskell types.
-* [`proto-lens`](http://hackage.haskell.org/package/proto-lens): Protobug
+* [`proto-lens`](http://hackage.haskell.org/package/proto-lens): Protobuf
   messages for integration with the mobile application.
 * [`ekg`](http://hackage.haskell.org/package/ekg): application performance monitoring.
 * [`bcrypt`](http://hackage.haskell.org/package/bcrypt): password hashing functions.
