@@ -1,3 +1,4 @@
+### Haskell
 dist
 dist-*
 cabal-dev
@@ -7,22 +8,47 @@ cabal-dev
 *.chs.h
 *.dyn_o
 *.dyn_hi
-.hpc
-.hsenv
-.cabal-sandbox/
-cabal.sandbox.config
 *.prof
 *.aux
 *.hp
 *.eventlog
-.stack-work/
+.virtualenv
+.hsenv
+.hpc
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.config
 cabal.project.local
-cabal.project.local~
-.HTF/
 .ghc.environment.*
+.HTF/
+# Stack
+.stack-work/
+stack.yaml.lock
 
-# emacs tags for go-to-deifinition
+### IDE/support
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+*~
+tags
+
+# IntellijIDEA
+.idea/
+.ideaHaskellLib/
+*.iml
+
+# Atom
+.haskell-ghc-mod.json
+
+# VS
+.vscode/
+
+# Emacs
+*#
+.dir-locals.el
 TAGS
 
-# Mac
+# other
 .DS_Store

@@ -1,16 +1,25 @@
 module Lib.Server
-       ( API
-       , server
+       ( Api
+       , application
        ) where
 
 import Servant.API.Generic (toServant)
-import Servant.Server (Server, hoistServer)
+import Servant.Server (Application, Server, hoistServer, serve)
 
 import Lib.App (AppEnv)
 import Lib.Effects.Log (runAppAsHandler)
-import Lib.Server.Auth (AuthAPI, authServer)
+import Lib.Server.Auth (AuthApi, authServer)
 
-type API = AuthAPI
 
-server :: AppEnv -> Server API
-server env = hoistServer (Proxy @API) (runAppAsHandler env) (toServant authServer)
+type Api = AuthApi
+
+server :: AppEnv -> Server Api
+server env = hoistServer
+    (Proxy @Api)
+    (runAppAsHandler env)
+    (toServant authServer)
+
+application :: AppEnv -> Application
+application env = serve
+    (Proxy @Api)
+    (server env)

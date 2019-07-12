@@ -15,11 +15,11 @@ type Sessions = MVar (HashMap AnyId Session)
 
 newtype Session = Session
     { sLoginTime :: UTCTime
-    } deriving (Eq, Show)
+    } deriving stock (Eq, Show)
 
 newtype SessionExpiry = SessionExpiry
     { unSessionExpiry :: NominalDiffTime
-    } deriving (Num)
+    } deriving newtype (Num)
 
 -- | Checks whether session expired within given interval relative to current time
 sessionExpired :: SessionExpiry -> UTCTime -> Session -> Bool

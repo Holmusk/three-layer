@@ -16,5 +16,5 @@ getUserByEmail :: (WithDb env m, WithError m) => Email -> m User
 getUserByEmail email = asSingleRow $ query [sql|
     SELECT id, email, name, pwd_hash
     FROM users
-    WHERE email = ?
+    WHERE email = LOWER(?)
 |] (Only email)

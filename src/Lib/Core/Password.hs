@@ -1,3 +1,5 @@
+-- | User passwords. Uses @bcrypt@ password hashing.
+
 module Lib.Core.Password
        ( PasswordHash (unPasswordHash)
        , PasswordPlainText (..)
@@ -7,9 +9,10 @@ module Lib.Core.Password
        , verifyPassword
        ) where
 
-import Lib.App.Error (WithError, AppErrorType, serverError, throwOnNothingM)
+import Lib.App.Error (AppErrorType, WithError, serverError, throwOnNothingM)
 
 import qualified Crypto.BCrypt as BC
+
 
 -- | Password hash.
 newtype PasswordHash = PasswordHash

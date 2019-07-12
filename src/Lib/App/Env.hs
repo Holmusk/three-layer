@@ -37,9 +37,11 @@ data Env (m :: Type -> Type) = Env
 instance HasLog (Env m) Message m where
     getLogAction :: Env m -> LogAction m Message
     getLogAction = envLogAction
+    {-# INLINE getLogAction #-}
 
     setLogAction :: LogAction m Message -> Env m -> Env m
     setLogAction newAction env = env { envLogAction = newAction }
+    {-# INLINE setLogAction #-}
 
 {- | General type class representing which @field@ is in @env@.
 Instead of plain usage like this:
@@ -67,3 +69,4 @@ instance Has (LogAction m Message) (Env m) where obtain = envLogAction
 
 grab :: forall field env m . (MonadReader env m, Has field env) => m field
 grab = asks $ obtain @field
+{-# INLINE grab #-}

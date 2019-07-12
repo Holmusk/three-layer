@@ -1,6 +1,9 @@
 -- To execute this file from SQL REPL:
 -- \i sql/schema.sql
 
+-- for hashing passwords
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS users
 ( id         TEXT                     NOT NULL
 , email      TEXT                     NOT NULL

@@ -11,4 +11,4 @@ import Servant.Server.Generic (AsServerT)
 import Lib.App (App)
 
 type AppServer = AsServerT App
-type ToApi (site :: * -> *) = ToServantApi site
+type ToApi (site :: Type -> Type) = ToServantApi site
