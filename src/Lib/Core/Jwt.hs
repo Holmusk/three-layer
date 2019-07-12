@@ -17,9 +17,6 @@ import Lib.Core.Id (AnyId, Id (..))
 import qualified Data.Map as Map
 import qualified Web.JWT as Jwt
 
-----------------------------------------------------------------------------
--- Types
-----------------------------------------------------------------------------
 
 newtype JwtSecret = JwtSecret
     { unJwtSecret :: Text
@@ -34,7 +31,7 @@ newtype JwtToken = JwtToken
 -- | Stores user id.
 newtype JwtPayload = JwtPayload
     { unJwtPayload :: AnyId
-    } deriving (Eq, Show)
+    } deriving stock (Eq, Show)
 
 
 -- | Makes a random string comprised of a - z of a given length

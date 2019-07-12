@@ -15,6 +15,7 @@ import Lib.Time (Seconds (..))
 
 import qualified Web.JWT as JWT
 
+
 class Monad m => MonadJwt m where
     mkJwtToken :: Seconds -> JwtPayload -> m JwtToken
     decodeAndVerifyJwtToken :: JwtToken -> m (Maybe JwtPayload)

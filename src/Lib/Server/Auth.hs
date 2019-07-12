@@ -2,7 +2,7 @@ module Lib.Server.Auth
        ( -- * API
          LoginRequest (..)
        , LoginResponse (..)
-       , AuthAPI
+       , AuthApi
        , authServer
 
          -- * Handlers
@@ -12,7 +12,7 @@ module Lib.Server.Auth
        ) where
 
 
-import Lib.App.Error (WithError, notAllowed, throwOnNothingM, throwError)
+import Lib.App.Error (WithError, notAllowed, throwError, throwOnNothingM)
 import Lib.Core.Email (Email (..))
 import Lib.Core.Id (castId)
 import Lib.Core.Jwt (JwtPayload (..), JwtToken (..))
@@ -57,7 +57,7 @@ data AuthSite route = AuthSite
         :> Get '[JSON] NoContent
     } deriving (Generic)
 
-type AuthAPI = ToApi AuthSite
+type AuthApi = ToApi AuthSite
 
 authServer :: AuthSite AppServer
 authServer = AuthSite

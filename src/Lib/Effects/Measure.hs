@@ -15,6 +15,7 @@ import qualified GHC.Clock as Clock
 import qualified System.Metrics as Metrics
 import qualified System.Metrics.Distribution as Distribution
 
+
 -- | Performs action
 class Monad m => MonadTimed m where
     timedAction :: HasCallStack => m a -> m a
