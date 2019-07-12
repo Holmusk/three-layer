@@ -21,6 +21,7 @@ module Lib.App.Error
        , missingHeader
        , headerDecodeError
        , dbError
+       , dbNamedError
        , limitError
 
          -- * Error throwing helpers
@@ -30,6 +31,7 @@ module Lib.App.Error
        , notFoundOnNothingM
        ) where
 
+import PgNamed (PgNamedError)
 import Control.Monad.Except (MonadError)
 import Data.CaseInsensitive (foldedCase)
 import GHC.Stack (SrcLoc (SrcLoc, srcLocModule, srcLocStartLine))
@@ -106,8 +108,10 @@ data IError
     format that the server can understand
     -}
     | HeaderDecodeError Text
-    -- | Data base specific errors
+    -- | Data base specific errors.
     | DbError Text
+    -- | Data base named parameters errors.
+    | DbNamedError PgNamedError
     -- | Limits on the multi-request are overflowed.
     | LimitError
     deriving (Show, Eq)
@@ -123,6 +127,7 @@ toHttpError (AppError _callStack errorType) = case errorType of
         MissingHeader name     -> err401 { errBody = toLazy $ "Header not found: " <> foldedCase name }
         HeaderDecodeError name -> err401 { errBody = encodeUtf8 $ "Unable to decode header: " <> name }
         DbError e              -> err500 { errBody = encodeUtf8 e }
+        DbNamedError e         -> err500 { errBody = show e }
         LimitError             -> err413 { errBody = "Request is over the limits"}
 --    MobileAppError err -> let errMsg = Proto.ErrorResponse err mempty in
 --        err400 { errBody = fromStrict $ encodeMessage errMsg }
@@ -189,6 +194,9 @@ headerDecodeError = InternalError . HeaderDecodeError
 
 dbError :: Text -> AppErrorType
 dbError = InternalError . DbError
+
+dbNamedError :: PgNamedError -> AppErrorType
+dbNamedError = InternalError . DbNamedError
 
 limitError :: AppErrorType
 limitError = InternalError LimitError
