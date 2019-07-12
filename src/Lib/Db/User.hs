@@ -9,12 +9,12 @@ module Lib.Db.User
 import Lib.App (WithError)
 import Lib.Core.Email (Email)
 import Lib.Core.User (User)
-import Lib.Db.Functions (WithDb, asSingleRow, query)
+import Lib.Db.Functions (WithDb, asSingleRow, queryNamed)
 
 
 getUserByEmail :: (WithDb env m, WithError m) => Email -> m User
-getUserByEmail email = asSingleRow $ query [sql|
+getUserByEmail email = asSingleRow $ queryNamed [sql|
     SELECT id, email, name, pwd_hash
     FROM users
-    WHERE email = LOWER(?)
-|] (Only email)
+    WHERE email = LOWER(?email)
+|] [ "email" =? email ]
