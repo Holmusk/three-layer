@@ -8,7 +8,7 @@ writing web servers with Haskell on backend and Elm on frontend. It follows the
 [Three Layer Cake](http://www.parsonsmatt.org/2018/03/22/three_layer_haskell_cake.html).
 architecture pattern.
 
-Haskell ibraries used in here:
+Haskell libraries used in here:
 * [`relude`](https://github.com/kowainik/relude): alternative prelude; here
   `base-noprelude` trick is used.
 * [`co-log`](https://github.com/kowainik/co-log):
