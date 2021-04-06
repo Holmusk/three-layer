@@ -15,7 +15,7 @@ import Servant.Server (Handler)
 import Lib.App (App, AppEnv, AppError, runAppAsIO, toHttpError)
 
 
--- | Maing log action for the application. Prints message with some metadata to @stdout@.
+-- | Main log action for the application. Prints message with some metadata to @stdout@.
 mainLogAction :: MonadIO m => Severity -> LogAction m Message
 mainLogAction severity =
     filterBySeverity severity msgSeverity richMessageAction
